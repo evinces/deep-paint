@@ -1,0 +1,8 @@
+env/
+.DS_Store
+*.pyc
+
+fast-style-transfer/models/*
+fast-style-transfer/styles/*
+in/*
+out/*
