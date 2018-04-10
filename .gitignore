@@ -1,6 +1,8 @@
 env/
+testdb/
 .DS_Store
 *.pyc
+logfile
 
 fast-style-transfer/models/*
 fast-style-transfer/styles/*
