@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        <form action="/style" method="POST">
+            <label for="source_image_id">Source Image:</label>
+            <select name="source_image_id">
+                {% for source_image in source_images %}
+                <option value="{{ source_image.source_image_id }}">
+                    {{ source_image.source_image_id }}: {{ source_image.title }}
+                </option>
+                {% endfor %}
+            </select>
+            <br>
+            <label for="style_id">Style</label>
+            <select name="style_id">
+                {% for style in styles %}
+                <option value="{{ style.style_id }}">{{ style.title }}</option>
+                {% endfor %}
+            </select>
+            <br>
+            <input type="submit" name="Stylize">
+        </form>
+    </div>
+</div>
+{% endblock %}

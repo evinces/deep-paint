@@ -11,6 +11,11 @@
     <script src='https://code.jquery.com/jquery-3.3.1.min.js'></script>
 </head>
 <body>
+{% for msg in get_flashed_messages() %}
+    <div class='alert'>
+        {{ msg }}
+    </div>
+{% endfor %}
 {% block body %}
     Cotent goes here
 {% endblock %}

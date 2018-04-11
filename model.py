@@ -1,11 +1,19 @@
 """Models and database functions for deep-paint"""
 
+from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from os import mkdir
+from PIL import Image as PILImage
+from scipy.misc import imsave
+from skimage.transform import resize
+from skimage.data import load
+from werkzeug.datastructures import FileStorage
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from os import mkdir
 
-from datetime import datetime
+import sys
+sys.path.insert(0, 'fast-style-transfer')
+import evaluate
 
 db = SQLAlchemy()
 
@@ -67,6 +75,9 @@ class User(TimestampMixin, db.Model):
     pref_tf_model = db.relationship('TFModel', backref='users')
     pref_style = db.relationship('Style', backref='users')
 
+    source_images = db.relationship('SourceImage', secondary='images')
+    styled_images = db.relationship('StyledImage', secondary='images')
+
     def __repr__(self):
         return '<User user_id={id} username="{username}">'.format(
             id=self.user_id, username=self.username)
@@ -84,7 +95,7 @@ class User(TimestampMixin, db.Model):
                    hashed_password=hashed_password, is_superuser=is_superuser)
         db.session.add(user)
         db.session.commit()
-        mkdir('static/image/{id}'.format(id=user.user_id))
+        mkdir(Image._path + '{id}'.format(id=user.user_id))
         return user
 
     @staticmethod
@@ -170,27 +181,35 @@ class Image(TimestampMixin, db.Model):
         return self.get_path('thumb_')
 
     @classmethod
-    def create(cls, file, user_id=None, is_public=True):
+    def create(cls, image_file, user_id=None, is_public=True):
         """Add an image to the database and save the image file"""
-        # assert cls.is_allowed_file(file), 'Disallowed file type'
         if user_id:
             is_public = User.query.get(user_id).pref_is_public
         image = cls(user_id=user_id, is_public=is_public,
-                    file_extension=cls.get_file_extension(file.filename))
+                    file_extension=cls.get_file_extension(image_file.filename))
         db.session.add(image)
         db.session.commit()
-        file.save(image.get_path())
+
+        image_file.save(image.get_path())
+        Image.resize_image(image.get_path())
+
         return image
 
     @staticmethod
     def is_allowed_file(filename):
         """Verify the file is an image"""
         return ('.' in filename and
-                get_file_extension(filename) in ALLOWED_EXTENSIONS)
+                Image.get_file_extension(filename) in ALLOWED_EXTENSIONS)
 
     @staticmethod
     def get_file_extension(filename):
         return filename.rsplit('.', 1)[1].lower()
+
+    @staticmethod
+    def resize_image(image_path, size=(1024, 1024)):
+        image = PILImage.open(image_path)
+        image.thumbnail(size, PILImage.LANCZOS)
+        image.save(image_path)
 
 
 class SourceImage(db.Model):
@@ -221,7 +240,6 @@ class SourceImage(db.Model):
                          nullable=False)
 
     image = db.relationship('Image', lazy='joined')
-    user = db.relationship('User', secondary='images', backref='source_images')
 
     def __repr__(self):
         return '<SourceImage source_image_id={id} path="{path}">'.format(
@@ -234,11 +252,10 @@ class SourceImage(db.Model):
         return self.image.get_thumbnail_path()
 
     @classmethod
-    def create(cls, file, user_id, title='', description=''):
-        source_image = cls()
-        source_image.image_id = Image.create(file=file, user_id=user_id).image_id
-        source_image.title = title
-        source_image.description = description
+    def create(cls, image_file, user_id, title='', description=''):
+        image = Image.create(image_file, user_id)
+        source_image = cls(image_id=image.image_id, title=title,
+                           description=description)
         db.session.add(source_image)
         db.session.commit()
         return source_image
@@ -275,7 +292,6 @@ class StyledImage(db.Model):
     image = db.relationship('Image', lazy='joined')
     source_image = db.relationship('SourceImage', backref='styled_images')
     style = db.relationship('Style', backref='styled_images')
-    user = db.relationship('User', secondary='images', backref='styled_images')
 
     def __repr__(self):
         return '<StyledImage styled_image_id={id} path="{path}">'.format(
@@ -288,11 +304,22 @@ class StyledImage(db.Model):
         return self.image.get_thumbnail_path()
 
     @classmethod
-    def create(cls, file, user_id, source_image_id, style_id):
-        styled_image = cls()
-        styled_image.image_id = Image(file=file, user_id=user_id).image_id
-        styled_image.source_image_id = source_image_id
-        styled_image.style_id = style_id
+    def create(cls, source_image_id, style_id):
+        source_image = SourceImage.query.get(source_image_id)
+        user = source_image.image.user
+        style = Style.query.get(style_id)
+
+        image = Image(user_id=user.user_id, is_public=user.pref_is_public,
+                      file_extension=source_image.image.file_extension)
+        db.session.add(image)
+        db.session.commit()
+
+        evaluate.ffwd_to_img(source_image.get_path(), image.get_path(),
+                             style.get_path())
+
+        styled_image = cls(image_id=image.image_id,
+                           source_image_id=source_image_id,
+                           style_id=style_id)
         db.session.add(styled_image)
         db.session.commit()
         return styled_image
@@ -398,14 +425,14 @@ class Style(db.Model):
         return self._path + '{id}.ckpt'.format(id=self.style_id)
 
     @classmethod
-    def create(cls, file, image_file, tf_model_id, title='', artist='',
+    def create(cls, style_file, image_file, tf_model_id, title='', artist='',
                description=''):
         image = Image.create(image_file)
         style = cls(tf_model_id=tf_model_id, image_id=image.image_id,
                     title=title, artist=artist, description=description)
         db.session.add(style)
         db.session.commit()
-        file.save(style.get_path())
+        style_file.save(style.get_path())
         return style
 
 
@@ -548,64 +575,62 @@ def connect_to_db(app):
 
 
 def seed_data():
-    from werkzeug.datastructures import FileStorage
 
-    # tf_file = FileStorage(stream=open(
-    #     'fast-style-transfer/models/imagenet-vgg-verydeep-19.mat'))
-    # tf = TFModel.create(file=tf_file, title='fast-style-transfer',
-    #                     description='Created by Logan Engstrom')
+    tf_file = FileStorage(stream=open(
+        'fast-style-transfer/models/imagenet-vgg-verydeep-19.mat'))
+    tf = TFModel.create(file=tf_file, title='fast-style-transfer',
+                        description='Created by Logan Engstrom')
 
-    # muse_file = FileStorage(stream=open('fast-style-transfer/styles/muse.ckpt'))
-    # muse_image = FileStorage(stream=open('fast-style-transfer/styles/muse.jpg'))
-    # muse_style = Style.create(file=muse_file,
-    #                           image_file=muse_image,
-    #                           tf_model_id=tf.tf_model_id,
-    #                           title='La Muse',
-    #                           artist='Pablo Picasso')
+    muse_file = FileStorage(stream=open('fast-style-transfer/styles/muse.ckpt'))
+    muse_image = FileStorage(stream=open('fast-style-transfer/styles/muse.jpg'))
+    muse_style = Style.create(style_file=muse_file,
+                              image_file=muse_image,
+                              tf_model_id=tf.tf_model_id,
+                              title='La Muse',
+                              artist='Pablo Picasso')
 
-    # rain_file = FileStorage(stream=open('fast-style-transfer/styles/rain.ckpt'))
-    # rain_image = FileStorage(stream=open('fast-style-transfer/styles/rain.jpg'))
-    # rain_style = Style.create(file=rain_file,
-    #                           image_file=rain_image,
-    #                           tf_model_id=tf.tf_model_id,
-    #                           title='Rain Princess',
-    #                           artist='Leonid Afremov')
+    rain_file = FileStorage(stream=open('fast-style-transfer/styles/rain.ckpt'))
+    rain_image = FileStorage(stream=open('fast-style-transfer/styles/rain.jpg'))
+    rain_style = Style.create(style_file=rain_file,
+                              image_file=rain_image,
+                              tf_model_id=tf.tf_model_id,
+                              title='Rain Princess',
+                              artist='Leonid Afremov')
 
-    # scream_file = FileStorage(stream=open('fast-style-transfer/styles/scream.ckpt'))
-    # scream_image = FileStorage(stream=open('fast-style-transfer/styles/scream.jpg'))
-    # scream_style = Style.create(file=scream_file,
-    #                             image_file=scream_image,
-    #                             tf_model_id=tf.tf_model_id,
-    #                             title='The Scream',
-    #                             artist='Edvard Munch')
+    scream_file = FileStorage(stream=open('fast-style-transfer/styles/scream.ckpt'))
+    scream_image = FileStorage(stream=open('fast-style-transfer/styles/scream.jpg'))
+    scream_style = Style.create(style_file=scream_file,
+                                image_file=scream_image,
+                                tf_model_id=tf.tf_model_id,
+                                title='The Scream',
+                                artist='Edvard Munch')
 
-    # udnie_file = FileStorage(stream=open('fast-style-transfer/styles/udnie.ckpt'))
-    # udnie_image = FileStorage(stream=open('fast-style-transfer/styles/udnie.jpg'))
-    # udnie_style = Style.create(file=udnie_file,
-    #                            image_file=udnie_image,
-    #                            tf_model_id=tf.tf_model_id,
-    #                            title='Udnie',
-    #                            artist='Francis Picabia')
+    udnie_file = FileStorage(stream=open('fast-style-transfer/styles/udnie.ckpt'))
+    udnie_image = FileStorage(stream=open('fast-style-transfer/styles/udnie.jpg'))
+    udnie_style = Style.create(style_file=udnie_file,
+                               image_file=udnie_image,
+                               tf_model_id=tf.tf_model_id,
+                               title='Udnie',
+                               artist='Francis Picabia')
 
-    # wave_file = FileStorage(stream=open('fast-style-transfer/styles/wave.ckpt'))
-    # wave_image = FileStorage(stream=open('fast-style-transfer/styles/wave.jpg'))
-    # wave_style = Style.create(file=wave_file,
-    #                           image_file=wave_image,
-    #                           tf_model_id=tf.tf_model_id,
-    #                           title='Under the Wave off Kanagawa',
-    #                           artist='Katsushika Hokusai')
+    wave_file = FileStorage(stream=open('fast-style-transfer/styles/wave.ckpt'))
+    wave_image = FileStorage(stream=open('fast-style-transfer/styles/wave.jpg'))
+    wave_style = Style.create(style_file=wave_file,
+                              image_file=wave_image,
+                              tf_model_id=tf.tf_model_id,
+                              title='Under the Wave off Kanagawa',
+                              artist='Katsushika Hokusai')
 
-    # wreck_file = FileStorage(stream=open('fast-style-transfer/styles/wreck.ckpt'))
-    # wreck_image = FileStorage(stream=open('fast-style-transfer/styles/wreck.jpg'))
-    # wreck_style = Style.create(file=wreck_file,
-    #                            image_file=wreck_image,
-    #                            tf_model_id=tf.tf_model_id,
-    #                            title='The Shipwreck of the Minotaur',
-    #                            artist='Joseph Mallord William Turner')
+    wreck_file = FileStorage(stream=open('fast-style-transfer/styles/wreck.ckpt'))
+    wreck_image = FileStorage(stream=open('fast-style-transfer/styles/wreck.jpg'))
+    wreck_style = Style.create(style_file=wreck_file,
+                               image_file=wreck_image,
+                               tf_model_id=tf.tf_model_id,
+                               title='The Shipwreck of the Minotaur',
+                               artist='Joseph Mallord William Turner')
 
-    # user = User.create(username='TestUser', email='estrella+dptest@evinc.es',
-    #                    password='faketestpassword')
-    user = User.query.get(1)
+    user = User.create(username='TestUser', email='estrella+dptest@evinc.es',
+                       password='faketestpassword')
 
     user_image = FileStorage(stream=open('in/IMG_20171005_112709.jpg'))
     source_image = SourceImage.create(user_image, user.user_id)
