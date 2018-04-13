@@ -85,8 +85,8 @@ def style_form():
     styles = Style.query.all()
     # print '---------->  ', styles
 
-    return render_template('style_form.html', source_image=source_image,
-                           styles=styles)
+    return render_template('style_form.html', styles=styles,
+                           source_image_id=source_image.source_image_id)
 
 
 @app.route('/style', methods=['POST'])
