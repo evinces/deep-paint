@@ -41,15 +41,21 @@
                   {{ image.created_at.strftime("%b %d, %Y") }}
                 </small>
               </p>
-              <nav class="col btn-group justify-content-end img-btn-ctrls" role="group">
+              <nav class="col btn-group justify-content-end" role="group">
 
                 {% if image.source_image %}
-                  <button id="style-{{ image.image_id }}" type="button" class="btn btn-white border" data-toggle="tooltip" data-placement="bottom" title="Style">
+                  <a id="style-{{ image.image_id }}" role="button"
+                          class="btn border" style="color: buttontext; background-color: buttonface;" 
+                          data-toggle="tooltip" data-placement="bottom"
+                          title="Style" href="/style?image={{ image.image_id }}">
                     <span class="oi oi-brush"></span>
-                  </button>
+                  </a>
                 {% endif %}
 
-                <button id="edit-{{ image.image_id }}" type="button" class="btn btn-white border" data-toggle="tooltip" data-placement="bottom" title="Edit">
+                <button id="edit-{{ image.image_id }}" type="button"
+                        class="btn border"
+                        data-toggle="tooltip" data-placement="bottom"
+                        title="Edit">
                   <span class="oi oi-wrench"></span>
                 </button>
               </nav>
@@ -61,7 +67,7 @@
   </section>
 
   <script type="text/javascript">
-    // TODO: add event listeners to style-* and edit-* button presses
+    // TODO: add event listeners edit-* button press
   </script>
 
 {% endblock %}
