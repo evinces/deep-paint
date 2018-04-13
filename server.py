@@ -75,7 +75,8 @@ def style_form():
 
     styles = Style.query.all()
 
-    return render_template('style_form.html', source_image, styles)
+    return render_template('style_form.html', source_image=source_image,
+                           styles=styles)
 
 
 @app.route('/style', methods=['POST'])
