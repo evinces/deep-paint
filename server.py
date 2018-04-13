@@ -11,17 +11,26 @@ app.config['SECRET_KEY'] = 'tempkey'
 connect_to_db(app)
 
 
+# ========================================================================== #
+# Home
+
 @app.route('/')
 def index():
     # index does not exist yet
     return redirect('/library')
 
 
+# ========================================================================== #
+# Library
+
 @app.route('/library')
 def show_library():
     images = Image.query.filter_by(user_id=1).order_by(Image.created_at).all()
     return render_template('library.html', images=images[::-1])
 
+
+# ========================================================================== #
+# Upload
 
 @app.route('/upload', methods=['GET'])
 def upload_image_redirect():
@@ -51,39 +60,34 @@ def upload_image():
     return redirect('/')
 
 
+# ========================================================================== #
+# Style
+
 @app.route('/style', methods=['GET'])
 def style_form():
-    # print '---------->  enter style get route'
     image_id = request.args.get('image_id')
-    # print '---------->  image_id:', image_id
     if image_id is None:
         print 'image_id is None'
         flash('Select an image to style', 'message')
         return redirect('/library')
 
     image = Image.query.get(int(image_id))
-    # print '---------->  ', image
     if image is None:
-        # print '---------->  image is None'
         flash('Image not found', 'danger')
         return redirect('/library')
 
     source_image = image.source_image
-    # print '---------->  ', source_image
     if source_image is None:
-        # print '---------->  source_image is None'
         flash('Styled images cannot be restyled, choose an unstyled image',
               'warning')
         return redirect('/library')
 
     # TODO: compare image owner to user in session
     if image.user_id != 1:
-        # print '---------->  image.user_id != 1'
         flash('You don\'t have permission to style that image', 'warning')
         return redirect('/library')
 
     styles = Style.query.all()
-    # print '---------->  ', styles
 
     return render_template('style_form.html', styles=styles,
                            source_image_id=source_image.source_image_id)
