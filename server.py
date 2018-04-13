@@ -52,11 +52,30 @@ def upload_image():
 
 @app.route('/style', methods=['GET'])
 def style_form():
-    source_images = User.query.get(1).source_images
+    image_id = request.args.get('image_id')
+    if image_id is None:
+        flash('Select an image to style', 'message')
+        return redirect('/library')
+
+    image = Image.query.get(image_id)
+    if image is None:
+        flash('Image not found', 'danger')
+        return redirect('/library')
+
+    source_image = image.source_image
+    if source_image is None:
+        flash('Styled images cannot be restyled, choose an unstyled image',
+              'warning')
+        return redirect('/library')
+
+    # TODO: compare image owner to user in session
+    if image.user_id != 1:
+        flash('You don\'t have permission to style that image', 'warning')
+        return redirect('/library')
+
     styles = Style.query.all()
-    return render_template('style_form.html',
-                           source_images=source_images,
-                           styles=styles)
+
+    return render_template('style_form.html', source_image, styles)
 
 
 @app.route('/style', methods=['POST'])
