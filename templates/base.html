@@ -1,23 +1,181 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
+
 <head>
-    <title>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+  <link rel="stylesheet" href="static/font/css/open-iconic-bootstrap.css">
+  <link rel="stylesheet" href="static/css/style.css">
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
+
+  <title>
     {%- block title -%}
-        Deep-Paint | Photo Styling
+      Deep-Paint | Photo Styling
     {%- endblock -%}
-    </title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <!-- My sytlesheet goes here -->
-    <script src='https://code.jquery.com/jquery-3.3.1.min.js'></script>
+  </title>
 </head>
-<body>
-{% for msg in get_flashed_messages() %}
-    <div class='alert'>
-        {{ msg }}
+
+<body class="bg-light">
+
+<!-- Navbar ------------------------------------------------------------- -->
+
+  <nav class="navbar navbar-expand-md navbar-dark sticky-top bg-dark
+              border-dark shadow">
+    <div class="container">
+      <span class="navbar-brand mb-0 h1">
+        <span class="oi oi-brush">&nbsp;</span>
+        Deep-Paint
+      </span>
+      <button class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarToggle" aria-controls="navbarToggle"
+            aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon">&nbsp;</span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarToggle">
+        <div class="ml-auto order-2">
+          <button id="upload-btn" class="btn btn-light mr-2" type="button"
+                  data-toggle="modal" data-target="#uploadModal">
+            <span class="oi oi-cloud-upload">&nbsp;</span>
+            Upload
+          </button>
+          {% if true %}
+            <button id="logout-btn" class="btn btn-light disabled"
+                    type="submit">
+              <span class="oi oi-account-logout">&nbsp;</span>
+              Logout
+            </button>
+          {% else %}
+            <button id="login-btn" class="btn btn-light disabled"
+                    type="submit">
+              <span class="oi oi-account-login">&nbsp;</span>
+              Login
+            </button>
+          {% endif %}
+        </div>
+
+        <ul class="navbar-nav mr-auto order-1">
+          <li class="nav-item">
+            <a class="nav-link active" href="/">Library</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Feed</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">About</a>
+          </li>
+        </ul>
+      </div>
     </div>
-{% endfor %}
-{% block body %}
-    Cotent goes here
-{% endblock %}
+  </nav>
+
+<!-- Flash messages ------------------------------------------------------ -->
+
+  <div class="container">
+    {% for category, msg in get_flashed_messages(with_categories=True) %}
+      <div class="row">
+        <div class="col-12 col-sm-9 col-md-6 col-lg-4 alert
+                    alert-{{ category }} alert-dismissible fade show my-2
+                    shadow-sm" role="alert">
+          {{ msg }}
+          <button type="button" class="close" data-dismiss="alert"
+                  aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+<!-- Upload modal -------------------------------------------------------- -->
+
+  <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog"
+       aria-labelledby="uploadModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="uploadModalTitle">
+            Choose an image file to upload
+          </h5>
+          <button type="button" class="close" data-dismiss="modal"
+                  aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form action="/upload" method="post" enctype="multipart/form-data">
+          <div class="modal-body">
+            <input class="form-control mb-2" type="text" name="title"
+                   placeholder="Title" required>
+            <textarea class="form-control mb-2" id="uploadFormDescription"
+                      rows="3" name="description"
+                      placeholder="Description..."></textarea>
+            <div class="custom-file">
+              <input type="file" class="form-control custom-file-input"
+                     id="uploadImageFile" name="image" required>
+              <label class="custom-file-label" for="uploadImageFile">
+                Choose image file
+              </label>
+            </div>
+            <p class="ml-2"><small>
+              File types: .gif .jpg .jpeg .png .tif .tga
+            </small></p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary ml-auto" type="submit">
+              <span class="oi oi-cloud-upload">&nbsp;</span>
+              Upload
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+<!-- Page content -------------------------------------------------------- -->
+
+  <div class="container mt-4">
+    {% block content %}
+      <h1>Hello, world!</h1>
+    {% endblock %}
+  </div>
+
+<!-- Footer -------------------------------------------------------------- -->
+
+<!-- Not sure if I'm going to use this 
+  <footer class="navbar navbar-expand navbar-dark bottom bg-dark border-dark">
+    <div class="container">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="#">About this project</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">View this project on Github</a>
+        </li>
+      </ul>
+      <div class="d-flex">
+        <p class="text-secondary">by Estrella Vinces, 2018</p>
+      </div>
+    </div>
+  </footer>
+-->
+
+<!-- Javascript ---------------------------------------------------------- -->
+
+  <script type="text/javascript">
+    // enable bootstrap tooltips
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip()
+    })
+  </script>
+
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+
 </body>
 </html>
