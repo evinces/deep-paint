@@ -6,5 +6,8 @@ logfile
 
 fast-style-transfer/models/*
 fast-style-transfer/styles/*
+static/image/*
 in/*
 out/*
+*.ckpt
+*.mat
