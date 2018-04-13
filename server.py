@@ -1,6 +1,7 @@
 """Flask app for deeppaint"""
 
 from flask import Flask, render_template, redirect, request, session, flash
+from flask_debugtoolbar import DebugToolbarExtension
 from model import (User, Image, SourceImage, StyledImage, TFModel, Style,
                    Comment, Like, Tag, ImageTag, db, connect_to_db)
 
@@ -100,4 +101,7 @@ def process_style():
 if __name__ == '__main__':
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SQLALCHEMY_ECHO'] = True
-    app.run(debug=True)
+    app.debug = True
+    DebugToolbarExtension(app)
+    app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+    app.run()
