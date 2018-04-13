@@ -4,9 +4,6 @@ from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from os import mkdir
 from PIL import Image as PILImage
-from scipy.misc import imsave
-from skimage.transform import resize
-from skimage.data import load
 from werkzeug.datastructures import FileStorage
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -160,6 +157,9 @@ class Image(TimestampMixin, db.Model):
 
     user = db.relationship('User', backref='images')
 
+    source_image = db.relationship('SourceImage', lazy='joined', uselist=False)
+    styled_image = db.relationship('StyledImage', lazy='joined', uselist=False)
+
     def __repr__(self):
         return '<Image image_id={id} path="{path}">'.format(
             id=self.image_id, path=self.get_path())
@@ -181,7 +181,7 @@ class Image(TimestampMixin, db.Model):
         return self.get_path('thumb_')
 
     @classmethod
-    def create(cls, image_file, user_id=None, is_public=True):
+    def create(cls, image_file, user_id=None, is_public=True, resize=True):
         """Add an image to the database and save the image file"""
         if user_id:
             is_public = User.query.get(user_id).pref_is_public
@@ -191,7 +191,8 @@ class Image(TimestampMixin, db.Model):
         db.session.commit()
 
         image_file.save(image.get_path())
-        Image.resize_image(image.get_path())
+        if resize:
+            Image.resize_image(image.get_path())
 
         return image
 
@@ -239,7 +240,7 @@ class SourceImage(db.Model):
     image_id = db.Column(db.Integer, db.ForeignKey('images.image_id'),
                          nullable=False)
 
-    image = db.relationship('Image', lazy='joined')
+    image = db.relationship('Image', lazy='joined', uselist=False)
 
     def __repr__(self):
         return '<SourceImage source_image_id={id} path="{path}">'.format(
@@ -289,7 +290,8 @@ class StyledImage(db.Model):
     style_id = db.Column(db.Integer, db.ForeignKey('styles.style_id'),
                          nullable=False)
 
-    image = db.relationship('Image', lazy='joined')
+    image = db.relationship('Image', lazy='joined', uselist=False)
+
     source_image = db.relationship('SourceImage', backref='styled_images')
     style = db.relationship('Style', backref='styled_images')
 
@@ -315,7 +317,7 @@ class StyledImage(db.Model):
         db.session.commit()
 
         evaluate.ffwd_to_img(source_image.get_path(), image.get_path(),
-                             style.get_path())
+                             style.get_path(), '/gpu:0')
 
         styled_image = cls(image_id=image.image_id,
                            source_image_id=source_image_id,
@@ -575,7 +577,6 @@ def connect_to_db(app):
 
 
 def seed_data():
-
     tf_file = FileStorage(stream=open(
         'fast-style-transfer/models/imagenet-vgg-verydeep-19.mat'))
     tf = TFModel.create(file=tf_file, title='fast-style-transfer',
@@ -587,7 +588,9 @@ def seed_data():
                               image_file=muse_image,
                               tf_model_id=tf.tf_model_id,
                               title='La Muse',
-                              artist='Pablo Picasso')
+                              artist='Pablo Picasso',
+                              description="This painting is also known as Young Woman Drawing and Two Women. It's a story of two women. One sits, copying what she sees in the mirror set up in front of her; the other sleeps with her head in her arms.\nThere was a series of paintings Picasso did at this time of young women drawing, writing or reading. This is Marie Therese Walther not with the rounded, ample forms the painter normally used to depict her but with an angular style. The sleeping girl resembles her as well, and indeed she would be somewhere (anywhere's better than nowhere) in Picasso's affections for some years to come. Maia, their daughter was born a few months after this was painted, in October 1935."
+                              )
 
     rain_file = FileStorage(stream=open('fast-style-transfer/styles/rain.ckpt'))
     rain_image = FileStorage(stream=open('fast-style-transfer/styles/rain.jpg'))
@@ -595,7 +598,9 @@ def seed_data():
                               image_file=rain_image,
                               tf_model_id=tf.tf_model_id,
                               title='Rain Princess',
-                              artist='Leonid Afremov')
+                              artist='Leonid Afremov',
+                              description="Rain Princess is a painting by Leonid Afremov which was uploaded on February 17th, 2014.\nYou can buy this painting from his official shop via this link: https://www.etsy.com/listing/16654120"
+                              )
 
     scream_file = FileStorage(stream=open('fast-style-transfer/styles/scream.ckpt'))
     scream_image = FileStorage(stream=open('fast-style-transfer/styles/scream.jpg'))
@@ -603,7 +608,9 @@ def seed_data():
                                 image_file=scream_image,
                                 tf_model_id=tf.tf_model_id,
                                 title='The Scream',
-                                artist='Edvard Munch')
+                                artist='Edvard Munch',
+                                description="Munch's The Scream is an icon of modern art, the Mona Lisa for our time. As Leonardo da Vinci evoked a Renaissance ideal of serenity and self-control, Munch defined how we see our own age - wracked with anxiety and uncertainty."
+                                )
 
     udnie_file = FileStorage(stream=open('fast-style-transfer/styles/udnie.ckpt'))
     udnie_image = FileStorage(stream=open('fast-style-transfer/styles/udnie.jpg'))
@@ -611,7 +618,9 @@ def seed_data():
                                image_file=udnie_image,
                                tf_model_id=tf.tf_model_id,
                                title='Udnie',
-                               artist='Francis Picabia')
+                               artist='Francis Picabia',
+                               description="Udnie was inspired by a dance performance given by the Polish-born actress Stacia Napierkowska on the boat taking Francis Picabia to New York for the Armory Show in 1913. The work combines the decomposition of volumes into planes characteristic of Cubism with the enthusiasm for a world in movement of Italian Futurism. The energy and vitality of the dance find expression in springing arabesque, fragmented coloured planes and the jostling of simplified forms. In the radicalism of its treatment, Udnie marks a decisive step towards the emergence of abstraction in Europe."
+                               )
 
     wave_file = FileStorage(stream=open('fast-style-transfer/styles/wave.ckpt'))
     wave_image = FileStorage(stream=open('fast-style-transfer/styles/wave.jpg'))
@@ -619,7 +628,9 @@ def seed_data():
                               image_file=wave_image,
                               tf_model_id=tf.tf_model_id,
                               title='Under the Wave off Kanagawa',
-                              artist='Katsushika Hokusai')
+                              artist='Katsushika Hokusai',
+                              description="Katsushika Hokusai's Under the Wave off Kanagawa, also called The Great Wave has became one of the most famous works of art in the world-and debatably the most iconic work of Japanese art. Initially, thousands of copies of this print were quickly produced and sold cheaply. Despite the fact that it was created at a time when Japanese trade was heavily restricted, Hokusai's print displays the influence of Dutch art, and proved to be inspirational for many artists working in Europe later in the nineteenth century."
+                              )
 
     wreck_file = FileStorage(stream=open('fast-style-transfer/styles/wreck.ckpt'))
     wreck_image = FileStorage(stream=open('fast-style-transfer/styles/wreck.jpg'))
@@ -627,13 +638,18 @@ def seed_data():
                                image_file=wreck_image,
                                tf_model_id=tf.tf_model_id,
                                title='The Shipwreck of the Minotaur',
-                               artist='Joseph Mallord William Turner')
+                               artist='Joseph Mallord William Turner',
+                               description="Shipwreck may be regarded as one of the worst things a human being can encounter. The sea is no respecter of persons- instantly, 100s of men can be wiped out. Turner's fascination with man vs. nature is display in The Shipwreck. He wished to portray the power of the elements and how no one is immune from the dangers of an angry sea; he can struggle and fight but ultimately he will be swallowed up by the sea. The unlikelihood of deliverance from such calamity is great."
+                               )
 
     user = User.create(username='TestUser', email='estrella+dptest@evinc.es',
                        password='faketestpassword')
 
     user_image = FileStorage(stream=open('in/IMG_20171005_112709.jpg'))
-    source_image = SourceImage.create(user_image, user.user_id)
+    source_image = SourceImage.create(image_file=user_image,
+                                      user_id=user.user_id,
+                                      title="Wooden Path in Sunlight",
+                                      description="Taken at Cape Flattery, WA on a sunny day in October, 2017.")
 
 
 if __name__ == "__main__":
@@ -645,4 +661,4 @@ if __name__ == "__main__":
     connect_to_db(app)
 
     db.create_all()
-    seed_data()
+    # seed_data()
