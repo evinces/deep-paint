@@ -1,6 +1,6 @@
 """Flask app for deeppaint"""
 
-from flask import Flask, render_template, redirect, request, session, flash
+from flask import Flask, render_template, redirect, request, session, flash, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from model import (User, Image, SourceImage, StyledImage, TFModel, Style,
                    Comment, Like, Tag, ImageTag, db, connect_to_db)
@@ -110,6 +110,58 @@ def process_style():
     flash('Style applied successfully', 'info')
     return redirect('/')
 
+
+# ========================================================================== #
+# Image details
+
+
+@app.route('/image.json')
+def get_image_json():
+    image_id = request.args.get('image_id')
+    result = {}
+
+    if image_id is None:
+        result['message'] = 'No image_id in request'
+        return result
+
+    image = Image.query.get(image_id)
+    if image is None:
+        result['message'] = 'No image found with that image_id'
+        return result
+
+    if image.is_public is False and image.user_id != 1:
+        result['message'] = 'Permission denied'
+        return result
+
+    if image.source_image:
+        source = image.source_image
+        style = None
+    elif image.styled_image:
+        source = image.styled_image.source_image
+        style = image.styled_image.style
+        style = {
+            'title': style.title,
+            'artist': style.artist
+        }
+
+    source = {
+        'title': source.title,
+        'description': source.description
+    }
+
+    result = {
+        'image_id': image.image_id,
+        'created_at': image.created_at,
+        'path': image.get_path(),
+        'source': source,
+        'style': style
+    }
+
+    return jsonify(result)
+
+
+# ========================================================================== #
+# main
 
 if __name__ == '__main__':
     app.debug = True

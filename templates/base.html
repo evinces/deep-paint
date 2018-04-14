@@ -135,6 +135,59 @@
     </div>
   </div>
 
+<!-- Image modal --------------------------------------------------------- -->
+
+  <div class="modal fade" id="image-modal" tabindex="-1" role="dialog"
+       aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="image-modal-title">&nbsp;</h5>
+          <button type="button" class="close" data-dismiss="modal"
+                  aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <img id="image-modal-image" class="border rounded d-flex mx-auto" src="#">
+          <div class="justify-content-between">
+            <h6 id="image-modal-user">&nbsp;</h6>
+            <span id="image-modal-created-at">&nbsp;</span>
+          </div>
+          <p id="image-modal-description">&nbsp;</p>
+        </div>
+        <div class="modal-footer">
+          <nav class="btn-group">
+            <button id="image-modal-like-btn" type="button"
+                    class="btn border"
+                    data-toggle="tooltip" data-placement="bottom"
+                    title="Like">
+              <span class="oi oi-heart"></span>
+            </button>
+            <button id="image-modal-comment-btn" type="button"
+                    class="btn border"
+                    data-toggle="tooltip" data-placement="bottom"
+                    title="Comment">
+              <span class="oi oi-chat"></span>
+            </button>
+            <button id="image-modal-tag-btn" type="button"
+                    class="btn border"
+                    data-toggle="tooltip" data-placement="bottom"
+                    title="Tag">
+              <span class="oi oi-tags"></span>
+            </button>
+            <button id="image-modal-share-btn" type="button"
+                    class="btn border"
+                    data-toggle="tooltip" data-placement="bottom"
+                    title="Share">
+              <span class="oi oi-share-boxed"></span>
+            </button>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+
 <!-- Page content -------------------------------------------------------- -->
 
   <div class="container mt-4">
@@ -169,11 +222,34 @@
     // enable bootstrap tooltips
     $(function () {
       $('[data-toggle="tooltip"]').tooltip()
-    })
+    });
+
+    // image modal
+    $('.card-img-top').on('click', function () {
+      let image_id = $(this).prop('id');
+      $.get('/image.json', {'image_id': image_id}, function (d) {
+        console.log(d);
+        if (d.path !== undefined) {
+          $('#image-modal-image').attr('src', d.path);
+          if (d.source !== null) {
+            $('#image-modal-title').text(d.source.title);
+            $('#image-modal-description').text(d.source.description);
+          }
+          if (d.style !== null) {
+            $('#image-modal-description').text(
+              $('#image-modal-description').text() + '\nStyled as ' + 
+                d.style.title + ' by ' + d.style.artist
+            );
+          }
+          $('#image-modal').modal('show');
+        } else {
+          console.log('error: ' + d.message);
+        }
+      });
+    });
   </script>
 
-  <!-- Optional JavaScript -->
-  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <!-- Bootstrap JavaScript -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
 

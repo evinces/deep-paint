@@ -7,7 +7,7 @@
       <!-- image: {{ image.image_id }} -->
       <article class="col-12 col-sm-11 col-md-6 col-lg-4 col-xl-3 mx-auto">
         <div class="card mx-2 my-4">
-          <img class="card-img-top" src="{{ image.get_path() }}">
+          <img id="{{ image.image_id }}" class="card-img-top" src="{{ image.get_path() }}">
           <div class="card-body px-3 py-2">
 
             {% if image.source_image %}
