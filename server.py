@@ -1,9 +1,9 @@
 """Flask app for deeppaint"""
 
-from flask import Flask, render_template, redirect, request, session, flash, jsonify
+from flask import (Flask, render_template, redirect, request, session, flash,
+                   jsonify)
 from flask_debugtoolbar import DebugToolbarExtension
-from model import (User, Image, SourceImage, StyledImage, TFModel, Style,
-                   Comment, Like, Tag, ImageTag, db, connect_to_db)
+from model import *
 
 
 app = Flask(__name__)
