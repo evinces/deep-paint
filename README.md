@@ -27,13 +27,8 @@ For those of you using macOS, I highly recommend using `brew` to get started.
 Using brew:
 ```
 brew install python@2
-```
-
-#### Install pip & virtualenv
-
-```
-sudo easy_install pip
-pip install --upgrade virtualenv 
+pip install --upgrade pip setuptools
+pip install virtualenv
 ```
 
 #### Install [Tensorflow](https://www.tensorflow.org/install/)
@@ -47,8 +42,6 @@ pip install tensorflow
 
 ```
 brew install postgres
-mkdir /usr/local/var/postgres
-initdb -D /usr/local/var/postgres
 brew services start postgresql
 ```
 
