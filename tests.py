@@ -3,8 +3,8 @@
 import unittest
 from flask import Flask
 from model import (User, Image, SourceImage, StyledImage, TFModel, Style,
-                   Comment, Like, Tag, ImageTag, db, connect_to_db)
-from seed import seed_data
+                   Comment, Like, Tag, db, connect_to_db)
+from seed import seed_data, FileStorage
 
 # for drop_everything() helper function
 from sqlalchemy.engine import reflection
@@ -18,10 +18,13 @@ app.config['SECRET_KEY'] = 'tempkey'
 POSTGRES_URI = 'postgresql:///deep-paint-testing'
 
 
+# ========================================================================== #
+# ========================================================================== #
+# Flask Tests
+
 class FlaskTests(unittest.TestCase):
 
     def setUp(self):
-
         app.config['TESTING'] = True
         app.config['SECRET_KEY'] = 'key'
         self.client = app.test_client()
@@ -36,75 +39,195 @@ class FlaskTests(unittest.TestCase):
         print 'FlaskTests setUp'
 
 
-class ModelTests(FlaskTests):
+# ========================================================================== #
+# ========================================================================== #
+# Model Tests
+
+class AbstractModelTests(FlaskTests):
 
     def setUp(self):
-
-        super(ModelTests, self).setUp()
+        super(AbstractModelTests, self).setUp()
 
         connect_to_db(app, POSTGRES_URI)
         db.create_all()
-        seed_data()
+        seed_data(testing=True)
 
-        print 'ModelTests setUp'
+        print '  ModelTests setUp'
 
     def tearDown(self):
 
         db.session.close()
         drop_everything()
 
-        print 'ModelTests tearDown'
+        print '  ModelTests tearDown'
 
 
-class ModelUserTests(ModelTests):
+# ========================================================================== #
+# User Tests
+
+class ModelUserTests(AbstractModelTests):
 
     def setUp(self):
-
         super(ModelUserTests, self).setUp()
+        self.user = User.query.get(1)
 
-        username = 'test'
-        email = 'test@email.com'
-        password = 'password'
-
-        self.user = User(username=username, email=email, hashed_password='')
-        db.session.add(self.user)
-        db.session.commit()
-        self.user.set_password(password)
-
-        print 'ModelUserTests setUp'
+        print '  ModelUserTests setUp'
 
     def test_user_creation(self):
+        user = User.create('test2', 'test2@email.com', 'password')
+        self.assertIsInstance(user, User)
+        self.assertEqual(user.user_id, 2)
+        self.assertEqual(user.username, 'test2')
+        self.assertEqual(user.email, 'test2@email.com')
+        self.assertTrue(user.check_password('password'))
+        self.assertFalse(user.is_superuser)
+        self.assertTrue(user.pref_is_public)
+        self.assertIsNone(user.pref_tf_model_id)
+        self.assertIsNone(user.pref_style_id)
 
-        self.assertIsInstance(self.user, User)
-        self.assertEqual(self.user.user_id, 2)
-        self.assertEqual(self.user.username, 'test')
-        self.assertEqual(self.user.email, 'test@email.com')
-        self.assertTrue(self.user.pref_is_public)
-        self.assertIsNone(self.user.pref_tf_model_id)
-        self.assertIsNone(self.user.pref_style_id)
-
-        print 'ModelUserTests test_user_creation passed'
+        print '  ModelUserTests test_user_creation passed'
 
     def test_user_set_password(self):
-
         self.assertTrue(self.user.check_password('password'))
         self.user.set_password('1234')
         self.assertFalse(self.user.check_password('password'))
         self.assertTrue(self.user.check_password('1234'))
 
-        print 'ModelUserTests test_user_set_password passed'
+        print '  ModelUserTests test_user_set_password passed'
 
     def test_superuser_creation(self):
-
         self.assertFalse(self.user.is_superuser)
-        superuser = User(username='testsuper', email='super@email.com',
-                         hashed_password='', is_superuser=True)
+        superuser = User.create(username='super', email='super@email.com',
+                                password='password', is_superuser=True)
         db.session.add(superuser)
         db.session.commit()
         self.assertTrue(superuser.is_superuser)
 
-        print 'ModelUserTests test_superuser_creation passed'
+        print '  ModelUserTests test_superuser_creation passed'
 
+
+# ========================================================================== #
+# Image Tests
+
+class ModelImageTests(AbstractModelTests):
+
+    def setUp(self):
+        super(ModelImageTests, self).setUp()
+        self.image = Image.query.get(1)
+
+        print '  ModelImageTests setUp'
+
+    def test_image_creation(self):
+        pass
+
+
+# ========================================================================== #
+# SourceImage Tests
+
+class ModelSourceImageTests(AbstractModelTests):
+
+    def setUp(self):
+        super(ModelSourceImageTests, self).setUp()
+        self.source_image = SourceImage.query.get(1)
+
+        print '  ModelSourceImageTests setUp'
+
+    def test_source_image_creation(self):
+        pass
+
+
+# ========================================================================== #
+# StyledImage Tests
+
+class ModelStyledImageTests(AbstractModelTests):
+
+    def setUp(self):
+        super(ModelStyledImageTests, self).setUp()
+        self.styled_image = StyledImage.query.get(1)
+
+        print '  ModelStyledImageTests setUp'
+
+    def test_styled_image_creation(self):
+        pass
+
+
+# ========================================================================== #
+# TFModel Tests
+
+class ModelTFModelTests(AbstractModelTests):
+
+    def setUp(self):
+        super(ModelTFModelTests, self).setUp()
+        self.tf_model = TFModel.query.get(1)
+
+        print '  ModelTFModelTests setUp'
+
+    def test_tf_model_creation(self):
+        pass
+
+
+# ========================================================================== #
+# Style Tests
+
+class ModelStyleTests(AbstractModelTests):
+
+    def setUp(self):
+        super(ModelStyleTests, self).setUp()
+        self.style = Style.query.get(1)
+
+        print '  ModelStyleTests setUp'
+
+    def test_style_creation(self):
+        pass
+
+
+# ========================================================================== #
+# Comment Tests
+
+class ModelCommentTests(AbstractModelTests):
+
+    def setUp(self):
+        super(ModelCommentTests, self).setUp()
+        self.comment = Comment.query.get(1)
+
+        print '  ModelCommentTests setUp'
+
+    def test_comment_creation(self):
+        pass
+
+
+# ========================================================================== #
+# Like Tests
+
+class ModelLikeTests(AbstractModelTests):
+
+    def setUp(self):
+        super(ModelLikeTests, self).setUp()
+        self.like = Like.query.filter_by(user_id=1, image_id=1)
+
+        print '  ModelLikeTests setUp'
+
+    def test_like_creation(self):
+        pass
+
+
+# ========================================================================== #
+# Tag Tests
+
+class ModelTagTests(AbstractModelTests):
+
+    def setUp(self):
+        super(ModelTagTests, self).setUp()
+        self.tag = Tag.query.get(1)
+
+        print '  ModelTagTests setUp'
+
+    def test_tag_creation(self):
+        pass
+
+
+# ========================================================================== #
+# Helper Functions
 
 def drop_everything():
     """Break all contrains and drop tables
@@ -114,19 +237,9 @@ def drop_everything():
     """
 
     engine = create_engine(POSTGRES_URI)
-
     conn = engine.connect()
-
-    # the transaction only applies if the DB supports
-    # transactional DDL, i.e. Postgresql, MS SQL Server
     trans = conn.begin()
-
     inspector = reflection.Inspector.from_engine(engine)
-
-    # gather all data first before dropping anything.
-    # some DBs lock after things have been dropped in
-    # a transaction.
-
     metadata = MetaData()
 
     tbs = []
@@ -144,12 +257,14 @@ def drop_everything():
 
     for fkc in all_fks:
         conn.execute(DropConstraint(fkc))
-
     for table in tbs:
         conn.execute(DropTable(table))
 
     trans.commit()
 
+
+# ========================================================================== #
+# Main
 
 if __name__ == '__main__':
     unittest.main()

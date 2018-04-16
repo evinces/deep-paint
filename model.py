@@ -298,7 +298,7 @@ class StyledImage(db.Model):
         return self.image.get_path()
 
     @classmethod
-    def create(cls, source_image, style):
+    def create(cls, source_image, style, testing=False):
         user = source_image.image.user
 
         image = Image(user=user, is_public=user.pref_is_public,
@@ -309,12 +309,13 @@ class StyledImage(db.Model):
         if path.isfile(image.get_path()):
             remove(image.get_path())
 
-        # apply tensorflow style
-        start_time = time()
-        ffwd_to_img(source_image.get_path(), image.get_path(),
-                    style.get_path())
-        end_time = time()
-        print '-----> evaluation timing: ', (end_time - start_time)
+        if not testing:
+            # apply tensorflow style
+            start_time = time()
+            ffwd_to_img(source_image.get_path(), image.get_path(),
+                        style.get_path())
+            end_time = time()
+            print '-----> evaluation timing: ', (end_time - start_time)
 
         styled_image = cls(image=image, source_image=source_image, style=style)
         db.session.add(styled_image)
@@ -490,8 +491,8 @@ class Like(db.Model):
     Required fields:
         user_id   INT PRIMARY KEY REFERENCES users
         image_id  INT PRIMARY KEY REFERENCES images
-        users     List of User objects
-        images    List of Image objects
+        user      User object
+        image     Image object
     """
 
     __tablename__ = 'likes'
@@ -502,7 +503,7 @@ class Like(db.Model):
                          primary_key=True, nullable=False)
 
     user = db.relationship('User', backref='likes')
-    images = db.relationship('Image', backref='likes')
+    image = db.relationship('Image', backref='likes')
 
     def __repr__(self):
         return '<Like user_id={user} image_id={image}>'.format(
@@ -561,6 +562,8 @@ class ImageTag(db.Model):
                        primary_key=True)
     image_id = db.Column(db.Integer, db.ForeignKey('images.image_id'),
                          primary_key=True)
+    tag = db.relationship('Tag')
+    image = db.relationship('Image')
 
 
 # ========================================================================== #

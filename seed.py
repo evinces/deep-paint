@@ -1,10 +1,11 @@
 """Initial seed data"""
 
-from model import (User, Image, SourceImage, TFModel, Style, db, connect_to_db)
+from model import (User, Image, SourceImage, StyledImage, TFModel, Style,
+                   Comment, Like, Tag, ImageTag, db, connect_to_db)
 from werkzeug.datastructures import FileStorage
 
 
-def seed_data():
+def seed_data(testing=False):
     tf_model = TFModel.create(title='fast-style-transfer',
                               description='Created by Logan Engstrom')
 
@@ -12,18 +13,18 @@ def seed_data():
 
     muse_file = FileStorage(stream=open(style_dir + 'muse.ckpt'))
     muse_image = FileStorage(stream=open(style_dir + 'muse.jpg'))
-    Style.create(style_file=muse_file, image_file=muse_image,
-                 tf_model=tf_model, title='La Muse', artist='Pablo Picasso',
-                 description="This painting is also known as Young Woman Drawi\
-ng and Two Women. It's a story of two women. One sits, copying what she sees i\
-n the mirror set up in front of her; the other sleeps with her head in her arm\
-s.\nThere was a series of paintings Picasso did at this time of young women dr\
-awing, writing or reading. This is Marie Therese Walther not with the rounded,\
- ample forms the painter normally used to depict her but with an angular style\
-. The sleeping girl resembles her as well, and indeed she would be somewhere (\
-anywhere's better than nowhere) in Picasso's affections for some years to come\
-. Maia, their daughter was born a few months after this was painted, in Octobe\
-r 1935.")
+    style = Style.create(style_file=muse_file, image_file=muse_image,
+                         tf_model=tf_model, title='La Muse',
+                         artist='Pablo Picasso', description="This painting is\
+ also known as Young Woman Drawing and Two Women. It's a story of two women. O\
+ne sits, copying what she sees in the mirror set up in front of her; the other\
+ sleeps with her head in her arms.\nThere was a series of paintings Picasso di\
+d at this time of young women drawing, writing or reading. This is Marie There\
+se Walther not with the rounded, ample forms the painter normally used to depi\
+ct her but with an angular style. The sleeping girl resembles her as well, and\
+ indeed she would be somewhere (anywhere's better than nowhere) in Picasso's a\
+ffections for some years to come. Maia, their daughter was born a few months a\
+fter this was painted, in October 1935.")
 
     rain_file = FileStorage(stream=open(style_dir + 'rain.ckpt'))
     rain_image = FileStorage(stream=open(style_dir + 'rain.jpg'))
@@ -81,14 +82,25 @@ portray the power of the elements and how no one is immune from the dangers of\
  an angry sea; he can struggle and fight but ultimately he will be swallowed u\
 p by the sea. The unlikelihood of deliverance from such calamity is great.")
 
-    user = User.create(username='testuser', email='testing@email.com',
+    user = User.create(username='test', email='test@email.com',
                        password='password')
 
     user_image = FileStorage(stream=open(
         'fast-style-transfer/source-images/cape-flattery.jpg'))
-    SourceImage.create(image_file=user_image, user=user,
-                       title="Wooden Path in Sunlight", description="Taken at \
-Cape Flattery, WA on a sunny day in October, 2017.")
+    source = SourceImage.create(image_file=user_image, user=user,
+                                title="Wooden Path in Sunlight",
+                                description=("Taken at Cape Flattery, WA on " +
+                                             "a sunny day in October, 2017."))
+
+    image = Image.query.get(1)
+    StyledImage.create(source_image=source, style=style, testing=testing)
+    comment = Comment(user=user, image=image, body="hello world")
+    like = Like(user=user, image=image)
+    tag = Tag(name='melon')
+    image_tag = ImageTag(tag=tag, image=image)
+
+    db.session.add_all([comment, like, tag, image_tag])
+    db.session.commit()
 
 
 if __name__ == "__main__":
