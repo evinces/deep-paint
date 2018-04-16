@@ -1,6 +1,8 @@
 """Initial seed data"""
 
-from model import *
+from model import (User, Image, SourceImage, StyledImage, TFModel, Style,
+                   Comment, Like, Tag, ImageTag, db, connect_to_db)
+from werkzeug.datastructures import FileStorage
 
 
 def seed_data():
@@ -69,14 +71,44 @@ def seed_data():
                                description="Shipwreck may be regarded as one of the worst things a human being can encounter. The sea is no respecter of persons- instantly, 100s of men can be wiped out. Turner's fascination with man vs. nature is display in The Shipwreck. He wished to portray the power of the elements and how no one is immune from the dangers of an angry sea; he can struggle and fight but ultimately he will be swallowed up by the sea. The unlikelihood of deliverance from such calamity is great."
                                )
 
-    user = User.create(username='TestUser', email='estrella+dptest@evinc.es',
-                       password='faketestpassword')
+    user = User.create(username='testuser', email='testing@email.com',
+                       password='password')
 
     user_image = FileStorage(stream=open('in/IMG_20171005_112709.jpg'))
     source_image = SourceImage.create(image_file=user_image,
                                       user_id=user.user_id,
                                       title="Wooden Path in Sunlight",
                                       description="Taken at Cape Flattery, WA on a sunny day in October, 2017.")
+
+
+def seed_data_without_files():
+    tf = TFModel(title='fast-style-transfer',
+                 description='Created by Logan Engstrom')
+    image = Image(file_extension='.jpg')
+    db.session.add_all([tf, image])
+    db.session.commit()
+
+    muse_style = Style(image_id=image.image_id,
+                       tf_model_id=tf.tf_model_id,
+                       title='La Muse',
+                       artist='Pablo Picasso',
+                       description="This painting is also known as Young Woman Drawing and Two Women. It's a story of two women. One sits, copying what she sees in the mirror set up in front of her; the other sleeps with her head in her arms.\nThere was a series of paintings Picasso did at this time of young women drawing, writing or reading. This is Marie Therese Walther not with the rounded, ample forms the painter normally used to depict her but with an angular style. The sleeping girl resembles her as well, and indeed she would be somewhere (anywhere's better than nowhere) in Picasso's affections for some years to come. Maia, their daughter was born a few months after this was painted, in October 1935."
+                       )
+    user = User(username='testuser', email='testing@email.com',
+                hashed_password='')
+    user.set_password('password')
+    db.session.add_all([muse_style, user])
+    db.session.commit()
+
+    image2 = Image(file_extension='.jpg', user_id=user.user_id)
+    db.session.add(image2)
+    db.session.commit()
+
+    source_image = SourceImage(image_id=image2.image_id,
+                               title="Wooden Path in Sunlight",
+                               description="Taken at Cape Flattery, WA on a sunny day in October, 2017.")
+    db.session.add(source_image)
+    db.session.commit()
 
 
 if __name__ == "__main__":

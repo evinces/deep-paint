@@ -70,6 +70,8 @@ createdb deep-paint-testing
 
 #### Seed the starting data
 
+Download the seed files [here](https://drive.google.com/file/d/1PdZL5JXdtsdnYMHjc-S36vb3shFrycUx/view?usp=sharing). Extract the archive to the project directory, then run seed.py to populate the db.
+
 ```
 python seed.py
 ```

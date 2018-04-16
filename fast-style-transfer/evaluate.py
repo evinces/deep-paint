@@ -1,6 +1,6 @@
 from __future__ import print_function
-import sys
-sys.path.insert(0, 'src')
+# import sys
+# sys.path.insert(0, 'src')
 import transform, numpy as np, vgg, pdb, os
 import scipy.misc
 import tensorflow as tf
@@ -143,7 +143,7 @@ def ffwd(data_in, paths_out, checkpoint_dir, device_t='/gpu:0', batch_size=4):
              device_t=device_t, batch_size=1)
 
 
-def ffwd_to_img(in_path, out_path, checkpoint_dir, device='/cpu:0'):
+def ffwd_to_img(in_path, out_path, checkpoint_dir, device='/device:CPU:0'):
 
     print('start ffwd_to_img')
     print(' in_path: ', in_path)
@@ -179,90 +179,90 @@ def ffwd_different_dimensions(in_path, out_path, checkpoint_dir,
              checkpoint_dir, device_t, batch_size)
 
 
-def build_parser():
-    parser = ArgumentParser()
-    parser.add_argument('--checkpoint', type=str,
-                        dest='checkpoint_dir',
-                        help='dir or .ckpt file to load checkpoint from',
-                        metavar='CHECKPOINT', required=True)
+# def build_parser():
+#     parser = ArgumentParser()
+#     parser.add_argument('--checkpoint', type=str,
+#                         dest='checkpoint_dir',
+#                         help='dir or .ckpt file to load checkpoint from',
+#                         metavar='CHECKPOINT', required=True)
 
-    parser.add_argument('--in-path', type=str,
-                        dest='in_path', help='dir or file to transform',
-                        metavar='IN_PATH', required=True)
+#     parser.add_argument('--in-path', type=str,
+#                         dest='in_path', help='dir or file to transform',
+#                         metavar='IN_PATH', required=True)
 
-    help_out = 'destination (dir or file) of transformed file or files'
-    parser.add_argument('--out-path', type=str,
-                        dest='out_path', help=help_out, metavar='OUT_PATH',
-                        required=True)
+#     help_out = 'destination (dir or file) of transformed file or files'
+#     parser.add_argument('--out-path', type=str,
+#                         dest='out_path', help=help_out, metavar='OUT_PATH',
+#                         required=True)
 
-    parser.add_argument('--device', type=str,
-                        dest='device', help='device to perform compute on',
-                        metavar='DEVICE', default=DEVICE)
+#     parser.add_argument('--device', type=str,
+#                         dest='device', help='device to perform compute on',
+#                         metavar='DEVICE', default=DEVICE)
 
-    parser.add_argument('--batch-size', type=int,
-                        dest='batch_size',help='batch size for feedforwarding',
-                        metavar='BATCH_SIZE', default=BATCH_SIZE)
+#     parser.add_argument('--batch-size', type=int,
+#                         dest='batch_size', help='batch size for feedforwarding',
+#                         metavar='BATCH_SIZE', default=BATCH_SIZE)
 
-    parser.add_argument('--allow-different-dimensions', action='store_true',
-                        dest='allow_different_dimensions',
-                        help='allow different image dimensions')
+#     parser.add_argument('--allow-different-dimensions', action='store_true',
+#                         dest='allow_different_dimensions',
+#                         help='allow different image dimensions')
 
-    return parser
-
-
-def check_opts(opts):
-    exists(opts.checkpoint_dir, 'Checkpoint not found!')
-    exists(opts.in_path, 'In path not found!')
-    if os.path.isdir(opts.out_path):
-        exists(opts.out_path, 'out dir not found!')
-        assert opts.batch_size > 0
+#     return parser
 
 
-def main():
-    print('start main')
-
-    parser = build_parser()
-    opts = parser.parse_args()
-    check_opts(opts)
-
-    print(' opts: ', opts)
-
-    # import pdb; pdb.set_trace()
-
-    if not os.path.isdir(opts.in_path):
-        print('  TRUE not os.path.isdir(opts.in_path)')
-
-        if os.path.exists(opts.out_path) and os.path.isdir(opts.out_path):
-            print('   TRUE os.path.exists(opts.out_path) and ' +
-                  'os.path.isdir(opts.out_path)')
-
-            out_path = os.path.join(opts.out_path,
-                                    os.path.basename(opts.in_path))
-        else:
-            print('   FALSE os.path.exists(opts.out_path) and ' +
-                  'os.path.isdir(opts.out_path)')
-
-            out_path = opts.out_path
-
-        ffwd_to_img(opts.in_path, out_path, opts.checkpoint_dir,
-                    device=opts.device)
-    else:
-        print('  TRUE not os.path.isdir(opts.in_path)')
-
-        files = list_files(opts.in_path)
-        full_in = [os.path.join(opts.in_path, x) for x in files]
-        full_out = [os.path.join(opts.out_path, x) for x in files]
-        if opts.allow_different_dimensions:
-            print('   TRUE opts.allow_different_dimensions')
-
-            ffwd_different_dimensions(full_in, full_out, opts.checkpoint_dir,
-                                      device_t=opts.device,
-                                      batch_size=opts.batch_size)
-        else:
-            print('   FLASE opts.allow_different_dimensions')
-            ffwd(full_in, full_out, opts.checkpoint_dir, device_t=opts.device,
-                 batch_size=opts.batch_size)
+# def check_opts(opts):
+#     exists(opts.checkpoint_dir, 'Checkpoint not found!')
+#     exists(opts.in_path, 'In path not found!')
+#     if os.path.isdir(opts.out_path):
+#         exists(opts.out_path, 'out dir not found!')
+#         assert opts.batch_size > 0
 
 
-if __name__ == '__main__':
-    main()
+# def main():
+#     print('start main')
+
+#     parser = build_parser()
+#     opts = parser.parse_args()
+#     check_opts(opts)
+
+#     print(' opts: ', opts)
+
+#     # import pdb; pdb.set_trace()
+
+#     if not os.path.isdir(opts.in_path):
+#         print('  TRUE not os.path.isdir(opts.in_path)')
+
+#         if os.path.exists(opts.out_path) and os.path.isdir(opts.out_path):
+#             print('   TRUE os.path.exists(opts.out_path) and ' +
+#                   'os.path.isdir(opts.out_path)')
+
+#             out_path = os.path.join(opts.out_path,
+#                                     os.path.basename(opts.in_path))
+#         else:
+#             print('   FALSE os.path.exists(opts.out_path) and ' +
+#                   'os.path.isdir(opts.out_path)')
+
+#             out_path = opts.out_path
+
+#         ffwd_to_img(opts.in_path, out_path, opts.checkpoint_dir,
+#                     device=opts.device)
+#     else:
+#         print('  TRUE not os.path.isdir(opts.in_path)')
+
+#         files = list_files(opts.in_path)
+#         full_in = [os.path.join(opts.in_path, x) for x in files]
+#         full_out = [os.path.join(opts.out_path, x) for x in files]
+#         if opts.allow_different_dimensions:
+#             print('   TRUE opts.allow_different_dimensions')
+
+#             ffwd_different_dimensions(full_in, full_out, opts.checkpoint_dir,
+#                                       device_t=opts.device,
+#                                       batch_size=opts.batch_size)
+#         else:
+#             print('   FLASE opts.allow_different_dimensions')
+#             ffwd(full_in, full_out, opts.checkpoint_dir, device_t=opts.device,
+#                  batch_size=opts.batch_size)
+
+
+# if __name__ == '__main__':
+#     main()

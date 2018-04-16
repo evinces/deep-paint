@@ -4,13 +4,11 @@ from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from os import mkdir
 from PIL import Image as PILImage
-from werkzeug.datastructures import FileStorage
 from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename
-
+import time
 import sys
 sys.path.insert(0, 'fast-style-transfer')
-import evaluate
+from evaluate import ffwd_to_img
 
 db = SQLAlchemy()
 
@@ -109,7 +107,7 @@ class User(TimestampMixin, db.Model):
         if len(local) > 64:
             return False
 
-        domain = email[at_index+1:]
+        domain = email[at_index + 1:]
         if len(domain) > 255:
             return False
 
@@ -316,8 +314,11 @@ class StyledImage(db.Model):
         db.session.add(image)
         db.session.commit()
 
-        evaluate.ffwd_to_img(source_image.get_path(), image.get_path(),
-                             style.get_path(), '/gpu:0')
+        start_time = time.time()
+        ffwd_to_img(source_image.get_path(), image.get_path(),
+                    style.get_path())
+        end_time = time.time()
+        print '-----> evaluation timing: ', (end_time - start_time)
 
         styled_image = cls(image_id=image.image_id,
                            source_image_id=source_image_id,
@@ -570,9 +571,9 @@ class ImageTag(db.Model):
 # ========================================================================== #
 # Helper functions
 
-def connect_to_db(app):
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres:///deep-paint'
-    app.config['SQLALCHEMY_ECHO'] = True
+def connect_to_db(app, db_uri='postgres:///deep-paint'):
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+    app.config['SQLALCHEMY_ECHO'] = False
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.app = app
     db.init_app(app)

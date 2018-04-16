@@ -3,7 +3,8 @@
 from flask import (Flask, render_template, redirect, request, session, flash,
                    jsonify)
 from flask_debugtoolbar import DebugToolbarExtension
-from model import *
+from model import (User, Image, SourceImage, StyledImage, TFModel, Style,
+                   Comment, Like, Tag, ImageTag, db, connect_to_db)
 
 
 app = Flask(__name__)
