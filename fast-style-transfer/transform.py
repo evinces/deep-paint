@@ -16,6 +16,7 @@ def net(image):
     conv_t2 = _conv_tranpose_layer(conv_t1, 32, 3, 2)
     conv_t3 = _conv_layer(conv_t2, 3, 9, 1, relu=False)
     preds = tf.nn.tanh(conv_t3) * 150 + 255.0 / 2
+
     return preds
 
 

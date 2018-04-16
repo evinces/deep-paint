@@ -86,10 +86,9 @@ def seed_data_without_files():
                  description='Created by Logan Engstrom')
     image = Image(file_extension='.jpg')
     db.session.add_all([tf, image])
-    db.session.commit()
 
-    muse_style = Style(image_id=image.image_id,
-                       tf_model_id=tf.tf_model_id,
+    muse_style = Style(image=image,
+                       tf_model=tf,
                        title='La Muse',
                        artist='Pablo Picasso',
                        description="This painting is also known as Young Woman Drawing and Two Women. It's a story of two women. One sits, copying what she sees in the mirror set up in front of her; the other sleeps with her head in her arms.\nThere was a series of paintings Picasso did at this time of young women drawing, writing or reading. This is Marie Therese Walther not with the rounded, ample forms the painter normally used to depict her but with an angular style. The sleeping girl resembles her as well, and indeed she would be somewhere (anywhere's better than nowhere) in Picasso's affections for some years to come. Maia, their daughter was born a few months after this was painted, in October 1935."
@@ -98,13 +97,11 @@ def seed_data_without_files():
                 hashed_password='')
     user.set_password('password')
     db.session.add_all([muse_style, user])
-    db.session.commit()
 
-    image2 = Image(file_extension='.jpg', user_id=user.user_id)
+    image2 = Image(file_extension='.jpg', user=user)
     db.session.add(image2)
-    db.session.commit()
 
-    source_image = SourceImage(image_id=image2.image_id,
+    source_image = SourceImage(image=image2,
                                title="Wooden Path in Sunlight",
                                description="Taken at Cape Flattery, WA on a sunny day in October, 2017.")
     db.session.add(source_image)
