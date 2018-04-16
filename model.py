@@ -2,6 +2,7 @@
 
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from os import remove, path
 from PIL import Image as PILImage
 from sqlalchemy import func
 from time import time
@@ -162,35 +163,33 @@ class Image(TimestampMixin, db.Model):
         return '<Image image_id={id} path="{path}">'.format(
             id=self.image_id, path=self.get_path())
 
+    def get_filename(self):
+        return '{id}.{ext}'.format(id=self.image_id, ext=self.file_extension)
+
     def get_path(self, modifier=None):
         """Return the file path for image instance"""
-        filename = '{id}.{ext}'.format(id=self.image_id,
-                                       ext=self.file_extension)
+        filename = self.get_filename()
         if modifier:
             filename = modifier + filename
         return self._path + filename
 
-    def get_thumbnail_path(self):
-        """Return the thumbnail file path for image instance"""
-        return self.get_path('thumb_')
-
     @classmethod
-    def create(cls, image_file, user_id=None, is_public=True, resize=True):
+    def create(cls, image_file, user=None, is_public=True, resize=True):
         """Add an image to the database and save the image file"""
-        if user_id:
-            is_public = User.query.get(user_id).pref_is_public
-        image = cls(user_id=user_id, is_public=is_public,
-                    file_extension=cls.get_file_extension(image_file.filename))
+        image = cls(file_extension=cls.get_file_extension(image_file.filename))
+        if user:
+            image.user = user
+            image.is_public = user.pref_is_public
+
         db.session.add(image)
         db.session.commit()
+
+        if path.isfile(image.get_path()):
+            remove(image.get_path())
 
         image_file.save(image.get_path())
         if resize:
             cls.resize_image(image.get_path())
-
-        thumbnail_file = image_file.copy()
-        thumbnail_file.save(image.get_thumbnail_path())
-        cls.resize_image(image.get_thumbnail_path(), (256, 256))
 
         return image
 
@@ -209,6 +208,7 @@ class Image(TimestampMixin, db.Model):
         image = PILImage.open(image_path)
         image.thumbnail(size, PILImage.LANCZOS)
         image.save(image_path)
+        image.close()
 
 
 class SourceImage(db.Model):
@@ -247,12 +247,9 @@ class SourceImage(db.Model):
     def get_path(self):
         return self.image.get_path()
 
-    def get_thumbnail_path(self):
-        return self.image.get_thumbnail_path()
-
     @classmethod
-    def create(cls, image_file, user_id, title='', description=''):
-        image = Image.create(image_file, user_id)
+    def create(cls, image_file, user, title='', description=''):
+        image = Image.create(image_file, user)
         source_image = cls(image_id=image.image_id, title=title,
                            description=description)
         db.session.add(source_image)
@@ -300,19 +297,17 @@ class StyledImage(db.Model):
     def get_path(self):
         return self.image.get_path()
 
-    def get_thumbnail_path(self):
-        return self.image.get_thumbnail_path()
-
     @classmethod
-    def create(cls, source_image_id, style_id):
-        source_image = SourceImage.query.get(source_image_id)
+    def create(cls, source_image, style):
         user = source_image.image.user
-        style = Style.query.get(style_id)
 
-        image = Image(user_id=user.user_id, is_public=user.pref_is_public,
+        image = Image(user=user, is_public=user.pref_is_public,
                       file_extension=source_image.image.file_extension)
         db.session.add(image)
         db.session.commit()
+
+        if path.isfile(image.get_path()):
+            remove(image.get_path())
 
         # apply tensorflow style
         start_time = time()
@@ -321,11 +316,10 @@ class StyledImage(db.Model):
         end_time = time()
         print '-----> evaluation timing: ', (end_time - start_time)
 
-        styled_image = cls(image_id=image.image_id,
-                           source_image_id=source_image_id,
-                           style_id=style_id)
+        styled_image = cls(image=image, source_image=source_image, style=style)
         db.session.add(styled_image)
         db.session.commit()
+
         return styled_image
 
 
@@ -425,14 +419,18 @@ class Style(db.Model):
         return self._path + '{id}.ckpt'.format(id=self.style_id)
 
     @classmethod
-    def create(cls, style_file, image_file, tf_model_id, title='', artist='',
+    def create(cls, style_file, image_file, tf_model, title='', artist='',
                description=''):
         image = Image.create(image_file)
-        style = cls(tf_model_id=tf_model_id, image_id=image.image_id,
-                    title=title, artist=artist, description=description)
+        style = cls(tf_model=tf_model, image=image, title=title, artist=artist,
+                    description=description)
         db.session.add(style)
         db.session.commit()
+
+        if path.isfile(style.get_path()):
+            remove(style.get_path())
         style_file.save(style.get_path())
+
         return style
 
 
@@ -574,32 +572,6 @@ def connect_to_db(app, db_uri='postgres:///deep-paint'):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.app = app
     db.init_app(app)
-
-
-def set_val_user_id():
-    """Set value for the next user_id after seeding database"""
-
-    # Get the Max user_id in the database
-    result = db.session.query(func.max(User.user_id)).one()
-    max_id = int(result[0])
-
-    # Set the value for the next user_id to be max_id + 1
-    query = "SELECT setval('users_user_id_seq', :new_id)"
-    db.session.execute(query, {'new_id': max_id + 1})
-    db.session.commit()
-
-
-def set_val_user_id():
-    """Set value for the next user_id after seeding database"""
-
-    # Get the Max user_id in the database
-    result = db.session.query(func.max(User.user_id)).one()
-    max_id = int(result[0])
-
-    # Set the value for the next user_id to be max_id + 1
-    query = "SELECT setval('users_user_id_seq', :new_id)"
-    db.session.execute(query, {'new_id': max_id + 1})
-    db.session.commit()
 
 
 if __name__ == "__main__":

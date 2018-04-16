@@ -4,7 +4,7 @@ import unittest
 from flask import Flask
 from model import (User, Image, SourceImage, StyledImage, TFModel, Style,
                    Comment, Like, Tag, ImageTag, db, connect_to_db)
-from seed import seed_data_without_files
+from seed import seed_data
 
 # for drop_everything() helper function
 from sqlalchemy.engine import reflection
@@ -33,6 +33,8 @@ class FlaskTests(unittest.TestCase):
         self.client = app.test_client()
         app.config['TESTING'] = True
 
+        print 'FlaskTests setUp'
+
 
 class ModelTests(FlaskTests):
 
@@ -42,12 +44,16 @@ class ModelTests(FlaskTests):
 
         connect_to_db(app, POSTGRES_URI)
         db.create_all()
-        seed_data_without_files()
+        seed_data()
+
+        print 'ModelTests setUp'
 
     def tearDown(self):
 
         db.session.close()
         drop_everything()
+
+        print 'ModelTests tearDown'
 
 
 class ModelUserTests(ModelTests):
@@ -65,6 +71,8 @@ class ModelUserTests(ModelTests):
         db.session.commit()
         self.user.set_password(password)
 
+        print 'ModelUserTests setUp'
+
     def test_user_creation(self):
 
         self.assertIsInstance(self.user, User)
@@ -75,12 +83,16 @@ class ModelUserTests(ModelTests):
         self.assertIsNone(self.user.pref_tf_model_id)
         self.assertIsNone(self.user.pref_style_id)
 
+        print 'ModelUserTests test_user_creation passed'
+
     def test_user_set_password(self):
 
         self.assertTrue(self.user.check_password('password'))
         self.user.set_password('1234')
         self.assertFalse(self.user.check_password('password'))
         self.assertTrue(self.user.check_password('1234'))
+
+        print 'ModelUserTests test_user_set_password passed'
 
     def test_superuser_creation(self):
 
@@ -90,6 +102,8 @@ class ModelUserTests(ModelTests):
         db.session.add(superuser)
         db.session.commit()
         self.assertTrue(superuser.is_superuser)
+
+        print 'ModelUserTests test_superuser_creation passed'
 
 
 def drop_everything():
