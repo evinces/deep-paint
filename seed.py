@@ -6,9 +6,7 @@ from werkzeug.datastructures import FileStorage
 
 
 def seed_data():
-    tf_file = FileStorage(stream=open(
-        'fast-style-transfer/models/imagenet-vgg-verydeep-19.mat'))
-    tf = TFModel.create(file=tf_file, title='fast-style-transfer',
+    tf = TFModel.create(title='fast-style-transfer',
                         description='Created by Logan Engstrom')
 
     muse_file = FileStorage(stream=open('fast-style-transfer/styles/muse.ckpt'))
@@ -82,10 +80,10 @@ def seed_data():
 
 
 def seed_data_without_files():
-    tf = TFModel(title='fast-style-transfer',
-                 description='Created by Logan Engstrom')
+    tf = TFModel.create(title='fast-style-transfer',
+                        description='Created by Logan Engstrom')
     image = Image(file_extension='.jpg')
-    db.session.add_all([tf, image])
+    db.session.add_all(image)
 
     muse_style = Style(image=image,
                        tf_model=tf,

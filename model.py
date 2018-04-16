@@ -2,10 +2,11 @@
 
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-from os import mkdir
 from PIL import Image as PILImage
+from sqlalchemy import func
+from time import time
 from werkzeug.security import generate_password_hash, check_password_hash
-import time
+
 import sys
 sys.path.insert(0, 'fast-style-transfer')
 from evaluate import ffwd_to_img
@@ -90,7 +91,6 @@ class User(TimestampMixin, db.Model):
                    hashed_password=hashed_password, is_superuser=is_superuser)
         db.session.add(user)
         db.session.commit()
-        mkdir(Image._path + '{id}'.format(id=user.user_id))
         return user
 
     @staticmethod
@@ -164,15 +164,11 @@ class Image(TimestampMixin, db.Model):
 
     def get_path(self, modifier=None):
         """Return the file path for image instance"""
-        if self.user_id:
-            path = self._path + '{user_id}/'.format(user_id=self.user_id)
-        else:
-            path = self._path + 'misc/'
         filename = '{id}.{ext}'.format(id=self.image_id,
                                        ext=self.file_extension)
         if modifier:
             filename = modifier + filename
-        return path + filename
+        return self._path + filename
 
     def get_thumbnail_path(self):
         """Return the thumbnail file path for image instance"""
@@ -190,7 +186,11 @@ class Image(TimestampMixin, db.Model):
 
         image_file.save(image.get_path())
         if resize:
-            Image.resize_image(image.get_path())
+            cls.resize_image(image.get_path())
+
+        thumbnail_file = image_file.copy()
+        thumbnail_file.save(image.get_thumbnail_path())
+        cls.resize_image(image.get_thumbnail_path(), (256, 256))
 
         return image
 
@@ -314,10 +314,11 @@ class StyledImage(db.Model):
         db.session.add(image)
         db.session.commit()
 
-        start_time = time.time()
+        # apply tensorflow style
+        start_time = time()
         ffwd_to_img(source_image.get_path(), image.get_path(),
                     style.get_path())
-        end_time = time.time()
+        end_time = time()
         print '-----> evaluation timing: ', (end_time - start_time)
 
         styled_image = cls(image_id=image.image_id,
@@ -363,15 +364,11 @@ class TFModel(db.Model):
         return '<TFModel tf_model_id={id} title="{title}">'.format(
             id=self.tf_model_id, title=self.title)
 
-    def get_path(self):
-        return self._path + '{id}.mat'.format(id=self.tf_model_id)
-
     @classmethod
-    def create(cls, file, title='', description=''):
+    def create(cls, title='', description=''):
         tf_model = cls(title=title, description=description)
         db.session.add(tf_model)
         db.session.commit()
-        file.save(tf_model.get_path())
         return tf_model
 
 
@@ -577,6 +574,32 @@ def connect_to_db(app, db_uri='postgres:///deep-paint'):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.app = app
     db.init_app(app)
+
+
+def set_val_user_id():
+    """Set value for the next user_id after seeding database"""
+
+    # Get the Max user_id in the database
+    result = db.session.query(func.max(User.user_id)).one()
+    max_id = int(result[0])
+
+    # Set the value for the next user_id to be max_id + 1
+    query = "SELECT setval('users_user_id_seq', :new_id)"
+    db.session.execute(query, {'new_id': max_id + 1})
+    db.session.commit()
+
+
+def set_val_user_id():
+    """Set value for the next user_id after seeding database"""
+
+    # Get the Max user_id in the database
+    result = db.session.query(func.max(User.user_id)).one()
+    max_id = int(result[0])
+
+    # Set the value for the next user_id to be max_id + 1
+    query = "SELECT setval('users_user_id_seq', :new_id)"
+    db.session.execute(query, {'new_id': max_id + 1})
+    db.session.commit()
 
 
 if __name__ == "__main__":
