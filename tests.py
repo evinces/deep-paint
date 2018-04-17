@@ -93,6 +93,24 @@ class ModelUserTests(AbstractModelTests):
         self.assertTrue(superuser.is_superuser)
         print '+ passed'
 
+    def test_user_is_valid_email(self):
+        print '- test_user_is_valid_email'
+        email = 'l@' + ('d' * 345) + '.com'  # len(email) > 320
+        self.assertFalse(User.is_valid_email(email))
+        email = 'localdomain.com'              # email.find('@') == -1
+        self.assertFalse(User.is_valid_email(email))
+        email = ('l' * 65) + '@domain.com'    # len(localpart) > 64
+        self.assertFalse(User.is_valid_email(email))
+        email = 'l@' + ('d' * 252) + '.com'  # len(domain) > 255
+        self.assertFalse(User.is_valid_email(email))
+        email = 'local@.com'                  # email.find('.') == 0
+        self.assertFalse(User.is_valid_email(email))
+        email = 'local@domaincom'              # email.find('.') == -1
+        self.assertFalse(User.is_valid_email(email))
+        email = 'local@domain.com'             # valid email
+        self.assertTrue(User.is_valid_email(email))
+        print '+ passed'
+
     def test_user_repr(self):
         print '- test_user_repr'
         self.assertEqual(repr(self.user), '<User user_id=1 username="test">')
