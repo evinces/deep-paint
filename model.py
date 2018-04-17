@@ -479,6 +479,13 @@ class Comment(TimestampMixin, db.Model):
     def __str__(self):
         return self.body
 
+    @classmethod
+    def create(cls, user, image, body):
+        comment = cls(user=user, image=image, body=body)
+        db.session.add(comment)
+        db.session.commit()
+        return comment
+
 
 class Like(db.Model):
     """Like model
@@ -508,6 +515,13 @@ class Like(db.Model):
     def __repr__(self):
         return '<Like user_id={user} image_id={image}>'.format(
             user=self.user_id, image=self.image_id)
+
+    @classmethod
+    def create(cls, user, image):
+        like = cls(user=user, image=image)
+        db.session.add(like)
+        db.session.commit()
+        return like
 
 
 # ========================================================================== #
@@ -544,6 +558,13 @@ class Tag(db.Model):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def create(cls, name):
+        tag = cls(name=name)
+        db.session.add(tag)
+        db.session.commit()
+        return tag
+
 
 class ImageTag(db.Model):
     """ImageTag association table model
@@ -565,6 +586,13 @@ class ImageTag(db.Model):
     tag = db.relationship('Tag')
     image = db.relationship('Image')
 
+    @classmethod
+    def create(cls, image, tag):
+        image_tag = cls(image=image, tag=tag)
+        db.session.add(image_tag)
+        db.session.commit()
+        return image_tag
+
 
 # ========================================================================== #
 # Helper functions
@@ -577,7 +605,7 @@ def connect_to_db(app, db_uri='postgres:///deep-paint'):
     db.init_app(app)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     from flask import Flask
     app = Flask(__name__)
 

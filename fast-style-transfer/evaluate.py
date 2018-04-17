@@ -11,14 +11,15 @@ DEVICE = '/device:GPU:0'
 
 
 def ffwd(data_in, paths_out, checkpoint_dir, device_t='/device:GPU:0',
-         batch_size=4):
+         batch_size=4, testing=False):
 
-    print('start ffwd')
-    print(' data_in: ', data_in)
-    print(' paths_out: ', paths_out)
-    print(' checkpoint_dir: ', checkpoint_dir)
-    print(' device_t: ', device_t)
-    print(' batch_size: ', batch_size)
+    if testing:
+        print('start ffwd')
+        print(' data_in: ', data_in)
+        print(' paths_out: ', paths_out)
+        print(' checkpoint_dir: ', checkpoint_dir)
+        print(' device_t: ', device_t)
+        print(' batch_size: ', batch_size)
 
     assert len(paths_out) > 0
     is_paths = type(data_in[0]) == str
@@ -78,27 +79,30 @@ def ffwd(data_in, paths_out, checkpoint_dir, device_t='/device:GPU:0',
              device_t=device_t, batch_size=1)
 
 
-def ffwd_to_img(in_path, out_path, checkpoint_dir, device='/device:CPU:0'):
+def ffwd_to_img(in_path, out_path, checkpoint_dir, device='/device:CPU:0',
+                testing=False):
 
-    print('start ffwd_to_img')
-    print(' in_path: ', in_path)
-    print(' out_path: ', out_path)
-    print(' checkpoint_dir: ', checkpoint_dir)
-    print(' device: ', device)
+    if testing:
+        print('start ffwd_to_img')
+        print(' in_path: ', in_path)
+        print(' out_path: ', out_path)
+        print(' checkpoint_dir: ', checkpoint_dir)
+        print(' device: ', device)
 
     paths_in, paths_out = [in_path], [out_path]
     ffwd(paths_in, paths_out, checkpoint_dir, batch_size=1, device_t=device)
 
 
 def ffwd_different_dimensions(in_path, out_path, checkpoint_dir,
-                              device_t=DEVICE, batch_size=4):
+                              device_t=DEVICE, batch_size=4, testing=False):
 
-    print('start ffwd_different_dimensions')
-    print(' in_path: ', in_path)
-    print(' out_path: ', out_path)
-    print(' checkpoint_dir: ', checkpoint_dir)
-    print(' device_t: ', device_t)
-    print(' batch_size: ', batch_size)
+    if testing:
+        print('start ffwd_different_dimensions')
+        print(' in_path: ', in_path)
+        print(' out_path: ', out_path)
+        print(' checkpoint_dir: ', checkpoint_dir)
+        print(' device_t: ', device_t)
+        print(' batch_size: ', batch_size)
 
     in_path_of_shape = defaultdict(list)
     out_path_of_shape = defaultdict(list)
