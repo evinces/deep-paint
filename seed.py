@@ -73,8 +73,8 @@ def seed_data(testing=False):
     else:
         # create a placeholder image so testing does not
         # write over an actual user's file
-        i = Image()
-        j = Image()
+        i = Image(file_extension='')
+        j = Image(file_extension='')
         db.session.add_all([i, j])
 
     db.session.commit()

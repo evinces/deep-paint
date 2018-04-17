@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+  <div class="row justify-content-center">
+    <div class="col-12 col-sm-10 col-md-7 col-lg-5">
+      <form action="/login" method="POST">
+        <div class="form-group">
+          <label for="input-email">Email address</label>
+          <input id="input-email" class="form-control" type="email"
+                 name="email" placeholder="Enter email" required>
+        </div>
+        <div class="form-group">
+          <label for="input-password">Password</label>
+          <input id="input-password" class="form-control" type="password"
+                 name="password" placeholder="Password" required>
+        </div>
+        <button type="submit" class="btn btn-primary ml-auto">Login</button>
+      </form>
+    </div>
+  </div>
+
+{% endblock %}

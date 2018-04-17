@@ -9,27 +9,31 @@
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
   <link rel="stylesheet" href="static/font/css/open-iconic-bootstrap.css">
+
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="static/css/style.css">
+
+  <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
 
   <title>
-    {%- block title -%}
+    {% block title %}
       Deep-Paint | Photo Styling
-    {%- endblock -%}
+    {% endblock %}
   </title>
 </head>
 
 <body class="bg-light">
 
-<!-- Navbar ------------------------------------------------------------- -->
+<!-- Navbar -------------------------------------------------------------- -->
 
   <nav class="navbar navbar-expand-md navbar-dark sticky-top bg-dark
               border-dark shadow">
     <div class="container">
-      <span class="navbar-brand mb-0 h1">
+      <a class="navbar-brand mb-0 h1" href="/">
         <span class="oi oi-brush">&nbsp;</span>
         Deep-Paint
-      </span>
+      </a>
       <button class="navbar-toggler" type="button" data-toggle="collapse"
             data-target="#navbarToggle" aria-controls="navbarToggle"
             aria-expanded="false" aria-label="Toggle navigation">
@@ -38,20 +42,19 @@
 
       <div class="collapse navbar-collapse" id="navbarToggle">
         <div class="ml-auto order-2">
-          <button id="upload-btn" class="btn btn-light mr-2" type="button"
-                  data-toggle="modal" data-target="#uploadModal">
-            <span class="oi oi-cloud-upload">&nbsp;</span>
-            Upload
-          </button>
-          {% if true %}
-            <button id="logout-btn" class="btn btn-light disabled"
-                    type="submit">
+          {% if 'user_id' in session %}
+            <button id="upload-btn" class="btn btn-light mr-2" type="button"
+                    data-toggle="modal" data-target="#uploadModal">
+              <span class="oi oi-cloud-upload">&nbsp;</span>
+              Upload
+            </button>
+            <a id="logout-btn" class="btn btn-light" style="color: buttontext; background-color: buttonface;" href="/logout">
               <span class="oi oi-account-logout">&nbsp;</span>
               Logout
-            </button>
+            </a>
           {% else %}
-            <button id="login-btn" class="btn btn-light disabled"
-                    type="submit">
+            <button id="login-btn" class="btn btn-light" type="button"
+                    data-toggle="modal" data-target="#loginModal">
               <span class="oi oi-account-login">&nbsp;</span>
               Login
             </button>
@@ -62,12 +65,6 @@
           <li class="nav-item">
             <a class="nav-link active" href="/">Library</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Feed</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#"></a>
-          </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbar-about-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               About
@@ -77,10 +74,8 @@
               <a class="dropdown-item" href="/about#tensorflow">
                 How does style-transfer work?
               </a>
-              <a class="dropdown-item" href="/about#author">
-                About the author
-              </a>
               <a class="dropdown-item" href="https://github.com/evinces/deep-paint">
+                <small><span class="oi oi-external-link">&nbsp;</span></small>
                 View the project GitHub
               </a>
             </div>
@@ -90,7 +85,7 @@
     </div>
   </nav>
 
-<!-- Flash messages ------------------------------------------------------ -->
+<!-- Flash messages ------------------------------------------------------- -->
 
   <div class="container">
     {% for category, msg in get_flashed_messages(with_categories=True) %}
@@ -108,7 +103,45 @@
     {% endfor %}
   </div>
 
-<!-- Upload modal -------------------------------------------------------- -->
+<!-- Login modal ---------------------------------------------------------- -->
+
+  <div class="modal fade" id="loginModal" tabindex="-1" role="dialog"
+       aria-labelledby="loginModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="loginModalTitle">
+            Login
+          </h5>
+          <button type="button" class="close" data-dismiss="modal"
+                  aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form action="/login" method="POST">
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="input-email">Email address</label>
+              <input id="input-email" class="form-control" type="email"
+                     name="email" placeholder="Enter email" required>
+            </div>
+            <div class="form-group">
+              <label for="input-password">Password</label>
+              <input id="input-password" class="form-control" type="password"
+                     name="password" placeholder="Password" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-primary ml-auto" type="submit">
+              Login
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+<!-- Upload modal --------------------------------------------------------- -->
 
   <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog"
        aria-labelledby="uploadModalTitle" aria-hidden="true">
@@ -123,7 +156,7 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <form action="/upload" method="post" enctype="multipart/form-data">
+        <form action="/upload" method="POST" enctype="multipart/form-data">
           <div class="modal-body">
             <input class="form-control mb-2" type="text" name="title"
                    placeholder="Title" required>
@@ -133,7 +166,7 @@
             <div class="custom-file">
               <input type="file" class="form-control custom-file-input"
                      id="uploadImageFile" name="image" required>
-              <label class="custom-file-label" for="uploadImageFile">
+              <label id="uploadImageLabel" class="custom-file-label text-truncate" for="uploadImageFile">
                 Choose image file
               </label>
             </div>
@@ -152,7 +185,7 @@
     </div>
   </div>
 
-<!-- Image modal --------------------------------------------------------- -->
+<!-- Image modal ---------------------------------------------------------- -->
 
   <div class="modal fade" id="image-modal" tabindex="-1" role="dialog"
        aria-hidden="true">
@@ -205,7 +238,7 @@
     </div>
   </div>
 
-<!-- Page content -------------------------------------------------------- -->
+<!-- Page content --------------------------------------------------------- -->
 
   <div class="container mt-4">
     {% block content %}
@@ -213,9 +246,9 @@
     {% endblock %}
   </div>
 
-<!-- Footer -------------------------------------------------------------- -->
+<!-- Footer --------------------------------------------------------------- -->
 
-<!-- Not sure if I'm going to use this 
+<!-- Not sure if I'm going to use this
   <footer class="navbar navbar-expand navbar-dark bottom bg-dark border-dark">
     <div class="container">
       <ul class="navbar-nav mr-auto">
@@ -233,12 +266,22 @@
   </footer>
 -->
 
-<!-- Javascript ---------------------------------------------------------- -->
+<!-- Javascript ----------------------------------------------------------- -->
 
   <script type="text/javascript">
     // enable bootstrap tooltips
     $(function () {
       $('[data-toggle="tooltip"]').tooltip()
+    });
+
+    // upload form
+    $('#uploadImageFile').on('change', function () {
+      let filename = $(this.files)[0].name;
+      if (filename !== undefined) {
+        $('#uploadImageLabel').text(filename);
+      } else {
+        $('#uploadImageLabel').text("Choose image file");
+      }
     });
 
     // image modal
@@ -254,7 +297,7 @@
           }
           if (d.style !== null) {
             $('#image-modal-description').text(
-              $('#image-modal-description').text() + '\nStyled as ' + 
+              $('#image-modal-description').text() + '\nStyled as ' +
                 d.style.title + ' by ' + d.style.artist
             );
           }

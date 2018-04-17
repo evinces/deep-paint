@@ -4,7 +4,6 @@ from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from os import remove, path
 from PIL import Image as PILImage
-from sqlalchemy import func
 from time import time
 from werkzeug.security import generate_password_hash, check_password_hash
 

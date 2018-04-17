@@ -434,7 +434,7 @@ class ModelImageTagTests(AbstractModelTests):
 # Helper Functions
 
 def drop_everything():
-    """Break all contrains and drop tables
+    """Break all contraints and drop tables
 
     Credit to Michael Bayer
     https://bitbucket.org/zzzeek/sqlalchemy/wiki/UsageRecipes/DropEverything
