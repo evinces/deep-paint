@@ -54,10 +54,10 @@ def seed_data(testing=False):
                        password='password')
 
     user_image = FileStorage(stream=open(
-        'fast-style-transfer/source-images/cape-flattery.jpg'))
+        'fast-style-transfer/source-images/melons.jpg'))
     SourceImage.create(image_file=user_image, user=user,
-                       title="Wooden Path in Sunlight",
-                       description="Taken at Cape Flattery, WA on a sunny day in October, 2017.")
+                       title="Melon - Eden's Gem (Rocky Ford Honeydew)",
+                       description="Popular green-flesh muskmelon with a heavily netted rind, and smooth, sweet-flavoured flesh with a complex spicy flavour. This early maturing variety, also known as the Rocky Ford cantaloupe, was developed in 1905 at Rocky Ford, Colorado as a 'crate melon.' Softball-sized 500-g (1-lb) fruit.\nhttps://www.urbanseedling.com/product/melon-edens-gem/")
 
     if testing:
         image = Image.query.get(1)
