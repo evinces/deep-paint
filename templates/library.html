@@ -5,7 +5,7 @@
 
     {% for image in images %}
       <article class="col-12 col-sm-11 col-md-6 col-lg-4 col-xl-3 mx-auto">
-        <div class="card mx-2 my-4">
+        <div class="card mx-2 my-4 shadow-sm">
           <img class="card-img-top image-detail-target"
                id="{{ image.image_id }}" src="{{ image.get_path() }}">
           <div class="card-body px-3 py-2">
@@ -48,7 +48,7 @@
             <nav class="btn-group" role="group">
 
               {% if image.source_image %}
-                <a class="border btn" data-toggle="tooltip"
+                <a class="border btn bg-white" data-toggle="tooltip"
                    href="/style?image_id={{ image.image_id }}"
                    id="style-{{ image.image_id }}" role="button"
                    style="color: buttontext; background-color: buttonface;"
@@ -57,7 +57,7 @@
                 </a>
               {% endif %}
 
-              <button class="border btn" data-toggle="tooltip"
+              <button class="border btn bg-white" data-toggle="tooltip"
                       id="edit-{{ image.image_id }}" title="Edit"
                       type="button">
                 <span class="oi oi-wrench"></span>

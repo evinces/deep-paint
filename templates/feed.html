@@ -3,7 +3,7 @@
 {% block content %}
   {% for image in images %}
     <article class="card-feed col-12 mx-auto">
-      <div class="card mx-2 my-4">
+      <div class="card mx-2 my-4 shadow-sm">
         <div class="card-img-top">
           <img class="card-img-top image-detail-target"
                id="{{ image.image_id }}" src="{{ image.get_path() }}">
@@ -48,19 +48,19 @@
             </small>
           </p>
           <nav class="btn-group" role="group">
-            <button class="border btn" data-toggle="tooltip"
+            <button class="border btn bg-white" data-toggle="tooltip"
                     id="image-modal-like-btn" title="Like" type="button">
               <span class="oi oi-heart"></span>
             </button>
-            <button class="border btn" data-toggle="tooltip"
+            <button class="border btn bg-white" data-toggle="tooltip"
                     id="image-modal-comment-btn" title="Comment" type="button">
               <span class="oi oi-chat"></span>
             </button>
-            <button class="border btn" data-toggle="tooltip"
+            <button class="border btn bg-white" data-toggle="tooltip"
                     id="image-modal-tag-btn" title="Tag" type="button">
               <span class="oi oi-tags"></span>
             </button>
-            <button class="border btn" data-toggle="tooltip"
+            <button class="border btn bg-white" data-toggle="tooltip"
                     id="image-modal-share-btn" title="Share"
                     type="button">
               <span class="oi oi-share-boxed"></span>
@@ -71,7 +71,7 @@
             {% if session['user_id'] == image.user_id %}
             <nav class="btn-group ml-2" role="group">
               {% if image.source_image %}
-                <a role="button" class="border btn" data-toggle="tooltip"
+                <a role="button" class="border btn bg-white" data-toggle="tooltip"
                    href="/style?image_id={{ image.image_id }}"
                    id="style-{{ image.image_id }}"
                    style="background-color: buttonface; color: buttontext;"
@@ -79,7 +79,7 @@
                   <span class="oi oi-brush"></span>
                 </a>
               {% endif %}
-              <button class="border btn" data-toggle="tooltip"
+              <button class="border btn bg-white" data-toggle="tooltip"
                       id="edit-{{ image.image_id }}" title="Edit"
                       type="button">
                 <span class="oi oi-wrench"></span>

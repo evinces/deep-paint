@@ -57,8 +57,7 @@
               <span class="oi oi-cloud-upload">&nbsp;</span>
               Upload
             </button>
-            <a class="btn btn-light" href="/logout" id="logout-btn"
-               style="color: buttontext; background-color: buttonface;">
+            <a class="btn btn-light" href="/logout" id="logout-btn">
               <span class="oi oi-account-logout">&nbsp;</span>
               Logout
             </a>
@@ -107,12 +106,12 @@
 
 <!-- Flash messages ------------------------------------------------------- -->
 
-  <div class="container">
+  <div class="container fixed-top mt-6 position-fixed">
 
     {% for category, msg in get_flashed_messages(with_categories=True) %}
       <div class="row">
         <div class="alert alert-dismissible alert-{{ category }} col-12
-                    col-sm-9 col-md-6 col-lg-4 fade my-2 shadow-sm show"
+                    col-sm-9 col-md-6 col-lg-4 fade my-2 shadow show"
              role="alert">
           {{ msg }}
           <button aria-label="Close" class="close" data-dismiss="alert"
@@ -194,9 +193,7 @@
                 Choose image file
               </label>
             </div>
-            <p class="ml-2"><small>
-              File types: .gif .jpg .jpeg .png .tif .tga
-            </small></p>
+            <small class="ml-2 text-muted">File types: .gif .jpg .jpeg .png .tif .tga</small>
           </div>
           <div class="modal-footer">
             <button class="btn btn-primary ml-auto" type="submit">
@@ -233,19 +230,19 @@
         </div>
         <div class="modal-footer">
           <nav class="btn-group">
-            <button class="border btn" data-toggle="tooltip"
+            <button class="border btn bg-white" data-toggle="tooltip"
                     id="image-modal-like-btn" title="Like" type="button">
               <span class="oi oi-heart"></span>
             </button>
-            <button class="border btn" data-toggle="tooltip"
+            <button class="border btn bg-white" data-toggle="tooltip"
                     id="image-modal-comment-btn" title="Comment" type="button">
               <span class="oi oi-chat"></span>
             </button>
-            <button class="border btn" data-toggle="tooltip"
+            <button class="border btn bg-white" data-toggle="tooltip"
                     id="image-modal-tag-btn" title="Tag" type="button">
               <span class="oi oi-tags"></span>
             </button>
-            <button class="border btn" data-toggle="tooltip"
+            <button class="border btn bg-white" data-toggle="tooltip"
                     id="image-modal-share-btn" title="Share" type="button">
               <span class="oi oi-share-boxed"></span>
             </button>
@@ -284,23 +281,23 @@
     // image modal
     $('.image-detail-target').on('click', function () {
       let image_id = $(this).prop('id');
-      $.get('/image.json', {'image_id': image_id}, function (d) {
-        console.log(d);
-        if (d.path !== undefined) {
-          $('#image-modal-image').attr('src', d.path);
-          if (d.source !== null) {
-            $('#image-modal-title').text(d.source.title);
-            $('#image-modal-description').text(d.source.description);
+      $.get('/image.json', {'image_id': image_id}, function (data) {
+        console.log(data);
+        if (data.path !== undefined) {
+          $('#image-modal-image').attr('src', data.path);
+          if (data.source !== null) {
+            $('#image-modal-title').text(data.source.title);
+            $('#image-modal-description').text(data.source.description);
           }
-          if (d.style !== null) {
+          if (data.style !== null) {
             $('#image-modal-description').text(
               $('#image-modal-description').text() + '\nStyled as ' +
-                d.style.title + ' by ' + d.style.artist
+                data.style.title + ' by ' + data.style.artist
             );
           }
           $('#image-modal').modal('show');
         } else {
-          console.log('error: ' + d.message);
+          console.log('error: ' + data.message);
         }
       });
     });
