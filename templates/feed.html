@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  {% for image in images %}
+    <article class="card-feed col-12 mx-auto">
+      <div class="card mx-2 my-4">
+        <div class="card-img-top">
+          <img class="card-img-top image-detail-target"
+               id="{{ image.image_id }}" src="{{ image.get_path() }}">
+          <div class="card-overlay"></div>
+          <a class="card-username" href="#">@{{ image.user.username }}</a>
+        </div>
+        <div class="card-body px-3 py-2">
+
+          {% with src_img = image.source_image %}
+            {% if src_img %}
+              {% if src_img.title %}
+                <h5 class="card-title">{{ src_img.title }}</h5>
+              {% endif %}
+              {% if src_img.description %}
+                <p class="card-text m-o">
+                  {{ src_img.description }}
+                </p>
+              {% endif %}
+            {% endif %}
+          {% endwith %}
+
+          {% with sty_img = image.styled_image %}
+            {% if sty_img %}
+              <p class="m-0">
+                Styled as
+                <a data-html="true" data-toggle="tooltip"
+                   title="<img class='img-thumbnail'
+                               src='{{ sty_img.style.image.get_path() }}'>">
+                  <strong>{{ sty_img.style.title }}</strong>
+                  by
+                  <em>{{ sty_img.style.artist }}</em>
+                </a>
+              </p>
+            {% endif %}
+          {% endwith %}
+
+        </div>
+        <footer class="bg-light card-footer d-flex flex-row pr-1 py-1">
+          <p class="text-muted my-auto mr-auto">
+            <small>
+              {{ image.created_at.strftime("%b %d, %Y") }}
+            </small>
+          </p>
+          <nav class="btn-group" role="group">
+            <button class="border btn" data-toggle="tooltip"
+                    id="image-modal-like-btn" title="Like" type="button">
+              <span class="oi oi-heart"></span>
+            </button>
+            <button class="border btn" data-toggle="tooltip"
+                    id="image-modal-comment-btn" title="Comment" type="button">
+              <span class="oi oi-chat"></span>
+            </button>
+            <button class="border btn" data-toggle="tooltip"
+                    id="image-modal-tag-btn" title="Tag" type="button">
+              <span class="oi oi-tags"></span>
+            </button>
+            <button class="border btn" data-toggle="tooltip"
+                    id="image-modal-share-btn" title="Share"
+                    type="button">
+              <span class="oi oi-share-boxed"></span>
+            </button>
+          </nav>
+
+          {% if 'user_id' in session %}
+            {% if session['user_id'] == image.user_id %}
+            <nav class="btn-group ml-2" role="group">
+              {% if image.source_image %}
+                <a role="button" class="border btn" data-toggle="tooltip"
+                   href="/style?image_id={{ image.image_id }}"
+                   id="style-{{ image.image_id }}"
+                   style="background-color: buttonface; color: buttontext;"
+                   title="Style">
+                  <span class="oi oi-brush"></span>
+                </a>
+              {% endif %}
+              <button class="border btn" data-toggle="tooltip"
+                      id="edit-{{ image.image_id }}" title="Edit"
+                      type="button">
+                <span class="oi oi-wrench"></span>
+              </button>
+            </nav>
+            {% endif %}
+          {% endif %}
+
+        </footer>
+      </div>
+    </article>
+  {% endfor %}
+
+  <script type="text/javascript">
+    $("#nav-home").addClass("active");
+  </script>
+{% endblock %}

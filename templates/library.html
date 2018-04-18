@@ -1,73 +1,76 @@
 {% extends "base.html" %}
 
 {% block content %}
-
   <section class="row">
+
     {% for image in images %}
-      <!-- image: {{ image.image_id }} -->
       <article class="col-12 col-sm-11 col-md-6 col-lg-4 col-xl-3 mx-auto">
         <div class="card mx-2 my-4">
-          <img id="{{ image.image_id }}" class="card-img-top" src="{{ image.get_path() }}">
+          <img class="card-img-top image-detail-target"
+               id="{{ image.image_id }}" src="{{ image.get_path() }}">
           <div class="card-body px-3 py-2">
 
-            {% if image.source_image %}
-              {% if image.source_image.title %}
-                <h5 class="card-title">{{ image.source_image.title }}</h5>
+            {% with src_img = image.source_image %}
+              {% if src_img %}
+                {% if src_img.title %}
+                  <h5 class="card-title">{{ src_img.title }}</h5>
+                {% endif %}
+                {% if src_img.description %}
+                  <p class="card-text m-o">
+                    {{ src_img.description }}
+                  </p>
+                {% endif %}
               {% endif %}
-              {% if image.source_image.description %}
-                <p class="card-text m-o">
-                  {{ image.source_image.description }}
-                </p>
-              {% endif %}
-            {% endif %}
+            {% endwith %}
 
             {% with sty_img = image.styled_image %}
               {% if sty_img %}
                 <p class="m-0">
                   Styled as
-                  <a data-toggle="tooltip" data-placement="bottom" data-html="true"
-                     title="<img class='img-thumbnail' src='{{ sty_img.style.image.get_path() }}'>">
-                    <strong>{{ sty_img.style.title }}</strong> by <em>{{ sty_img.style.artist }}</em>
+                  <a data-html="true" data-toggle="tooltip"
+                     title="<img class='img-thumbnail'
+                                 src='{{ sty_img.style.image.get_path() }}'>">
+                    <strong>{{ sty_img.style.title }}</strong>
+                    by
+                    <em>{{ sty_img.style.artist }}</em>
                   </a>
                 </p>
               {% endif %}
             {% endwith %}
 
           </div>
-          <footer class="container card-footer bg-light py-1 pr-1">
-            <div class="d-flex flex-row">
-              <p class="text-muted my-auto ml-auto">
-                <small>
-                  {{ image.created_at.strftime("%b %d, %Y") }}
-                </small>
-              </p>
-              <nav class="btn-group" role="group">
+          <footer class="bg-light card-footer d-flex flex-row pr-1 py-1">
+            <p class="mr-auto my-auto text-muted">
+              <small>
+                {{ image.created_at.strftime("%b %d, %Y") }}
+              </small>
+            </p>
+            <nav class="btn-group" role="group">
 
-                {% if image.source_image %}
-                  <a id="style-{{ image.image_id }}" role="button"
-                          class="btn border" style="color: buttontext; background-color: buttonface;"
-                          data-toggle="tooltip" data-placement="bottom"
-                          title="Style" href="/style?image_id={{ image.image_id }}">
-                    <span class="oi oi-brush"></span>
-                  </a>
-                {% endif %}
+              {% if image.source_image %}
+                <a class="border btn" data-toggle="tooltip"
+                   href="/style?image_id={{ image.image_id }}"
+                   id="style-{{ image.image_id }}" role="button"
+                   style="color: buttontext; background-color: buttonface;"
+                   title="Style">
+                  <span class="oi oi-brush"></span>
+                </a>
+              {% endif %}
 
-                <button id="edit-{{ image.image_id }}" type="button"
-                        class="btn border"
-                        data-toggle="tooltip" data-placement="bottom"
-                        title="Edit">
-                  <span class="oi oi-wrench"></span>
-                </button>
-              </nav>
-            </div>
+              <button class="border btn" data-toggle="tooltip"
+                      id="edit-{{ image.image_id }}" title="Edit"
+                      type="button">
+                <span class="oi oi-wrench"></span>
+              </button>
+            </nav>
           </footer>
         </div>
       </article>
     {% endfor %}
+
   </section>
 
   <script type="text/javascript">
-    // TODO: add event listeners edit-* button press
+    $("#nav-library").addClass("active");
   </script>
-
 {% endblock %}

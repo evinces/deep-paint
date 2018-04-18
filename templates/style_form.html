@@ -1,18 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
-
   <div class="container">
-
-      <div class="row justify-content-between">
+      <div class="d-flex flex-row row">
         <h4>Which style do you want to use?</h4>
-        <form action="/style" method="POST">
-          <input id="source_image_id" name="source_image_id" type="hidden" value="{{ source_image_id }}">
+        <form action="/style" class="ml-auto" method="POST">
+          <input id="source_image_id" name="source_image_id" type="hidden"
+                 value="{{ source_image_id }}">
           <input id="style_id_input" name="style_id" type="hidden" value="">
-          <input id="submit" class="btn btn-primary" type="submit" name="Stylize" disabled>
+          <input class="btn btn-primary" disabled="true" id="submit"
+                 name="Stylize" type="submit">
         </form>
       </div>
-
       <div class="row">
 
         {% for style in styles %}
@@ -38,5 +37,4 @@
       $("#submit").prop("disabled", null);
     });
   </script>
-
 {% endblock %}

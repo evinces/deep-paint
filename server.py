@@ -25,6 +25,20 @@ def index():
 
 
 # ========================================================================== #
+# Signup
+
+
+@app.route('/signup', methods=['GET'])
+def show_signup_form():
+    return render_template('signup_form.html')
+
+
+@app.route('/signup', methods=['POST'])
+def process_signup():
+    return render_template('/')
+
+
+# ========================================================================== #
 # Login / Logout
 
 
