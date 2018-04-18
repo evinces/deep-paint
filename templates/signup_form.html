@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-sm-12 col-md-10 col-lg-8">
+      <form action="/signup" method="POST">
+        <div class="form-group row">
+          <h3 class="ml-4 ml-sm-0">Signup Form</h3>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label" for="input-form-username">
+            Username
+          </label>
+          <div class="col-sm-9 input-group">
+            <div class="input-group-prepend">
+              <div class="input-group-text">@</div>
+            </div>
+            <input class="form-control" id="input-form-username"
+                   name="username" placeholder="Enter username"
+                   required="true" type="text">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label" for="input-form-email">
+            Email address
+          </label>
+          <div class="col-sm-9">
+            <input class="form-control" id="input-form-email" name="email"
+                   placeholder="Enter email" required="true" type="email">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label" for="input-form-password">
+            Password
+          </label>
+          <div class="col-sm-9">
+            <input class="form-control" id="input-form-password"
+                   name="password" placeholder="Enter password" required="true"
+                   type="password">
+          </div>
+        </div>
+        <div class="d-flex flex-row">
+          <button class="btn btn-primary ml-auto" type="submit">Signup</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+  </script>
+{% endblock %}
