@@ -78,6 +78,9 @@ class User(TimestampMixin, db.Model):
         return '<User user_id={id} username="{username}">'.format(
             id=self.user_id, username=self.username)
 
+    def __str__(self):
+        return '@{username}'.format(username=self.username)
+
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)
 

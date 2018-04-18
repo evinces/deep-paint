@@ -41,3 +41,9 @@
 .card-username:hover {
   color: #fff;
 }
+.oi-circle-check {
+  color: green;
+}
+.oi-circle-x {
+  color: red;
+}

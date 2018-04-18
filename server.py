@@ -30,12 +30,48 @@ def index():
 
 @app.route('/signup', methods=['GET'])
 def show_signup_form():
+    if 'user_id' in session:
+        del session['user_id']
     return render_template('signup_form.html')
 
 
 @app.route('/signup', methods=['POST'])
 def process_signup():
-    return render_template('/')
+    username = request.form.get('username')
+    email = request.form.get('email')
+    password = request.form.get('password')
+
+    if username is None:
+        flash('Enter a username', 'warning')
+        return redirect('/signup')
+    if email is None:
+        flash('Enter a username', 'warning')
+        return redirect('/signup')
+    if password is None:
+        flash('Enter a username', 'warning')
+        return redirect('/signup')
+
+    if is_username_taken(username):
+        flash('There is already a user with that username', 'warning')
+        return redirect('/signup')
+    if is_email_taken(email):
+        flash('There is already a user with that email', 'warning')
+        return redirect('/signup')
+
+    user = User.create(username, email, password)
+    session['user_id'] = user.user_id
+    flash('Welcome {}!'.format(user), 'primary')
+    return redirect('/')
+
+
+def is_username_taken(username):
+    usernames = db.session.query(User.username).order_by(User.username).all()
+    return (username,) in usernames
+
+
+def is_email_taken(email):
+    emails = db.session.query(User.email).order_by(User.email).all()
+    return (email,) in emails
 
 
 # ========================================================================== #
