@@ -35,17 +35,17 @@
 
           </div>
           <footer class="container card-footer bg-light py-1 pr-1">
-            <div class="row">
-              <p class="col text-muted my-auto mr-auto">
+            <div class="d-flex flex-row">
+              <p class="text-muted my-auto ml-auto">
                 <small>
                   {{ image.created_at.strftime("%b %d, %Y") }}
                 </small>
               </p>
-              <nav class="col btn-group justify-content-end" role="group">
+              <nav class="btn-group" role="group">
 
                 {% if image.source_image %}
                   <a id="style-{{ image.image_id }}" role="button"
-                          class="btn border" style="color: buttontext; background-color: buttonface;" 
+                          class="btn border" style="color: buttontext; background-color: buttonface;"
                           data-toggle="tooltip" data-placement="bottom"
                           title="Style" href="/style?image_id={{ image.image_id }}">
                     <span class="oi oi-brush"></span>

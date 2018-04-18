@@ -62,9 +62,11 @@
         </div>
 
         <ul class="navbar-nav mr-auto order-1">
+          {% if 'user_id' in session %}
           <li class="nav-item">
-            <a class="nav-link active" href="/">Library</a>
+            <a class="nav-link" href="/library">Library</a>
           </li>
+          {% endif %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbar-about-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               About

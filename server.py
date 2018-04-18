@@ -5,7 +5,6 @@ from flask import (Flask, render_template, redirect, request, session, flash,
 from flask_debugtoolbar import DebugToolbarExtension
 from model import (User, Image, SourceImage, StyledImage, TFModel, Style,
                    Comment, Like, Tag, ImageTag, db, connect_to_db)
-from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 
 
 app = Flask(__name__)
@@ -18,8 +17,11 @@ connect_to_db(app)
 
 @app.route('/')
 def index():
-    # index does not exist yet
-    return redirect('/library')
+    images = Image.query.filter(
+        db.or_(Image.source_image != None,
+               Image.styled_image != None)).order_by(
+                   Image.created_at.desc()).limit(20).all()
+    return render_template('feed.html', images=images)
 
 
 # ========================================================================== #
@@ -30,7 +32,6 @@ def index():
 def show_login_form():
     if 'user_id' in session:
         del session['user_id']
-
     return render_template('login_form.html')
 
 
@@ -46,8 +47,6 @@ def login():
 
     session['user_id'] = user.user_id
     flash('Login successful', 'info')
-
-    print '-----> /login'
     return redirect('/library')
 
 
@@ -57,8 +56,6 @@ def logout():
         del session['user_id']
 
     flash('Logout successful', 'info')
-
-    print '-----> /logout'
     return redirect('/login')
 
 
@@ -75,9 +72,8 @@ def show_library():
     user = User.query.get(int(user_id))
     images = Image.query.filter_by(
         user_id=user.user_id).order_by(
-            Image.created_at).all()
-
-    return render_template('library.html', images=images[::-1], user=user)
+            Image.created_at.desc()).all()
+    return render_template('library.html', images=images, user=user)
 
 
 # ========================================================================== #
