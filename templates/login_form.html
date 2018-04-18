@@ -1,18 +1,30 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <div class="row justify-content-center">
-    <div class="col-12 col-sm-10 col-md-7 col-lg-5">
+  <div class="row">
+    <div class="col-sm-12 col-md-10 col-lg-8 mx-auto">
       <form action="/login" method="POST">
-        <div class="form-group">
-          <label for="input-form-email">Email address</label>
-          <input id="input-form-email" class="form-control" type="email"
-                 name="email" placeholder="Enter email" required>
+        <div class="form-group row">
+          <h3 class="ml-4 ml-sm-0">Login Form</h3>
         </div>
-        <div class="form-group">
-          <label for="input-form-password">Password</label>
-          <input id="input-form-password" class="form-control" type="password"
-                 name="password" placeholder="Password" required>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label" for="input-form-email">
+            Email address
+          </label>
+          <div class="col-sm-9">
+            <input class="form-control" id="input-form-email" name="email"
+                   placeholder="Enter email" required="true" type="email">
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label" for="input-form-password">
+            Password
+          </label>
+          <div class="col-sm-9">
+            <input class="form-control" id="input-form-password"
+                   name="password" placeholder="Enter password" required="true"
+                   type="password">
+          </div>
         </div>
         <div class="d-flex flex-row">
           <a class="btn btn-info ml-auto" href="/signup">Signup</a>
