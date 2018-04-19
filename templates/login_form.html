@@ -12,8 +12,9 @@
             Email address
           </label>
           <div class="col-sm-9">
-            <input class="form-control" id="input-form-email" name="email"
-                   placeholder="Enter email" required="true" type="email">
+            <input autocomplete="email" class="form-control" id="input-form-email"
+                   name="email" placeholder="Enter email" required="true"
+                   type="email">
           </div>
         </div>
         <div class="form-group row">
@@ -21,12 +22,18 @@
             Password
           </label>
           <div class="col-sm-9">
-            <input class="form-control" id="input-form-password"
-                   name="password" placeholder="Enter password" required="true"
-                   type="password">
+            <input autocomplete="current-password" class="form-control"
+                   id="input-form-password" name="password"
+                   placeholder="Enter password" required="true" type="password">
           </div>
         </div>
         <div class="d-flex flex-row">
+          <div class="form-check">
+            <input class="form-check-input" id="remember-me-check" type="checkbox">
+            <label class="form-check-label" for="remember-me-check">
+              Remember me
+            </label>
+          </div>
           <a class="btn btn-info ml-auto" href="/signup">Signup</a>
           <button type="submit" class="btn btn-primary ml-2">Login</button>
         </div>

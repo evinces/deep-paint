@@ -1,3 +1,11 @@
+/*body {
+  font-family: 'Nunito', sans-serif;
+}*/
+.navbar-brand {
+  /*font-family: 'Cutive', serif;*/
+  font-family: 'Sniglet', cursive;
+}
+
 #image-modal-image {
   max-height: 1024px;
   max-width: 100%;
