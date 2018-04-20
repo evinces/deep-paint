@@ -10,7 +10,7 @@
 {% block content %}
   <div class="row">
     <div class="col-md-12 col-lg-10 mx-auto">
-      <form action="/signup" method="POST">
+      <form action="/signup" class="signup-form" method="POST">
         <div class="form-group row">
           <h3 class="ml-4 ml-sm-0">Signup Form</h3>
         </div>
@@ -39,6 +39,10 @@
           </div>
         </div>
         <div class="form-group row">
+          <div class="col-12 d-flex flex-row m-0">
+            <p class="my-0 ml-auto mr-3 small text-muted"
+               id="password-strength">&nbsp;</p>
+          </div>
           <label class="col-sm-4 col-md-3 col-form-label"
                  for="input-form-password">
             Password
@@ -48,8 +52,6 @@
                    id="input-form-password" name="password"
                    placeholder="Enter password" required="true" type="password">
           </div>
-          <p class="d-flex my-0 ml-auto mr-3 small text-muted"
-             id="password-strength">&nbsp;</p>
         </div>
         <div class="form-group row">
           <label class="col-sm-4 col-md-3 col-form-label"
@@ -85,43 +87,44 @@
       3: "Good",
       4: "Strong"
     };
-    let username_field = document.querySelector('#input-form-username');
-    let email_field = document.querySelector('#input-form-email');
-    let password_field = document.querySelector('#input-form-password');
-    let comfirm_field = document.querySelector('#input-form-password-comfirm');
-    let password_strength = document.querySelector('#password-strength');
-    let confirm_display = document.querySelector('#password-match-display')
-    let submit_button = document.querySelector('#signup-btn');
+    let usernameField = document.querySelector('#input-form-username');
+    let emailField = document.querySelector('#input-form-email');
+    let passwordField = document.querySelector('#input-form-password');
+    let confirmField = document.querySelector('#input-form-password-comfirm');
+    let passwordStrength = document.querySelector('#password-strength');
+    let confirmDisplay = document.querySelector('#password-match-display');
+    let signupButton = document.querySelector('#signup-btn');
+    let signupForm = document.querySelector('#signup-form');
 
     // comfirm password
-    function password_check() {
-      let password = password_field.value;
-      let confirm = comfirm_field.value;
+    function passwordCheck() {
+      let password = passwordField.value;
+      let confirm = confirmField.value;
       return password === confirm;
     };
 
-    comfirm_field.addEventListener('input', function() {
-      if (password_check()) {
-        confirm_display.innerHTML = '<span class="oi oi-circle-check"></span>';
+    confirmField.addEventListener('input', function() {
+      if (passwordCheck()) {
+        confirmDisplay.innerHTML = '<span class="oi oi-circle-check"></span>';
       } else {
-        confirm_display.innerHTML = '<span class="oi oi-circle-x"></span>';
+        confirmDisplay.innerHTML = '<span class="oi oi-circle-x"></span>';
       }
     });
 
     // password strength
-    password_field.addEventListener('input', function() {
-      let password = password_field.value;
+    passwordField.addEventListener('input', function() {
+      let password = passwordField.value;
       let result = zxcvbn(password);
       if (password !== "") {
-        password_strength.innerHTML = "Strength: " + strengths[result.score];
+        passwordStrength.innerHTML = "Strength: " + strengths[result.score];
       } else {
-        password_strength.innerHTML = "&nbsp;";
+        passwordStrength.innerHTML = "&nbsp;";
       }
     });
 
     // form submit checks
-    signup_button.addEventListener('submit', function(e) {
-      if (!password_check()) {
+    signupForm.addEventListener('submit', function(e) {
+      if (!passwordCheck()) {
         e.preventDefault();
       }
     });

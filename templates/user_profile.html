@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <section class="row">
+    <div class="col-12 col-md-6">
+      <h2>{{ user }}</h2>
+    </div>
+    <div class="col-12 col-md-6 d-flex flex-row">
+      <small class="text-muted ml-3 ml-md-auto">
+        Joined on {{ user.created_at.strftime("%b %d, %Y") }}
+      </small>
+    </div>
+  </section>
+  <section class="row">
+
+    {% for image in user.images %}
+      <article class="col-12 col-sm-11 col-md-6 col-lg-4 col-xl-3 mx-auto">
+        <div class="card mx-2 my-4 shadow-sm">
+          <img class="card-img-top image-detail-target"
+               id="{{ image.image_id }}" src="{{ image.get_path() }}">
+          <div class="card-body px-3 py-2">
+
+            {% with src_img = image.source_image %}
+              {% if src_img %}
+                {% if src_img.title %}
+                  <h5 class="card-title">{{ src_img.title }}</h5>
+                {% endif %}
+                {% if src_img.description %}
+                  <p class="card-text m-o">
+                    {{ src_img.description }}
+                  </p>
+                {% endif %}
+              {% endif %}
+            {% endwith %}
+
+            {% with sty_img = image.styled_image %}
+              {% if sty_img %}
+                <p class="m-0">
+                  Styled as
+                  <a data-html="true" data-toggle="tooltip"
+                     title="<img class='img-thumbnail'
+                                 src='{{ sty_img.style.image.get_path() }}'>">
+                    <strong>{{ sty_img.style.title }}</strong>
+                    by
+                    <em>{{ sty_img.style.artist }}</em>
+                  </a>
+                </p>
+              {% endif %}
+            {% endwith %}
+
+          </div>
+          <footer class="bg-light card-footer d-flex flex-row pr-1 py-1">
+            <p class="mr-auto my-auto text-muted">
+              <small>
+                {{ image.created_at.strftime("%b %d, %Y") }}
+              </small>
+            </p>
+            <nav class="btn-group" role="group">
+
+              {% if image.source_image %}
+                <a class="border btn bg-white" data-toggle="tooltip"
+                   href="/style?image_id={{ image.image_id }}"
+                   id="style-{{ image.image_id }}" role="button"
+                   style="color: buttontext; background-color: buttonface;"
+                   title="Style">
+                  <span class="oi oi-brush"></span>
+                </a>
+              {% endif %}
+
+              <button class="border btn bg-white" data-toggle="tooltip"
+                      id="edit-{{ image.image_id }}" title="Edit"
+                      type="button">
+                <span class="oi oi-wrench"></span>
+              </button>
+            </nav>
+          </footer>
+        </div>
+      </article>
+    {% endfor %}
+
+  </section>
+{% endblock %}

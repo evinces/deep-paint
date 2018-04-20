@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <section class="row">
+    <div class="col-12 col-md-6">
+      <h2>{{ user }}</h2>
+    </div>
+    <div class="col-12 col-md-6 d-flex flex-row">
+      <small class="text-muted ml-3 ml-md-auto">
+        Joined on {{ user.created_at.strftime("%b %d, %Y") }}
+      </small>
+    </div>
+  </section>
+  <section class="row">
+    <form class="col-md-12 col-lg-10 mx-auto" id="user-edit-form">
+      <div class="form-group row">
+        <label class="col-sm-4 col-md-3 col-form-label"
+               for="input-form-username">
+          Username
+        </label>
+        <div class="col-sm-8 col-md-9 input-group">
+          <div class="input-group-prepend">
+            <div class="input-group-text">@</div>
+          </div>
+          <input autocomplete="username" class="form-control"
+                 id="input-form-username" name="username"
+                 placeholder="{{ user.username }}" type="text">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-4 col-md-3 col-form-label" for="input-form-email">
+          Email address
+        </label>
+        <div class="col-sm-8 col-md-9">
+          <input autocomplete="email" class="form-control" id="input-form-email"
+                 name="email" placeholder="{{ user.email }}" type="email">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-4 col-md-3 col-form-label"
+               for="input-form-password">
+          Password
+        </label>
+        <div class="col-sm-8 col-md-9">
+          <input autocomplete="current-password" class="form-control"
+                 id="input-form-old-password" name="old-password"
+                 placeholder="Enter current password" type="password">
+        </div>
+      </div>
+      <div class="form-group row">
+        <div class="col-12 d-flex flex-row m-0">
+          <p class="my-0 ml-auto mr-3 small text-muted"
+             id="password-strength">&nbsp;</p>
+        </div>
+        <label class="col-sm-4 col-md-3 col-form-label"
+               for="input-form-password">
+          New Password
+        </label>
+        <div class="col-sm-8 col-md-9">
+          <input autocomplete="new-password" class="form-control password-match"
+                 id="input-form-new-password" name="new-password"
+                 placeholder="Enter password" type="password">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label class="col-sm-4 col-md-3 col-form-label"
+               for="input-form-password">
+              Confirm Password
+        </label>
+        <div class="col-sm-8 col-md-9 input-group">
+          <div class="input-group-prepend">
+            <div class="input-group-text" style="min-width: 2.5em;">
+              <span id="password-match-display"></span>
+            </div>
+          </div>
+          <input autocomplete="new-password" class="form-control password-match"
+                 id="input-form-new-password-comfirm" name="new-password-confirm"
+                 placeholder="Re-enter password" type="password">
+        </div>
+      </div>
+      <div class="d-flex flex-row">
+        <button class="btn btn-primary ml-auto" id="save-btn" type="submit">
+          Save Changes
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <script type="text/javascript">
+    let usernameField = document.querySelector('#input-form-username');
+    let emailField = document.querySelector('#input-form-email');
+    let oldPasswordField = document.querySelector('#input-form-old-password');
+    let newPasswordField = document.querySelector('#input-form-new-password');
+    let confirmPasswordField = document.querySelector('#input-form-new-password-comfirm');
+    let userForm = document.querySelector('#user-edit-form');
+
+    document.querySelector('.password-match').addEventListener('input', function () {
+      if (newPasswordField.value !== confirmPasswordField.value) {
+        newPasswordField.classList.add('is-invalid');
+        confirmPasswordField.classList.add('is-invalid');
+      } else {
+        newPasswordField.classList.remove('is-invalid');
+        confirmPasswordField.classList.remove('is-invalid');
+        newPasswordField.classList.add('is-valid');
+        confirmPasswordField.classList.add('is-valid');
+      }
+    });
+    completedCheck = false;
+    userForm.addEventListener('submit', function (e) {
+      if (completedCheck) {
+        completedCheck = false;
+      } else {
+        e.preventDefault();
+        usernameField.classList.remove('is-invalid');
+        emailField.classList.remove('is-invalid');
+        oldPasswordField.classList.remove('is-invalid');
+        newPasswordField.classList.remove('is-invalid');
+        confirmPasswordField.classList.remove('is-invalid');
+        if (newPasswordField.value !== confirmPasswordField.value) {
+          newPasswordField.classList.add('is-invalid');
+          confirmPasswordField.classList.add('is-invalid');
+        } else {
+          let url = '/loggedin_password_check.json';
+          let data = {'password': oldPasswordField.value};
+          let payload = {
+            method: 'POST',
+            body: JSON.stringify(data),
+            credentials: 'same-origin',
+            headers: new Headers({'content-type': 'application/json'})
+          };
+          fetch(url, payload)
+          .then(r => r.json())
+          .then(function (r) {
+            console.log('Success:', r);
+            if (r.is_correct) {
+              completedCheck = true;
+              userForm.dispatchEvent(e);
+            }
+            else {
+              oldPasswordField.classList.add('is-invalid');
+            }
+          });
+        }
+      }
+    });
+  </script>
+{% endblock %}

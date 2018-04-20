@@ -109,6 +109,85 @@ def logout():
     return redirect('/login')
 
 
+@app.route('/loggedin_password_check.json', methods=['POST'])
+def password_json():
+    result = {}
+    user_id = session.get('user_id')
+    if user_id is None:
+        result['message'] = 'Permission denied'
+    else:
+        json = request.get_json()
+        password = json['password']
+        if password is None:
+            result['message'] = 'Missing password part'
+        else:
+            user = User.query.get(user_id)
+            result['is_correct'] = user.check_password(password)
+    return jsonify(result)
+
+
+# ========================================================================== #
+# User Profile
+
+
+@app.route('/user/<username>', methods=['GET'])
+def show_user_profile(username):
+    user = User.query.filter_by(username=username).one_or_none()
+    if user is None:
+        flash('No user with that username was found', 'warning')
+        return redirect('/')
+
+    current_user_id = session.get('user_id')
+    if current_user_id is not None and current_user_id == user.user_id:
+        return render_template('user_preferences.html', user=user)
+
+    return render_template('user_profile.html', user=user)
+
+
+@app.route('/user/<username>', methods=["POST"])
+def process_user_edit(username):
+    current_user_id = session.get('user_id')
+    if current_user_id is None:
+        flash('Login required to view this page', 'warning')
+        return redirect('/login')
+
+    user = User.query.filter_by(username=username).one_or_none()
+    if user is None or current_user_id != user.user_id:
+        flash('You do not have permission to edit this user', 'warning')
+        return redirect('/')
+
+    new_username = request.form.get('username')
+    new_email = request.form.get('email')
+    new_password = request.form.get('new-password')
+    old_password = request.form.get('old-password')
+
+    if user.check_password(old_password) is False:
+        flash('Invalid password', 'warning')
+        return redirect('/user/{username}'.format(user.username))
+
+    if (new_email != "" and new_email != user.email and
+            is_email_taken(new_email)):
+        flash('That email is already taken', 'warning')
+        return redirect('/user/{username}'.format(user.username))
+
+    if (new_username != "" and new_username != user.username and
+            is_username_taken(new_username)):
+        flash('That username is already taken', 'warning')
+        return redirect('/user/{username}'.format(user.username))
+
+    if new_email != "" and new_email != user.email:
+        user.email = new_email
+
+    if new_username != "" and new_username != user.username:
+        user.username = new_username
+
+    if new_password != "" and new_password != old_password:
+        user.set_password(new_password)
+
+    db.session.commit()
+    return redirect('/user/{username}'.format(user.username))
+
+
 # ========================================================================== #
 # Library
 
