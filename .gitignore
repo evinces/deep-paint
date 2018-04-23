@@ -6,8 +6,11 @@ logfile
 
 fast-style-transfer/models/*
 fast-style-transfer/styles/*
+fast-style-transfer/source-images/*
 static/image/*
+htmlcov/
 in/*
 out/*
 *.ckpt
 *.mat
+.coverage*
