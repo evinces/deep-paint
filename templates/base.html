@@ -26,11 +26,6 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="/static/css/style.css">
 
-  <!-- jQuery -->
-  <script crossorigin="anonymous"
-          src="https://code.jquery.com/jquery-3.3.1.min.js">
-  </script>
-
   {% block head %}
   {% endblock %}
 </head>
@@ -317,6 +312,14 @@
           integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm"
           src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js">
   </script>
+
+  <!-- jQuery -->
+  <script crossorigin="anonymous"
+          src="https://code.jquery.com/jquery-3.3.1.min.js">
+  </script>
+
+  {% block script %}
+  {% endblock %}
 
 </body>
 </html>
