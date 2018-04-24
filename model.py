@@ -13,7 +13,7 @@ from evaluate import ffwd_to_img
 
 db = SQLAlchemy()
 
-FILESTORE_PATH = 'static/'
+FILESTORE_PATH = '/static/'
 ALLOWED_EXTENSIONS = set(['gif', 'jpg', 'jpeg', 'png', 'tif', 'tga'])
 
 

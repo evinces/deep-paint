@@ -8,6 +8,7 @@ from collections import defaultdict
 
 BATCH_SIZE = 4
 DEVICE = '/device:GPU:0'
+BASEDIR = os.getcwd()
 
 
 def ffwd(data_in, paths_out, checkpoint_dir, device_t='/device:GPU:0',
@@ -89,8 +90,9 @@ def ffwd_to_img(in_path, out_path, checkpoint_dir, device='/device:CPU:0',
         print(' checkpoint_dir: ', checkpoint_dir)
         print(' device: ', device)
 
-    paths_in, paths_out = [in_path], [out_path]
-    ffwd(paths_in, paths_out, checkpoint_dir, batch_size=1, device_t=device)
+    paths_in, paths_out = [BASEDIR + in_path], [BASEDIR + out_path]
+    ffwd(paths_in, paths_out, BASEDIR + checkpoint_dir, batch_size=1,
+         device_t=device)
 
 
 def ffwd_different_dimensions(in_path, out_path, checkpoint_dir,

@@ -265,11 +265,11 @@
 <!-- Javascript ----------------------------------------------------------- -->
 
 
-  <!-- React (must load before jquery) -->
+  <!-- React (must load before jQuery) -->
   <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
 
-  <!-- Babel (transpile for production) -->
+  <!-- Babel (load with React, transpile for production) -->
   <script src="http://unpkg.com/babel-standalone"></script>
   <script src="/static/js/scripts.jsx" type="text/jsx"></script>
 
@@ -312,8 +312,8 @@
             $('#image-modal-description').text(data.source.description);
           }
           if (data.style !== null) {
-            $('#image-modal-description').text(
-              $('#image-modal-description').text() + '\nStyled as ' +
+            $('#image-modal-description').html(
+              $('#image-modal-description').text() + '<br />Styled as ' +
                 data.style.title + ' by ' + data.style.artist
             );
           }

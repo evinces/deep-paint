@@ -18,7 +18,6 @@ def scale_img(style_path, style_scale):
 
 
 def get_img(src, img_size=False):
-    import pdb; pdb.set_trace()
     img = scipy.misc.imread(src, mode='RGB')  # misc.imresize(, (256, 256, 3))
     if not (len(img.shape) == 3 and img.shape[2] == 3):
         img = np.dstack((img, img, img))
