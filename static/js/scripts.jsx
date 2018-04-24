@@ -49,7 +49,7 @@ class LikeButton extends React.Component {
   render() {
     if (this.state.isLiked) {
       return (
-        <button className="border btn bg-white" data-toggle="tooltip" id="image-modal-like-btn" onClick={this.toggleLike} title="Like" type="button">
+        <button className="border btn bg-white" data-toggle="tooltip" id="image-modal-like-btn" onClick={this.toggleLike} title="Unlike" type="button">
           <span className="oi oi-heart text-danger"></span>
         </button>
       );
@@ -120,8 +120,6 @@ class FeedCard extends React.Component {
   }
 
   render() {
-    console.log(this.state.image);
-    console.log(this.state.user);
     if (this.state.image === null || this.state.user === null) {
       return (
         <article className="card-feed col-12 mx-auto">
@@ -135,8 +133,8 @@ class FeedCard extends React.Component {
             <div className="card-img-top">
               <img className="card-img-top image-detail-target" id={this.props.image_id} src={this.state.image.path} />
               <div className="card-overlay"></div>
-              <a className="card-username" href={"/user/" + this.state.user.user_id}>
-                {this.state.user.username}
+              <a className="card-username" href={"/user/" + this.state.user.username}>
+                {"@" + this.state.user.username}
               </a>
             </div>
 
@@ -164,7 +162,29 @@ class FeedCard extends React.Component {
 }
 
 
-// ReactDOM.hydrate(
-//   <FeedCard image_id={10} user_id={1} />,
-//   document.querySelector("#root")
-// );
+class Feed extends React.Component {
+  constructor(props) {
+    super(props);
+    this.getCards = this.getCards.bind(this);
+  }
+
+  getCards() {
+    let cards = [];
+    for(let i = 0; i < this.props.image_ids.length; i++) {
+      cards.push(
+        <FeedCard key={this.props.image_ids[i]}
+                  image_id={this.props.image_ids[i]}
+                  user_id={this.props.user_id}/>
+      );
+    }
+    return cards;
+  }
+
+  render() {
+    return (
+      <div>
+        {this.getCards()}
+      </div>
+    );
+  }
+}

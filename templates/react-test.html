@@ -5,7 +5,13 @@
 {% endblock %}
 
 {% block script %}
-{#   <script type="text/javascript">
+  <script type="text/jsx">
+    ReactDOM.render(
+      <Feed image_ids={ {{- images -}} } user_id="{{ session.get('user_id') }}" />,
+      document.querySelector("#root")
+    );
+  </script>
+  <script type="text/javascript">
     $("#nav-home").addClass("active");
-  </script> #}
+  </script>
 {% endblock %}

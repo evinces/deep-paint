@@ -21,12 +21,8 @@ def index():
         db.or_(Image.source_image != None,
                Image.styled_image != None)).order_by(
                    Image.created_at.desc()).limit(20).all()
-    return render_template('feed.html', images=images)
-
-
-@app.route('/react-test')
-def react_test():
-    return render_template('react-test.html')
+    image_ids = [image.image_id for image in images]
+    return render_template('feed.html', images=image_ids)
 
 
 @app.route('/ajax/get-image-details.json', methods=['POST'])
