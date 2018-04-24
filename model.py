@@ -13,7 +13,7 @@ from evaluate import ffwd_to_img
 
 db = SQLAlchemy()
 
-FILESTORE_PATH = '/static/'
+FILESTORE_PATH = 'static/'
 ALLOWED_EXTENSIONS = set(['gif', 'jpg', 'jpeg', 'png', 'tif', 'tga'])
 
 
@@ -517,6 +517,17 @@ class Like(db.Model):
     def __repr__(self):
         return '<Like user_id={user} image_id={image}>'.format(
             user=self.user_id, image=self.image_id)
+
+    @classmethod
+    def toggle(cls, user, image):
+        like = Like.query.filter_by(user=user, image=image).one_or_none()
+        if like:
+            db.session.delete(like)
+        else:
+            like = cls(user=user, image=image)
+            db.session.add(like)
+        db.session.commit()
+        return like
 
     @classmethod
     def create(cls, user, image):

@@ -24,6 +24,81 @@ def index():
     return render_template('feed.html', images=images)
 
 
+@app.route('/react-test')
+def react_test():
+    return render_template('react-test.html')
+
+
+@app.route('/ajax/get-image-details.json', methods=['POST'])
+def get_image_details():
+    ajax = request.get_json()
+    image_id = ajax['image_id']
+    if image_id is None:
+        return jsonify({'message': 'no image_id'})
+
+    image = Image.query.get(image_id)
+    result = {
+        'image': {
+            'image_id': image.image_id,
+            'created_at': image.created_at.strftime("%b %d, %Y"),
+            'path': image.get_path(),
+            'user': {
+                'user_id': image.user.user_id,
+                'username': image.user.username
+            }
+        }
+    }
+
+    if image.source_image:
+        result['image']['source_image'] = {
+            'title': image.source_image.title,
+            'description': image.source_image.description
+        }
+
+    if image.styled_image:
+        result['image']['styled_image'] = {
+            'artist': image.styled_image.style.artist,
+            'title': image.styled_image.style.title,
+            'path': image.styled_image.style.image.get_path(),
+            'source_image': {
+                'title': image.styled_image.source_image.title,
+                'image_id': image.styled_image.source_image.image_id
+            }
+        }
+    return jsonify(result)
+
+
+@app.route('/ajax/toggle-like-state.json', methods=['POST'])
+def toggle_like_state():
+    ajax = request.get_json()
+    user_id = session.get('user_id')
+    if (user_id is None or 'user_id' not in ajax or
+            'image_id' not in ajax or
+            ajax['user_id'] != user_id):
+        return jsonify({'message': 'permission denied'})
+
+    user = User.query.get(user_id)
+    image = Image.query.get(ajax['image_id'])
+    Like.toggle(user, image)
+    return jsonify({'message': 'success'})
+
+
+@app.route('/ajax/get-like-state.json', methods=['POST'])
+def get_like_state():
+    ajax = request.get_json()
+    user_id = session.get('user_id')
+    if (user_id is None or 'user_id' not in ajax or
+            'image_id' not in ajax or ajax['user_id'] != user_id):
+        return jsonify({'message': 'permission denied'})
+
+    user = User.query.get(user_id)
+    image = Image.query.get(ajax['image_id'])
+    like = Like.query.filter_by(user=user, image=image).one_or_none()
+    if like:
+        return jsonify({'isLiked': True})
+    return jsonify({'isLiked': False})
+
+
 # ========================================================================== #
 # Signup
 

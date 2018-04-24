@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block content %}
+{% block content %}{#
   {% for image in images %}
     <article class="card-feed col-12 mx-auto">
       <div class="card mx-2 my-4 shadow-sm">
@@ -50,7 +50,7 @@
           <nav class="btn-group" role="group">
             <button class="border btn bg-white" data-toggle="tooltip"
                     id="image-modal-like-btn" title="Like" type="button">
-              <span class="oi oi-heart"></span>
+              <span class="oi oi-heart text-red"></span>
             </button>
             <button class="border btn bg-white" data-toggle="tooltip"
                     id="image-modal-comment-btn" title="Comment" type="button">
@@ -91,11 +91,11 @@
         </footer>
       </div>
     </article>
-  {% endfor %}
+  {% endfor %} #}
 {% endblock %}
 
 {% block script %}
-  <script type="text/javascript">
+{#   <script type="text/javascript">
     $("#nav-home").addClass("active");
-  </script>
+  </script> #}
 {% endblock %}
