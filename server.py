@@ -83,7 +83,7 @@ def get_like_state():
     ajax = request.get_json()
     user_id = session.get('user_id')
     if (user_id is None or 'user_id' not in ajax or
-            'image_id' not in ajax or ajax['user_id'] != user_id):
+            'image_id' not in ajax or int(ajax['user_id']) != user_id):
         return jsonify({'message': 'permission denied'})
 
     user = User.query.get(user_id)
