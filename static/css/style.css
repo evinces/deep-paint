@@ -10,6 +10,10 @@
   max-height: 1024px;
   max-width: 100%;
 }
+a.btn {
+  color: buttontext;
+  background-color: buttonface;
+}
 .card-body {
   font-size: 0.9rem;
 }

@@ -69,8 +69,7 @@ def toggle_like_state():
     ajax = request.get_json()
     user_id = session.get('user_id')
     if (user_id is None or 'user_id' not in ajax or
-            'image_id' not in ajax or
-            ajax['user_id'] != user_id):
+            'image_id' not in ajax):
         return jsonify({'message': 'permission denied'})
 
     user = User.query.get(user_id)
@@ -271,9 +270,11 @@ def show_library():
 
     user = User.query.get(int(user_id))
     images = Image.query.filter_by(
-        user_id=user.user_id).order_by(
+        user=user).order_by(
             Image.created_at.desc()).all()
-    return render_template('library.html', images=images, user=user)
+
+    image_ids = [image.image_id for image in images]
+    return render_template('library.html', images=image_ids, user=user)
 
 
 # ========================================================================== #
