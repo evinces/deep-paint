@@ -17,6 +17,8 @@ connect_to_db(app)
 
 @app.route('/')
 def index():
+    """Homepage / Feed"""
+
     images = Image.query.filter(
         db.or_(Image.source_image != None,
                Image.styled_image != None)).order_by(
@@ -27,6 +29,8 @@ def index():
 
 @app.route('/ajax/get-image-details.json', methods=['POST'])
 def get_image_details():
+    """Image details ajax"""
+
     ajax = request.get_json()
     image_id = ajax['image_id']
     if image_id is None:
@@ -66,6 +70,8 @@ def get_image_details():
 
 @app.route('/ajax/toggle-like-state.json', methods=['POST'])
 def toggle_like_state():
+    """Toggle the Like state on an image via ajax"""
+
     ajax = request.get_json()
     user_id = session.get('user_id')
     if (user_id is None or 'user_id' not in ajax or
@@ -80,6 +86,8 @@ def toggle_like_state():
 
 @app.route('/ajax/get-like-state.json', methods=['POST'])
 def get_like_state():
+    """Get the Like state for an image for the logged in user"""
+
     ajax = request.get_json()
     user_id = session.get('user_id')
     if (user_id is None or 'user_id' not in ajax or

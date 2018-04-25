@@ -85,7 +85,7 @@ class ShareButton extends React.Component {
       <button className="border btn bg-white" data-toggle="tooltip"
               id={"share-btn-" + this.props.image.image_id} title="Share"
               type="button">
-        <span className="oi oi-share-boxed"></span>
+        <span className="oi oi-share"></span>
       </button>
     );
   }
@@ -127,6 +127,58 @@ class EditButton extends React.Component {
 
   componentDidMount() {
     $("#edit-btn-" + this.props.image.image_id).tooltip();
+  }
+}
+
+
+class CloseModalButton extends React.Component {
+  render() {
+    return (
+      <button aria-label="Close" className="close" data-dismiss="modal"
+              type="button">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    );
+  }
+}
+
+
+// ========================================================================= //
+// Form Buttons
+
+
+class LoginSubmitFormButton extends React.Component {
+  render() {
+    return (
+      <button type="submit" className="btn btn-primary ml-2">
+        <span className="oi oi-account-login small"></span>&nbsp;
+        Login
+      </button>
+    );
+  }
+}
+
+
+class SignupLinkFormButton extends React.Component {
+  render() {
+    return (
+      <a className="btn btn-info ml-auto" href="/signup">
+        <span className="oi oi-plus small"></span>&nbsp;
+        Signup
+      </a>
+    );
+  }
+}
+
+
+class UploadSubmitFormButton extends React.Component {
+  render() {
+    return (
+      <button className="btn btn-primary ml-auto" type="submit">
+        <span className="oi oi-cloud-upload">&nbsp;</span>
+        Upload
+      </button>
+    );
   }
 }
 
@@ -178,6 +230,132 @@ class LibraryCardButtonGroup extends React.Component {
   }
 }
 
+
+// ========================================================================= //
+// Form Fields
+
+
+class CurrentPasswordFormField extends React.Component {
+  render() {
+    if (this.props.useColumns) {
+      return (
+        <div className="form-group row">
+          <label className="col-sm-3 col-form-label"
+                 htmlFor="col-current-password-form-field">
+            Password
+          </label>
+          <div className="col-sm-9">
+            <input autoComplete="current-password" className="form-control"
+                   id="col-current-password-form-field" name="password"
+                   placeholder="Enter password" required="true"
+                   type="password"/>
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="form-group">
+          <label htmlFor="current-password-form-field">
+            Password
+          </label>
+          <input autoComplete="current-password" className="form-control"
+                 id="current-password-form-field" name="password"
+                 placeholder="Enter password" required="true"
+                 type="password"/>
+        </div>
+      );
+    }
+  }
+}
+
+
+class EmailFormField extends React.Component {
+  render() {
+    if (this.props.useColumns) {
+      return (
+        <div className="form-group row">
+          <label className="col-sm-3 col-form-label" htmlFor="col-email-form-field">
+            Email address
+          </label>
+          <div className="col-sm-9">
+            <input autoComplete="email" className="form-control"
+                   id="col-email-form-field" name="email" placeholder="Enter email"
+                   required="true" type="email" />
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="form-group">
+          <label htmlFor="email-form-field">
+            Email address
+          </label>
+          <input autoComplete="email" className="form-control"
+                 id="email-form-field" name="email" placeholder="Enter email"
+                 required="true" type="email" />
+        </div>
+      );
+    }
+  }
+}
+
+
+class FileTitleFormField extends React.Component {
+  render() {
+    return (
+      <input className="form-control mb-2" id="file-title-form-field"
+             name="title" placeholder="Title" required="true" type="text" />
+    )
+  }
+}
+
+
+class FileDescriptionFormField extends React.Component {
+  render() {
+    return (
+      <textarea className="form-control mb-2" id="file-description-form-field"
+                maxLength="700" name="description" placeholder="Description..."
+                rows="3">
+      </textarea>
+    );
+  }
+}
+
+
+class FileSelectFormField extends React.Component {
+  constructor(props) {
+    super(props);
+    this.updateLabel = this.updateLabel.bind(this);
+    this.state = {filename: "Choose image file"};
+  }
+
+  updateLabel() {
+    const file = document.querySelector('#file-select-form-field').files[0];
+    if (file !== undefined) {
+      this.setState({filename: file.name});
+    } else {
+      this.setState({filename: "Choose image file"});
+    }
+  }
+
+  render() {
+    return (
+      <div className="custom-file form-group">
+        <input className="custom-file-input form-control"
+               id="file-select-form-field" name="image" required="true"
+               type="file" onChange={this.updateLabel} />
+        <label className="custom-file-label text-truncate"
+               htmlFor="file-select-form-field"
+               id="file-select-form-field-label">
+          {this.state.filename}
+        </label>
+        <small className="ml-2 text-muted">
+          File types: .gif .jpg .jpeg .png .tif .tga
+        </small>
+      </div>
+    );
+  }
+}
 
 // ========================================================================= //
 // Card Contents
@@ -341,6 +519,138 @@ class LibraryCard extends React.Component {
         </article>
       );
     }
+  }
+}
+
+
+// ========================================================================= //
+// Forms
+
+
+class LoginForm extends React.Component {
+  render() {
+    return (
+      <div className="col-sm-12 col-md-10 col-lg-8 mx-auto">
+        <form action="/login" method="POST">
+          <div className="form-group row">
+            <h3 className="ml-4 ml-sm-0">Login</h3>
+          </div>
+
+          <EmailFormField useColumns />
+          <CurrentPasswordFormField useColumns />
+
+          <div className="d-flex flex-row">
+
+            <SignupLinkFormButton />
+            <LoginSubmitFormButton />
+
+          </div>
+        </form>
+      </div>
+    );
+  }
+}
+
+
+class SignupForm extends React.Component {
+  render() {
+    return (
+      <div className="col-sm-12 col-md-10 col-lg-8 mx-auto">
+        <form action="/login" method="POST">
+          <div className="form-group row">
+            <h3 className="ml-4 ml-sm-0">Login Form</h3>
+          </div>
+
+          <EmailFormField />
+          <CurrentPasswordFormField />
+
+          <div className="d-flex flex-row">
+
+            <SignupLinkFormButton />
+            <LoginFormButton />
+
+          </div>
+        </form>
+      </div>
+    );
+  }
+}
+
+
+// ========================================================================= //
+// Modals
+
+
+class LoginModal extends React.Component {
+  render() {
+    return (
+      <div aria-hidden="true" aria-labelledby="login-modal-title"
+           className="fade modal" id="login-modal" role="dialog" tabIndex="-1">
+        <div className="modal-dialog modal-dialog-centered" role="document">
+          <div className="modal-content">
+            <div className="modal-header py-2">
+              <h5 className="modal-title" id="login-modal-title">Login</h5>
+
+              <CloseModalButton />
+
+            </div>
+            <form action="/login" method="POST">
+              <div className="modal-body">
+
+                <EmailFormField />
+                <CurrentPasswordFormField />
+
+              </div>
+              <div className="modal-footer p-2">
+
+                <SignupLinkFormButton />
+                <LoginSubmitFormButton />
+
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+
+class UploadModal extends React.Component {
+  render() {
+    return (
+        <div aria-hidden="true" aria-labelledby="upload-modal-title"
+             className="modal fade" id="upload-modal" role="dialog"
+             tabIndex="-1">
+          <div className="modal-dialog modal-dialog-centered" role="document">
+            <div className="modal-content">
+              <div className="modal-header py-2">
+                <h5 className="modal-title" id="upload-modal-title">
+                  Choose an image file to upload
+                </h5>
+
+                <CloseModalButton />
+
+              </div>
+              <form action="/upload" encType="multipart/form-data"
+                    method="POST">
+                <div className="modal-body">
+
+                  <FileTitleFormField />
+                  <FileDescriptionFormField />
+                  <FileSelectFormField />
+
+                </div>
+                <div className="modal-footer p-2">
+
+                  <UploadSubmitFormButton />
+
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+    );
   }
 }
 

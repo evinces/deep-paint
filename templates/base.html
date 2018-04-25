@@ -22,10 +22,6 @@
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css?family=Cutive|Nunito|Sniglet" rel="stylesheet">
-<!--
-  <script crossorigin="anonymous"
-          src="https://code.jquery.com/jquery-3.3.1.min.js">
-  </script>-->
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="/static/css/style.css">
@@ -54,7 +50,7 @@
         <div class="ml-auto order-2">
 
           {% if 'user_id' in session %}
-            <button class="btn btn-light mr-2" data-target="#uploadModal"
+            <button class="btn btn-light mr-2" data-target="#upload-modal"
                     data-toggle="modal" id="upload-btn" type="button">
               <span class="oi oi-cloud-upload">&nbsp;</span>
               Upload
@@ -65,7 +61,7 @@
             </a>
           {% else %}
             <button id="login-btn" class="btn btn-light" type="button"
-                    data-toggle="modal" data-target="#loginModal">
+                    data-toggle="modal" data-target="#login-modal">
               <span class="oi oi-account-login">&nbsp;</span>
               Login
             </button>
@@ -128,85 +124,11 @@
 
 <!-- Login modal ---------------------------------------------------------- -->
 
-  <div aria-hidden="true" aria-labelledby="loginModalTitle" class="fade modal"
-       id="loginModal" role="dialog" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header py-2">
-          <h5 class="modal-title" id="loginModalTitle">Login</h5>
-          <button aria-label="Close" class="close" data-dismiss="modal"
-                  type="button">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <form action="/login" method="POST">
-          <div class="modal-body">
-            <div class="form-group">
-              <label for="input-modal-email">Email address</label>
-              <input autocomplete="email" class="form-control" id="input-modal-email" name="email"
-                     placeholder="Enter email" required="true" type="email">
-            </div>
-            <div class="form-group">
-              <label for="input-modal-password">Password</label>
-              <input autocomplete="current-password" class="form-control" id="input-modal-password"
-                     name="password" placeholder="Password" required="true"
-                     type="password">
-            </div>
-          </div>
-          <div class="modal-footer p-1">
-            <a class="btn btn-info ml-auto" href="/signup">Signup</a>
-            <button class="btn btn-primary ml-1" type="submit">
-              Login
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
+  <div id="root-login-modal"></div>
 
 <!-- Upload modal --------------------------------------------------------- -->
 
-  <div aria-hidden="true" aria-labelledby="uploadModalTitle" class="modal fade"
-       id="uploadModal" role="dialog" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="uploadModalTitle">
-            Choose an image file to upload
-          </h5>
-          <button aria-label="Close" class="close" data-dismiss="modal"
-                  type="button">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <form action="/upload" enctype="multipart/form-data" method="POST">
-          <div class="modal-body">
-            <input class="form-control mb-2" name="title" placeholder="Title"
-                   required="true" type="text">
-            <textarea class="form-control mb-2" id="uploadFormDescription"
-                      name="description" placeholder="Description..." rows="3">
-            </textarea>
-            <div class="custom-file">
-              <input class="custom-file-input form-control"
-                     id="uploadImageFile" name="image" required="true"
-                     type="file">
-              <label class="custom-file-label text-truncate"
-                     for="uploadImageFile" id="uploadImageLabel">
-                Choose image file
-              </label>
-            </div>
-            <small class="ml-2 text-muted">File types: .gif .jpg .jpeg .png .tif .tga</small>
-          </div>
-          <div class="modal-footer">
-            <button class="btn btn-primary ml-auto" type="submit">
-              <span class="oi oi-cloud-upload">&nbsp;</span>
-              Upload
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
+  <div id="root-upload-modal"></div>
 
 <!-- Image modal ---------------------------------------------------------- -->
 
@@ -284,17 +206,19 @@
   <!-- Bootstrap -->
   <script crossorigin="anonymous" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
 
-  <script type="text/javascript">
-    // upload form
-    $('#uploadImageFile').on('change', function () {
-      let filename = $(this.files)[0].name;
-      if (filename !== undefined) {
-        $('#uploadImageLabel').text(filename);
-      } else {
-        $('#uploadImageLabel').text("Choose image file");
-      }
-    });
+  <script type="text/jsx">
+    ReactDOM.render(
+      <LoginModal />,
+      document.querySelector("#root-login-modal")
+    );
+    ReactDOM.render(
+      <UploadModal />,
+      document.querySelector("#root-upload-modal")
+    );
 
+  </script>
+
+  <script type="text/javascript">
     // image modal
     $('.image-detail-target').on('click', function () {
       let image_id = $(this).prop('id');
