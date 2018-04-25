@@ -34,73 +34,7 @@
 
 <!-- Navbar -------------------------------------------------------------- -->
 
-  <nav class="bg-dark border-dark navbar navbar-dark navbar-expand-md
-              shadow sticky-top">
-    <div class="container">
-      <a class="h1 mb-0 navbar-brand" href="/">
-        <span class="oi oi-brush">&nbsp;</span>
-        Deep-Paint
-      </a>
-      <button aria-controls="navbarToggle" aria-expanded="false"
-              aria-label="Toggle navigation" class="navbar-toggler"
-              data-target="#navbarToggle" data-toggle="collapse" type="button">
-        <span class="navbar-toggler-icon">&nbsp;</span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarToggle">
-        <div class="ml-auto order-2">
-
-          {% if 'user_id' in session %}
-            <button class="btn btn-light mr-2" data-target="#upload-modal"
-                    data-toggle="modal" id="upload-btn" type="button">
-              <span class="oi oi-cloud-upload">&nbsp;</span>
-              Upload
-            </button>
-            <a class="btn btn-light" href="/logout" id="logout-btn">
-              <span class="oi oi-account-logout">&nbsp;</span>
-              Logout
-            </a>
-          {% else %}
-            <button id="login-btn" class="btn btn-light" type="button"
-                    data-toggle="modal" data-target="#login-modal">
-              <span class="oi oi-account-login">&nbsp;</span>
-              Login
-            </button>
-          {% endif %}
-
-        </div>
-        <ul class="mr-auto navbar-nav order-1">
-          <li class="nav-item">
-            <a class="nav-link" href="/" id="nav-home">Home</a>
-          </li>
-
-          {% if 'user_id' in session %}
-          <li class="nav-item">
-            <a class="nav-link" href="/library" id="nav-library">Library</a>
-          </li>
-          {% endif %}
-
-          <li class="dropdown nav-item">
-            <a aria-expanded="false" aria-haspopup="true"
-               class="dropdown-toggle nav-link" data-toggle="dropdown"
-               href="#" id="navbar-about-dropdown" id="nav-about">
-              About
-            </a>
-            <div aria-labelledby="navbar-about-dropdown" class="dropdown-menu">
-              <a class="dropdown-item" href="/about">About this project</a>
-              <a class="dropdown-item" href="/about#tensorflow">
-                How does style-transfer work?
-              </a>
-              <a class="dropdown-item"
-                 href="https://github.com/evinces/deep-paint">
-                <small><span class="oi oi-external-link">&nbsp;</span></small>
-                View the project GitHub
-              </a>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+  <div id="root-navbar"></div>
 
 <!-- Flash messages ------------------------------------------------------- -->
 
@@ -208,6 +142,10 @@
 
   <script type="text/jsx">
     ReactDOM.render(
+      <Navbar user_id={ {{- session.get('user_id') -}} } />,
+      document.querySelector("#root-navbar")
+    );
+    ReactDOM.render(
       <LoginModal />,
       document.querySelector("#root-login-modal")
     );
@@ -215,7 +153,6 @@
       <UploadModal />,
       document.querySelector("#root-upload-modal")
     );
-
   </script>
 
   <script type="text/javascript">

@@ -120,7 +120,7 @@ class EditButton extends React.Component {
       <button className="border btn bg-white" data-toggle="tooltip"
               id={"edit-btn-" + this.props.image.image_id} title="Edit"
               type="button">
-        <span className="oi oi-wrench"></span>
+        <span className="oi oi-cog"></span>
       </button>
     );
   }
@@ -138,6 +138,44 @@ class CloseModalButton extends React.Component {
               type="button">
         <span aria-hidden="true">&times;</span>
       </button>
+    );
+  }
+}
+
+
+class UploadNavButton extends React.Component {
+  render() {
+    return (
+      <button className="btn btn-light mr-2" data-target="#upload-modal"
+              data-toggle="modal" id="upload-btn" type="button">
+        <span className="oi oi-cloud-upload"></span>&nbsp;
+        Upload
+      </button>
+    );
+  }
+}
+
+
+class LoginNavButton extends React.Component {
+  render() {
+    return (
+      <button className="btn btn-light" data-target="#login-modal"
+              data-toggle="modal" id="navbar-login-btn" type="button">
+        <span className="oi oi-account-login"></span>&nbsp;
+        Login
+      </button>
+    );
+  }
+}
+
+
+class LogoutNavButton extends React.Component {
+  render() {
+    return (
+      <a className="btn btn-light" href="/logout" id="navbar-logout-btn">
+        <span className="oi oi-account-logout"></span>&nbsp;
+        Logout
+      </a>
     );
   }
 }
@@ -432,7 +470,9 @@ class FeedCard extends React.Component {
     if (this.state.image === null || this.state.user === null) {
       return (
         <article className="card-feed col-12 mx-auto">
-          <p>Loading...</p>
+          <div className="card mx-2 my-4 shadow-sm">
+            <p>Loading...</p>
+          </div>
         </article>
       );
     } else {
@@ -490,8 +530,11 @@ class LibraryCard extends React.Component {
   render() {
     if (this.state.image === null || this.state.user === null) {
       return (
-        <article className="card-feed col-12 mx-auto">
-          <p>Loading...</p>
+        <article className="col-12 col-sm-11 col-md-6 col-lg-4 col-xl-3
+                            mx-auto">
+          <div className="card mx-2 my-4 shadow-sm">
+            <p>Loading...</p>
+          </div>
         </article>
       );
     } else {
@@ -499,10 +542,8 @@ class LibraryCard extends React.Component {
         <article className="col-12 col-sm-11 col-md-6 col-lg-4 col-xl-3
                             mx-auto">
           <div className="card mx-2 my-4 shadow-sm">
-            <div className="card-img-top image-detail-target">
-              <img className="card-img-top image-detail-target"
-                   id={this.props.image_id} src={this.state.image.path} />
-            </div>
+            <img className="card-img-top image-detail-target"
+                 id={this.props.image_id} src={this.state.image.path} />
 
             <CardBody image={this.state.image} />
 
@@ -619,38 +660,233 @@ class LoginModal extends React.Component {
 class UploadModal extends React.Component {
   render() {
     return (
-        <div aria-hidden="true" aria-labelledby="upload-modal-title"
-             className="modal fade" id="upload-modal" role="dialog"
-             tabIndex="-1">
-          <div className="modal-dialog modal-dialog-centered" role="document">
-            <div className="modal-content">
-              <div className="modal-header py-2">
-                <h5 className="modal-title" id="upload-modal-title">
-                  Choose an image file to upload
-                </h5>
+      <div aria-hidden="true" aria-labelledby="upload-modal-title"
+           className="modal fade" id="upload-modal" role="dialog"
+           tabIndex="-1">
+        <div className="modal-dialog modal-dialog-centered" role="document">
+          <div className="modal-content">
+            <div className="modal-header py-2">
+              <h5 className="modal-title" id="upload-modal-title">
+                Choose an image file to upload
+              </h5>
 
-                <CloseModalButton />
+              <CloseModalButton />
+
+            </div>
+            <form action="/upload" encType="multipart/form-data"
+                  method="POST">
+              <div className="modal-body">
+
+                <FileTitleFormField />
+                <FileDescriptionFormField />
+                <FileSelectFormField />
 
               </div>
-              <form action="/upload" encType="multipart/form-data"
-                    method="POST">
-                <div className="modal-body">
+              <div className="modal-footer p-2">
 
-                  <FileTitleFormField />
-                  <FileDescriptionFormField />
-                  <FileSelectFormField />
+                <UploadSubmitFormButton />
 
-                </div>
-                <div className="modal-footer p-2">
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
 
-                  <UploadSubmitFormButton />
 
-                </div>
-              </form>
+class ImageModal extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      'image': null
+    };
+    const url = '/ajax/get-image-details.json';
+    const data = {'image_id': this.props.image_id};
+    const payload = {
+      method: 'POST',
+      body: JSON.stringify(data),
+      credentials: 'same-origin',
+      headers: new Headers({'content-type': 'application/json'})
+    };
+    fetch(url, payload)
+    .then(r => r.json())
+    .then(r => this.setState({
+      'image': r.image
+    }));
+  }
+
+  render() {
+    if (this.state.image === null || this.state.user === null) {
+      return (
+        <div aria-hidden="true" class="modal fade" id="image-modal" role="dialog"
+           tabindex="-1">
+          <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+              <p>Loading...</p>
             </div>
           </div>
         </div>
-    );
+      );
+    } else {
+      return (
+        <div aria-hidden="true" class="modal fade" id="image-modal" role="dialog"
+           tabindex="-1">
+          <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="image-modal-title">
+                  {this.state.image.title}
+                </h5>
+                <CloseModalButton />
+              </div>
+              <div class="modal-body">
+                <img class="border d-flex mx-auto rounded"
+                     id={this.state.image.image_id}
+                     src={this.state.image.path} />
+                <h6 id="image-modal-user">
+                  <a href={"/user/" + this.state.image.user.username}>
+                    @{this.state.image.user.username}
+                  </a>
+                </h6>
+                <p id="image-modal-description">
+                  {this.state.image.description}
+                </p>
+              </div>
+              <footer className="modal-footer d-flex flex-row pr-1 py-1">
+                <small className="my-auto mr-auto text-muted">
+                  {this.state.image.created_at}
+                </small>
+                <FeedCardButtonGroup image={this.state.image}
+                                     user_id={this.props.user_id} />
+              </footer>
+            </div>
+          </div>
+        </div>
+      );
+    }
+  }
+}
+
+
+// ========================================================================= //
+// Navbar
+
+
+class Navbar extends React.Component {
+  render() {
+    if (this.props.user_id) {
+      return (
+        <nav className="bg-dark border-dark navbar navbar-dark navbar-expand-md
+                        shadow sticky-top">
+          <div className="container">
+            <a className="h1 mb-0 navbar-brand" href="/">
+              <span className="oi oi-brush"></span>&nbsp;
+              Deep-Paint
+            </a>
+            <button aria-controls="navbar-toggle" aria-expanded="false"
+                    aria-label="Toggle navigation" className="navbar-toggler"
+                    data-target="#navbar-toggle" data-toggle="collapse"
+                    type="button">
+              <span className="navbar-toggler-icon"></span>
+            </button>
+            <div className="collapse navbar-collapse" id="navbar-toggle">
+              <div className="ml-auto order-2">
+
+                <UploadNavButton />
+                <LogoutNavButton />
+
+              </div>
+              <ul className="mr-auto navbar-nav order-1">
+                <li className="nav-item">
+                  <a className="nav-link" href="/" id="nav-home">Home</a>
+                </li>
+                <li className="nav-item">
+                  <a className="nav-link" href="/library" id="nav-library">
+                    Library
+                  </a>
+                </li>
+                <li className="dropdown nav-item">
+                  <a aria-expanded="false" aria-haspopup="true"
+                     className="dropdown-toggle nav-link"
+                     data-toggle="dropdown" id="navbar-about-dropdown">
+                    About
+                  </a>
+                  <div aria-labelledby="navbar-about-dropdown"
+                       className="dropdown-menu">
+                    <a className="dropdown-item" href="/about">
+                      About this project
+                    </a>
+                    <a className="dropdown-item" href="/about#tensorflow">
+                      How does style-transfer work?
+                    </a>
+                    <a className="dropdown-item"
+                       href="https://github.com/evinces/deep-paint">
+                      <small>
+                        <span className="oi oi-external-link"></span>
+                      </small>&nbsp;
+                      View the project GitHub
+                    </a>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+      );
+    } else {
+      return (
+        <nav className="bg-dark border-dark navbar navbar-dark navbar-expand-md
+                    shadow sticky-top">
+          <div className="container">
+            <a className="h1 mb-0 navbar-brand" href="/">
+              <span className="oi oi-brush"></span>&nbsp;
+              Deep-Paint
+            </a>
+            <button aria-controls="navbar-toggle" aria-expanded="false"
+                    aria-label="Toggle navigation" className="navbar-toggler"
+                    data-target="#navbar-toggle" data-toggle="collapse"
+                    type="button">
+              <span className="navbar-toggler-icon"></span>
+            </button>
+            <div className="collapse navbar-collapse" id="navbar-toggle">
+              <div className="ml-auto order-2">
+                <LoginNavButton />
+              </div>
+              <ul className="mr-auto navbar-nav order-1">
+                <li className="nav-item">
+                  <a className="nav-link" href="/" id="nav-home">Home</a>
+                </li>
+                <li className="dropdown nav-item">
+                  <a aria-expanded="false" aria-haspopup="true"
+                     className="dropdown-toggle nav-link"
+                     data-toggle="dropdown" id="navbar-about-dropdown">
+                    About
+                  </a>
+                  <div aria-labelledby="navbar-about-dropdown"
+                       className="dropdown-menu">
+                    <a className="dropdown-item" href="/about">
+                      About this project
+                    </a>
+                    <a className="dropdown-item" href="/about#tensorflow">
+                      How does style-transfer work?
+                    </a>
+                    <a className="dropdown-item"
+                       href="https://github.com/evinces/deep-paint">
+                      <small>
+                        <span className="oi oi-external-link"></span>&nbsp;
+                      </small>
+                      View the project GitHub
+                    </a>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+      );
+    }
   }
 }
 

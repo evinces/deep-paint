@@ -1,6 +1,7 @@
-/*body {
-  font-family: 'Nunito', sans-serif;
-}*/
+#root-navbar {
+  display: contents;
+}
+
 .navbar-brand {
   /*font-family: 'Cutive', serif;*/
   font-family: 'Sniglet', cursive;
