@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-from os import remove, path
+from os import remove, path, getcwd
 from PIL import Image as PILImage
 from time import time
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -15,6 +15,7 @@ db = SQLAlchemy()
 
 FILESTORE_PATH = '/static/'
 ALLOWED_EXTENSIONS = set(['gif', 'jpg', 'jpeg', 'png', 'tif', 'tga'])
+BASEPATH = getcwd()
 
 
 # ========================================================================== #
@@ -186,12 +187,12 @@ class Image(TimestampMixin, db.Model):
         db.session.add(image)
         db.session.commit()
 
-        if path.isfile(image.get_path()):
-            remove(image.get_path())
+        if path.isfile(BASEPATH + image.get_path()):
+            remove(BASEPATH + image.get_path())
 
-        image_file.save(image.get_path())
+        image_file.save(BASEPATH + image.get_path())
         if resize:
-            cls.resize_image(image.get_path())
+            cls.resize_image(BASEPATH + image.get_path())
 
         return image
 
@@ -523,9 +524,11 @@ class Like(db.Model):
         like = Like.query.filter_by(user=user, image=image).one_or_none()
         if like:
             db.session.delete(like)
-        else:
-            like = cls(user=user, image=image)
-            db.session.add(like)
+            db.session.commit()
+            return None
+
+        like = cls(user=user, image=image)
+        db.session.add(like)
         db.session.commit()
         return like
 

@@ -1,134 +1,64 @@
 {% extends 'base.html' %}
 
-{% block head %}
-  <!-- From https://css-tricks.com/password-strength-meter/ -->
-  <!-- Dropbox password strength API -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.2.0/zxcvbn.js">
-  </script>
-{% endblock %}
-
 {% block content %}
-  <div class="row">
-    <div class="col-md-12 col-lg-10 mx-auto">
-      <form action="/signup" class="signup-form" method="POST">
-        <div class="form-group row">
-          <h3 class="ml-4 ml-sm-0">Signup Form</h3>
-        </div>
-        <div class="form-group row">
-          <label class="col-sm-4 col-md-3 col-form-label"
-                 for="input-form-username">
-            Username
-          </label>
-          <div class="col-sm-8 col-md-9 input-group">
-            <div class="input-group-prepend">
-              <div class="input-group-text">@</div>
-            </div>
-            <input autocomplete="username" class="form-control"
-                   id="input-form-username" name="username"
-                   placeholder="Enter username" required="true" type="text">
-          </div>
-        </div>
-        <div class="form-group row">
-          <label class="col-sm-4 col-md-3 col-form-label" for="input-form-email">
-            Email address
-          </label>
-          <div class="col-sm-8 col-md-9">
-            <input autocomplete="email" class="form-control" id="input-form-email"
-                   name="email" placeholder="Enter email" required="true"
-                   type="email">
-          </div>
-        </div>
-        <div class="form-group row">
-          <div class="col-12 d-flex flex-row m-0">
-            <p class="my-0 ml-auto mr-3 small text-muted"
-               id="password-strength">&nbsp;</p>
-          </div>
-          <label class="col-sm-4 col-md-3 col-form-label"
-                 for="input-form-password">
-            Password
-          </label>
-          <div class="col-sm-8 col-md-9">
-            <input autocomplete="current-password" class="form-control"
-                   id="input-form-password" name="password"
-                   placeholder="Enter password" required="true" type="password">
-          </div>
-        </div>
-        <div class="form-group row">
-          <label class="col-sm-4 col-md-3 col-form-label"
-                 for="input-form-password">
-                Confirm Password
-          </label>
-          <div class="col-sm-8 col-md-9 input-group">
-            <div class="input-group-prepend">
-              <div class="input-group-text" style="min-width: 2.5em;">
-                <span id="password-match-display"></span>
-              </div>
-            </div>
-            <input autocomplete="current-password" class="form-control"
-                   id="input-form-password-comfirm" name="password-confirm"
-                   placeholder="Re-enter password" required="true"
-                   type="password">
-          </div>
-        </div>
-        <div class="d-flex flex-row">
-          <button class="btn btn-primary ml-auto" id="signup-btn" type="submit">
-            Signup
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
+  <div id="root"></div>
 {% endblock %}
 
 {% block script %}
+  <script type="text/jsx">
+    ReactDOM.render(
+      <SignupForm />,
+      document.querySelector("#root")
+    );
+  </script>
   <script type="text/javascript">
-    const strengths = {
-      0: "Worst",
-      1: "Bad",
-      2: "Weak",
-      3: "Good",
-      4: "Strong"
-    };
-    let usernameField = document.querySelector('#input-form-username');
-    let emailField = document.querySelector('#input-form-email');
-    let passwordField = document.querySelector('#input-form-password');
-    let confirmField = document.querySelector('#input-form-password-comfirm');
-    let passwordStrength = document.querySelector('#password-strength');
-    let confirmDisplay = document.querySelector('#password-match-display');
-    let signupButton = document.querySelector('#signup-btn');
-    let signupForm = document.querySelector('#signup-form');
+    // const strengths = {
+    //   0: "Worst",
+    //   1: "Bad",
+    //   2: "Weak",
+    //   3: "Good",
+    //   4: "Strong"
+    // };
+    // let usernameField = document.querySelector('#input-form-username');
+    // let emailField = document.querySelector('#input-form-email');
+    // let passwordField = document.querySelector('#input-form-password');
+    // let confirmField = document.querySelector('#input-form-password-comfirm');
+    // let passwordStrength = document.querySelector('#password-strength');
+    // let confirmDisplay = document.querySelector('#password-match-display');
+    // let signupButton = document.querySelector('#signup-btn');
+    // let signupForm = document.querySelector('#signup-form');
 
-    // comfirm password
-    function passwordCheck() {
-      let password = passwordField.value;
-      let confirm = confirmField.value;
-      return password === confirm;
-    };
+    // // comfirm password
+    // function passwordCheck() {
+    //   let password = passwordField.value;
+    //   let confirm = confirmField.value;
+    //   return password === confirm;
+    // };
 
-    confirmField.addEventListener('input', function() {
-      if (passwordCheck()) {
-        confirmDisplay.innerHTML = '<span class="oi oi-circle-check"></span>';
-      } else {
-        confirmDisplay.innerHTML = '<span class="oi oi-circle-x"></span>';
-      }
-    });
+    // confirmField.addEventListener('input', function() {
+    //   if (passwordCheck()) {
+    //     confirmDisplay.innerHTML = '<span class="oi oi-circle-check"></span>';
+    //   } else {
+    //     confirmDisplay.innerHTML = '<span class="oi oi-circle-x"></span>';
+    //   }
+    // });
 
-    // password strength
-    passwordField.addEventListener('input', function() {
-      let password = passwordField.value;
-      let result = zxcvbn(password);
-      if (password !== "") {
-        passwordStrength.innerHTML = "Strength: " + strengths[result.score];
-      } else {
-        passwordStrength.innerHTML = "&nbsp;";
-      }
-    });
+    // // password strength
+    // passwordField.addEventListener('input', function() {
+    //   let password = passwordField.value;
+    //   let result = zxcvbn(password);
+    //   if (password !== "") {
+    //     passwordStrength.innerHTML = "Strength: " + strengths[result.score];
+    //   } else {
+    //     passwordStrength.innerHTML = "&nbsp;";
+    //   }
+    // });
 
-    // form submit checks
-    signupForm.addEventListener('submit', function(e) {
-      if (!passwordCheck()) {
-        e.preventDefault();
-      }
-    });
+    // // form submit checks
+    // signupForm.addEventListener('submit', function(e) {
+    //   if (!passwordCheck()) {
+    //     e.preventDefault();
+    //   }
+    // });
   </script>
 {% endblock %}

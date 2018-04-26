@@ -32,37 +32,37 @@ def get_image_details():
     """Image details ajax"""
 
     ajax = request.get_json()
-    image_id = ajax['image_id']
+    image_id = ajax['imageId']
     if image_id is None:
-        return jsonify({'message': 'no image_id'})
+        return jsonify({'message': 'no imageId'})
 
     image = Image.query.get(image_id)
     result = {
         'image': {
-            'image_id': image.image_id,
-            'created_at': image.created_at.strftime("%b %d, %Y"),
+            'imageId': image.image_id,
+            'createdAt': image.created_at.strftime("%b %d, %Y"),
             'path': image.get_path(),
             'user': {
-                'user_id': image.user.user_id,
+                'userId': image.user.user_id,
                 'username': image.user.username
             }
         }
     }
 
     if image.source_image:
-        result['image']['source_image'] = {
+        result['image']['sourceImage'] = {
             'title': image.source_image.title,
             'description': image.source_image.description
         }
 
     if image.styled_image:
-        result['image']['styled_image'] = {
+        result['image']['styledImage'] = {
             'artist': image.styled_image.style.artist,
             'title': image.styled_image.style.title,
             'path': image.styled_image.style.image.get_path(),
-            'source_image': {
+            'sourceImage': {
                 'title': image.styled_image.source_image.title,
-                'image_id': image.styled_image.source_image.image_id
+                'imageId': image.styled_image.source_image.image_id
             }
         }
     return jsonify(result)
@@ -73,15 +73,14 @@ def toggle_like_state():
     """Toggle the Like state on an image via ajax"""
 
     ajax = request.get_json()
-    user_id = session.get('user_id')
-    if (user_id is None or 'user_id' not in ajax or
-            'image_id' not in ajax):
+    user_id = session.get('userId')
+    if user_id is None or 'imageId' not in ajax:
         return jsonify({'message': 'permission denied'})
 
     user = User.query.get(user_id)
-    image = Image.query.get(ajax['image_id'])
-    Like.toggle(user, image)
-    return jsonify({'message': 'success'})
+    image = Image.query.get(ajax['imageId'])
+    like = Like.toggle(user, image)
+    return jsonify({'isLiked': like is not None})
 
 
 @app.route('/ajax/get-like-state.json', methods=['POST'])
@@ -89,17 +88,14 @@ def get_like_state():
     """Get the Like state for an image for the logged in user"""
 
     ajax = request.get_json()
-    user_id = session.get('user_id')
-    if (user_id is None or 'user_id' not in ajax or
-            'image_id' not in ajax or int(ajax['user_id']) != user_id):
+    user_id = session.get('userId')
+    if user_id is None or 'imageId' not in ajax:
         return jsonify({'message': 'permission denied'})
 
     user = User.query.get(user_id)
-    image = Image.query.get(ajax['image_id'])
+    image = Image.query.get(ajax['imageId'])
     like = Like.query.filter_by(user=user, image=image).one_or_none()
-    if like:
-        return jsonify({'isLiked': True})
-    return jsonify({'isLiked': False})
+    return jsonify({'isLiked': like is not None})
 
 
 # ========================================================================== #
@@ -108,8 +104,8 @@ def get_like_state():
 
 @app.route('/signup', methods=['GET'])
 def show_signup_form():
-    if 'user_id' in session:
-        del session['user_id']
+    if 'userId' in session:
+        del session['userId']
     return render_template('signup_form.html')
 
 
@@ -137,7 +133,7 @@ def process_signup():
         return redirect('/signup')
 
     user = User.create(username, email, password)
-    session['user_id'] = user.user_id
+    session['userId'] = user.user_id
     flash('Welcome {}!'.format(user), 'primary')
     return redirect('/')
 
@@ -158,8 +154,8 @@ def is_email_taken(email):
 
 @app.route('/login', methods=['GET'])
 def show_login_form():
-    if 'user_id' in session:
-        del session['user_id']
+    if 'userId' in session:
+        del session['userId']
     return render_template('login_form.html')
 
 
@@ -173,15 +169,15 @@ def login():
         flash('Invalid email or password', 'warning')
         return redirect('/login')
 
-    session['user_id'] = user.user_id
+    session['userId'] = user.user_id
     flash('Login successful', 'info')
     return redirect('/library')
 
 
 @app.route('/logout')
 def logout():
-    if 'user_id' in session:
-        del session['user_id']
+    if 'userId' in session:
+        del session['userId']
 
     flash('Logout successful', 'info')
     return redirect('/login')
@@ -190,7 +186,7 @@ def logout():
 @app.route('/loggedin_password_check.json', methods=['POST'])
 def password_json():
     result = {}
-    user_id = session.get('user_id')
+    user_id = session.get('userId')
     if user_id is None:
         result['message'] = 'Permission denied'
     else:
@@ -215,7 +211,7 @@ def show_user_profile(username):
         flash('No user with that username was found', 'warning')
         return redirect('/')
 
-    current_user_id = session.get('user_id')
+    current_user_id = session.get('userId')
     if current_user_id is not None and current_user_id == user.user_id:
         return render_template('user_preferences.html', user=user)
 
@@ -224,7 +220,7 @@ def show_user_profile(username):
 
 @app.route('/user/<username>', methods=["POST"])
 def process_user_edit(username):
-    current_user_id = session.get('user_id')
+    current_user_id = session.get('userId')
     if current_user_id is None:
         flash('Login required to view this page', 'warning')
         return redirect('/login')
@@ -271,7 +267,7 @@ def process_user_edit(username):
 
 @app.route('/library')
 def show_library():
-    user_id = session.get('user_id')
+    user_id = session.get('userId')
     if user_id is None:
         flash('Login to view your library', 'warning')
         return redirect('/login')
@@ -296,7 +292,7 @@ def upload_image_redirect():
 
 @app.route('/upload', methods=['POST'])
 def upload_image():
-    user_id = session.get('user_id')
+    user_id = session.get('userId')
     if user_id is None:
         flash('Login to upload images', 'warning')
         return redirect('/login')
@@ -330,7 +326,7 @@ def upload_image():
 
 @app.route('/style', methods=['GET'])
 def style_form():
-    user_id = session.get('user_id')
+    user_id = session.get('userId')
     if user_id is None:
         flash('Login to style images', 'warning')
         return redirect('/login')

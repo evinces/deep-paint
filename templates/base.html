@@ -4,7 +4,7 @@
 <head>
   <title>
     {% block title %}
-      Deep-Paint | Photo Styling
+      DeepPaint | Photo Styling
     {% endblock %}
   </title>
 
@@ -140,11 +140,24 @@
   <!-- Bootstrap -->
   <script crossorigin="anonymous" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
 
+  <!-- Dropbox password strength API -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.2.0/zxcvbn.js">
+  </script>
+
   <script type="text/jsx">
-    ReactDOM.render(
-      <Navbar user_id={ {{- session.get('user_id') -}} } />,
-      document.querySelector("#root-navbar")
-    );
+    {% with userId = session.get('userId') %}
+      {% if userId %}
+        ReactDOM.render(
+          <Navbar userId={ {{- userId -}} } />,
+          document.querySelector("#root-navbar")
+        );
+      {% else %}
+        ReactDOM.render(
+          <Navbar />,
+          document.querySelector("#root-navbar")
+        );
+      {% endif %}
+    {% endwith %}
     ReactDOM.render(
       <LoginModal />,
       document.querySelector("#root-login-modal")

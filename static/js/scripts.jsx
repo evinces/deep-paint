@@ -5,76 +5,27 @@
 // Buttons
 
 
-class LikeButton extends React.Component {
+class ImageButton extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      'isLiked': false
-    };
-    this.toggleLike = this.toggleLike.bind(this);
-
-    const url = '/ajax/get-like-state.json';
-    const data = {
-      'user_id': this.props.user_id,
-      'image_id': this.props.image.image_id
-    };
-    const payload = {
-      method: 'POST',
-      body: JSON.stringify(data),
-      credentials: 'same-origin',
-      headers: new Headers({'content-type': 'application/json'})
-    };
-    fetch(url, payload)
-    .then(r => r.json())
-    .then(r => this.setState({
-      'isLiked': r.isLiked
-    }));
+    this.tooltipPart = null;
+    this.id = this.props.name + "-btn-" + this.props.imageId;
+    this.title = this.props.name[0].toUpperCase() + this.props.name.slice(1);
   }
 
-  toggleLike() {
-    if (this.state.isLiked) {
-      this.setState({'isLiked': false});
-    } else {
-      this.setState({'isLiked': true});
-    }
-    const url = '/ajax/toggle-like-state.json';
-    const data = {
-      'user_id': this.props.user_id,
-      'image_id': this.props.image.image_id
-    };
-    const payload = {
-      method: 'POST',
-      body: JSON.stringify(data),
-      credentials: 'same-origin',
-      headers: new Headers({'content-type': 'application/json'})
-    };
-    fetch(url, payload)
-    .then(r => r.json())
-    .then(r => console.log(r));
+  componentDidMount() {
+    $(this.tooltipPart).tooltip();
   }
 
   render() {
-    if (this.state.isLiked) {
-      return (
-        <button className="border btn bg-white" data-toggle="tooltip"
-                id={"like-btn-" + this.props.image.image_id}
-                onClick={this.toggleLike} title="Unlike" type="button">
-          <span className="oi oi-heart text-danger"></span>
-        </button>
-      );
-    } else {
-      return (
-        <button className="border btn bg-white" data-toggle="tooltip"
-                id={"like-btn-" + this.props.image.image_id}
-                onClick={this.toggleLike} title="Like" type="button">
-          <span className="oi oi-heart"></span>
-        </button>
-      );
-    }
-  }
-
-  componentDidUpdate() {
-    $("#like-btn-" + this.props.image.image_id).tooltip();
+    return (
+      <button className="border btn bg-white" data-toggle="tooltip"
+              id={this.id} ref={el => this.tooltipPart = el}
+              title={this.title} type="button"
+              onClick={this.props.onClickAction}>
+        <span className={"oi " + this.props.iconClass}></span>
+      </button>
+    );
   }
 }
 
@@ -82,34 +33,10 @@ class LikeButton extends React.Component {
 class ShareButton extends React.Component {
   render() {
     return (
-      <button className="border btn bg-white" data-toggle="tooltip"
-              id={"share-btn-" + this.props.image.image_id} title="Share"
-              type="button">
-        <span className="oi oi-share"></span>
-      </button>
+      <ImageButton iconClass="oi-share"
+                   imageId={this.props.imageId}
+                   name="share" />
     );
-  }
-
-  componentDidMount() {
-    $("#share-btn-" + this.props.image.image_id).tooltip();
-  }
-}
-
-
-class StyleButton extends React.Component {
-  render() {
-    return (
-      <a className="border btn bg-white" data-toggle="tooltip"
-         href={"/style?image_id=" + this.props.image.image_id}
-         id={"style-btn-" + this.props.image.image_id} role="button"
-         title="Style">
-        <span className="oi oi-brush"></span>
-      </a>
-    );
-  }
-
-  componentDidMount() {
-    $("#style-btn-" + this.props.image.image_id).tooltip();
   }
 }
 
@@ -117,16 +44,134 @@ class StyleButton extends React.Component {
 class EditButton extends React.Component {
   render() {
     return (
-      <button className="border btn bg-white" data-toggle="tooltip"
-              id={"edit-btn-" + this.props.image.image_id} title="Edit"
+      <ImageButton iconClass="oi-cog"
+                   imageId={this.props.imageId}
+                   name="edit" />
+    );
+  }
+}
+
+
+class LikeButton extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {"isLiked": false};
+    this.setLikeState("/ajax/get-like-state.json");
+  }
+
+  toggleLike = () => {
+    this.setLikeState("/ajax/toggle-like-state.json");
+  }
+
+  setLikeState = (url) => {
+    fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+        "imageId": this.props.imageId
+      }),
+      credentials: "same-origin",
+      headers: new Headers({
+        "content-type": "application/json"
+      })
+    })
+    .then(r => r.json())
+    .then(r => r.isLiked !== undefined ?
+               this.setState({"isLiked": r.isLiked}) :
+               console.log(r));
+  }
+
+  render() {
+    let iconClass = this.state.isLiked ? "oi-heart text-danger" : "oi-heart";
+    let name = this.state.isLiked ? "unlike" : "like";
+    return (
+      <ImageButton iconClass={iconClass}
+                   imageId={this.props.imageId}
+                   name={name}
+                   onClickAction={this.toggleLike} />
+    );
+  }
+}
+
+
+class ImageLinkButton extends ImageButton {
+  constructor(props) {
+    super(props);
+    this.href = "/" + this.props.name + "?image_id=" + this.props.imageId;
+  }
+
+  render() {
+    return (
+      <a className="border btn bg-white" data-toggle="tooltip"
+         href={this.href} id={this.id} ref={el => this.btnEl = el}
+         role="button" title={this.title}>
+        <span className={"oi " + this.props.iconClass}></span>
+      </a>
+    );
+  }
+}
+
+
+class StyleButton extends React.Component {
+  render() {
+    return (
+      <ImageLinkButton iconClass="oi-brush"
+                       imageId={this.props.imageId}
+                       name="style" />
+    );
+  }
+}
+
+
+class NavButton extends React.Component {
+  render() {
+    return (
+      <button className="btn btn-light mr-2"
+              data-target={"#" + this.props.name + "-modal"}
+              data-toggle="modal" id={"navbar " + this.props.name + "-btn"}
               type="button">
-        <span className="oi oi-cog"></span>
+        <span className={"oi " + this.props.icon}></span>&nbsp;
+        {this.props.name.charAt(0).toUpperCase() + this.props.name.slice(1)}
       </button>
     );
   }
+}
 
-  componentDidMount() {
-    $("#edit-btn-" + this.props.image.image_id).tooltip();
+class UploadNavButton extends React.Component {
+  render() {
+    return (
+      <NavButton name="upload" icon="oi-cloud-upload" />
+    );
+  }
+}
+
+
+class LoginNavButton extends React.Component {
+  render() {
+    return (
+      <NavButton name="login" icon="oi-account-login" />
+    );
+  }
+}
+
+
+class NavAButton extends React.Component {
+  render() {
+    return (
+      <a className="btn btn-light" href={"/" + this.props.name}
+         id={"navbar-" + this.props.name + "-btn"}>
+        <span className={"oi " + this.props.icon}></span>&nbsp;
+        {this.props.name.charAt(0).toUpperCase() + this.props.name.slice(1)}
+      </a>
+    );
+  }
+}
+
+
+class LogoutNavButton extends React.Component {
+  render() {
+    return (
+      <NavAButton name="logout" icon="oi-account-logout" />
+    );
   }
 }
 
@@ -143,67 +188,47 @@ class CloseModalButton extends React.Component {
 }
 
 
-class UploadNavButton extends React.Component {
-  render() {
-    return (
-      <button className="btn btn-light mr-2" data-target="#upload-modal"
-              data-toggle="modal" id="upload-btn" type="button">
-        <span className="oi oi-cloud-upload"></span>&nbsp;
-        Upload
-      </button>
-    );
-  }
-}
-
-
-class LoginNavButton extends React.Component {
-  render() {
-    return (
-      <button className="btn btn-light" data-target="#login-modal"
-              data-toggle="modal" id="navbar-login-btn" type="button">
-        <span className="oi oi-account-login"></span>&nbsp;
-        Login
-      </button>
-    );
-  }
-}
-
-
-class LogoutNavButton extends React.Component {
-  render() {
-    return (
-      <a className="btn btn-light" href="/logout" id="navbar-logout-btn">
-        <span className="oi oi-account-logout"></span>&nbsp;
-        Logout
-      </a>
-    );
-  }
-}
-
-
 // ========================================================================= //
 // Form Buttons
+
+
+class SubmitFormButton extends React.Component {
+  constructor(props) {
+    super(props);
+    this.id = this.props.name + "-submit-form-btn";
+    this.title = this.props.name[0].toUpperCase() + this.props.name.slice(1);
+    this.buttonClass = "btn btn-primary " + this.props.buttonClass
+    this.iconClass = "oi " + this.props.iconClass + " small"
+  }
+
+  render() {
+    return (
+      <button className={this.buttonClass} id={this.id} type="submit">
+        <span className={this.iconClass}></span>&nbsp;
+        {this.title}
+      </button>
+    );
+  }
+}
 
 
 class LoginSubmitFormButton extends React.Component {
   render() {
     return (
-      <button type="submit" className="btn btn-primary ml-2">
-        <span className="oi oi-account-login small"></span>&nbsp;
-        Login
-      </button>
+      <SubmitFormButton buttonClass="ml-2"
+                        iconClass="oi-account-login"
+                        name="login" />
     );
   }
 }
 
 
-class SignupLinkFormButton extends React.Component {
+class SignupSubmitFormButton extends React.Component {
   render() {
     return (
-      <a className="btn btn-info ml-auto" href="/signup">
-        <span className="oi oi-plus small"></span>&nbsp;
-        Signup
-      </a>
+      <SubmitFormButton buttonClass="ml-auto"
+                        iconClass="oi-plus"
+                        name="signup" />
     );
   }
 }
@@ -212,10 +237,22 @@ class SignupLinkFormButton extends React.Component {
 class UploadSubmitFormButton extends React.Component {
   render() {
     return (
-      <button className="btn btn-primary ml-auto" type="submit">
-        <span className="oi oi-cloud-upload">&nbsp;</span>
-        Upload
-      </button>
+      <SubmitFormButton buttonClass="ml-auto"
+                        iconClass="oi-cloud-upload"
+                        name="upload" />
+    );
+  }
+}
+
+
+class SignupLinkFormButton extends React.Component {
+  render() {
+    return (
+      <a className="btn btn-info ml-auto" href="/signup"
+         id="signup-link-form-btn">
+        <span className="oi oi-plus small"></span>&nbsp;
+        Signup
+      </a>
     );
   }
 }
@@ -227,19 +264,24 @@ class UploadSubmitFormButton extends React.Component {
 
 class FeedCardButtonGroup extends React.Component {
   render() {
-    if (this.props.image.user_id === this.props.user_id) {
+    if (this.props.image.userId === this.props.userId) {
       return (
         <nav className="btn-group" role="group">
-          <StyleButton image={this.props.image} user_id={this.props.user_id} />
-          <ShareButton image={this.props.image} user_id={this.props.user_id} />
-          <EditButton image={this.props.image} user_id={this.props.user_id} />
+          <StyleButton imageId={this.props.image.imageId}
+                       userId={this.props.userId} />
+          <ShareButton imageId={this.props.image.imageId}
+                       userId={this.props.userId} />
+          <EditButton imageId={this.props.image.imageId}
+                      userId={this.props.userId} />
         </nav>
       );
     } else {
       return (
         <nav className="btn-group" role="group">
-          <LikeButton image={this.props.image} user_id={this.props.user_id} />
-          <ShareButton image={this.props.image} user_id={this.props.user_id} />
+          <LikeButton imageId={this.props.image.imageId}
+                      userId={this.props.userId} />
+          <ShareButton imageId={this.props.image.imageId}
+                       userId={this.props.userId} />
         </nav>
       );
     }
@@ -249,19 +291,24 @@ class FeedCardButtonGroup extends React.Component {
 
 class LibraryCardButtonGroup extends React.Component {
   render() {
-    if (this.props.image.source_image) {
+    if (this.props.isSource) {
       return (
         <nav className="btn-group" role="group">
-          <StyleButton image={this.props.image} user_id={this.props.user_id} />
-          <ShareButton image={this.props.image} user_id={this.props.user_id} />
-          <EditButton image={this.props.image} user_id={this.props.user_id} />
+          <StyleButton imageId={this.props.imageId}
+                       userId={this.props.userId} />
+          <ShareButton imageId={this.props.imageId}
+                       userId={this.props.userId} />
+          <EditButton imageId={this.props.imageId}
+                      userId={this.props.userId} />
         </nav>
       );
     } else {
       return (
         <nav className="btn-group" role="group">
-          <ShareButton image={this.props.image} user_id={this.props.user_id} />
-          <EditButton image={this.props.image} user_id={this.props.user_id} />
+          <ShareButton imageId={this.props.imageId}
+                       userId={this.props.userId} />
+          <EditButton imageId={this.props.imageId}
+                      userId={this.props.userId} />
         </nav>
       );
     }
@@ -284,7 +331,7 @@ class CurrentPasswordFormField extends React.Component {
           </label>
           <div className="col-sm-9">
             <input autoComplete="current-password" className="form-control"
-                   id="col-current-password-form-field" name="password"
+                   id="current-password-form-field" name="password"
                    placeholder="Enter password" required="true"
                    type="password"/>
           </div>
@@ -297,7 +344,7 @@ class CurrentPasswordFormField extends React.Component {
             Password
           </label>
           <input autoComplete="current-password" className="form-control"
-                 id="current-password-form-field" name="password"
+                 id="current-password-modal-form-field" name="password"
                  placeholder="Enter password" required="true"
                  type="password"/>
         </div>
@@ -317,7 +364,7 @@ class EmailFormField extends React.Component {
           </label>
           <div className="col-sm-9">
             <input autoComplete="email" className="form-control"
-                   id="col-email-form-field" name="email" placeholder="Enter email"
+                   id="email-form-field" name="email" placeholder="Enter email"
                    required="true" type="email" />
           </div>
         </div>
@@ -329,8 +376,8 @@ class EmailFormField extends React.Component {
             Email address
           </label>
           <input autoComplete="email" className="form-control"
-                 id="email-form-field" name="email" placeholder="Enter email"
-                 required="true" type="email" />
+                 id="email-modal-form-field" name="email"
+                 placeholder="Enter email" required="true" type="email" />
         </div>
       );
     }
@@ -395,6 +442,131 @@ class FileSelectFormField extends React.Component {
   }
 }
 
+
+class UsernameFormField extends React.Component {
+  constructor(props) {
+    super(props);
+    this.forceLower = this.forceLower.bind(this);
+  }
+
+  forceLower() {
+    let field = document.querySelector('#username-form-field');
+    field.value = field.value.toLower();
+  }
+
+  render() {
+    return (
+      <div className="form-group row">
+        <label className="col-sm-4 col-md-3 col-form-label"
+               htmlFor="username-form-field">
+          Username
+        </label>
+        <div className="col-sm-8 col-md-9 input-group">
+          <div className="input-group-prepend">
+            <div className="input-group-text">@</div>
+          </div>
+          <input autoComplete="username" className="form-control"
+                 id="username-form-field" name="username" minLength="3"
+                 maxLength="32" onChange={this.forceLower}
+                 pattern="^[a-z](?:[-]?[a-z0-9]+)+"
+                 placeholder="Enter username" required="true"
+                 title="Usernames must be 3 to 32 characters, must start with a letter, and may only contain lowercase letters, numbers, or dashes."
+                 type="text" />
+        </div>
+      </div>
+    );
+  }
+}
+
+
+class NewPasswordFormFieldGroup extends React.Component {
+  constructor(props) {
+    super(props);
+    this.isRequired = this.props.isRequired !== null;
+    this.state = {
+      strength: " ",
+      confirmClass: "oi-circle"
+    };
+    this.checkStrength = this.checkStrength.bind(this);
+    this.checkConfirm = this.checkConfirm.bind(this);
+    this.strengths = {
+      0: "Worst",
+      1: "Bad",
+      2: "Weak",
+      3: "Good",
+      4: "Strong"
+    }
+  }
+
+  checkStrength() {
+    let password = document.querySelector("#new-password-form-field").value;
+    let result = zxcvbn(password);
+    if (password !== "") {
+      this.setState({strength: "Password Strength: " +
+                               this.strengths[result.score]});
+    } else {
+      this.setState({strength: " "});
+    }
+  }
+
+  checkConfirm() {
+    let password = document.querySelector("#new-password-form-field").value;
+    let confirm = document.querySelector("#new-password-confirm-form-field").value;
+    if (password === confirm) {
+      this.setState({confirmClass: "oi-circle-check"});
+    } else {
+      this.setState({confirmClass: "oi-circle-x"});
+    }
+  }
+
+  render() {
+    return (
+      <div className="m-0 p-0">
+        <div className="form-group row">
+          <div className="col-12 d-flex flex-row m-0">
+            <small className="my-0 ml-auto mr-3 text-muted"
+               id="new-password-strength">
+              {this.state.strength}&nbsp;
+            </small>
+          </div>
+          <label className="col-sm-4 col-md-3 col-form-label"
+                 htmlFor="new-password-form-field">
+            Password
+          </label>
+          <div className="col-sm-8 col-md-9">
+            <input autoComplete="new-password" className="form-control"
+                   id="new-password-form-field" minLength="8" name="password"
+                   onChange={this.checkStrength}
+                   placeholder="Enter new password"
+                   required={this.isRequired}
+                   title="Passwords must have at least 8 characters"
+                   type="password" />
+          </div>
+        </div>
+        <div className="form-group row">
+          <label className="col-sm-4 col-md-3 col-form-label"
+                 htmlFor="new-password-confirm-form-field">
+                Confirm Password
+          </label>
+          <div className="col-sm-8 col-md-9 input-group">
+            <div className="input-group-prepend">
+              <div className="input-group-text" id="password-confirm-display">
+                <span className={"oi " + this.state.confirmClass}></span>
+              </div>
+            </div>
+            <input autoComplete="new-password" className="form-control"
+                   id="new-password-confirm-form-field"
+                   onChange={this.checkConfirm}
+                   placeholder="Re-enter new password"
+                   required={this.isRequired} type="password" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+
 // ========================================================================= //
 // Card Contents
 
@@ -402,39 +574,41 @@ class FileSelectFormField extends React.Component {
 class CardBody extends React.Component {
   constructor(props) {
     super(props);
-    this.image = props.image;
+    this.tooltipPart = null;
+  }
+
+  componentDidMount() {
+    $(this.tooltipPart).tooltip();
   }
 
   render() {
-    if (this.image.source_image) {
-      const src_img = this.image.source_image;
+    if (this.props.image.sourceImage) {
+      const srcImg = this.props.image.sourceImage;
       return (
         <div className="card-body px-3 py-2">
-          <h5 className="card-title">{src_img.title}</h5>
+          <h5 className="card-title">{srcImg.title}</h5>
           <p className="card-text m-o">
-            {src_img.description}
+            {srcImg.description}
           </p>
         </div>
       );
-    } else if (this.image.styled_image) {
-      const sty_img = this.image.styled_image;
+    } else if (this.props.image.styledImage) {
+      const styImg = this.props.image.styledImage;
       return (
         <div className="card-body px-3 py-2">
-          <h5 className="card-title">{sty_img.source_image.title}</h5>
+          <h5 className="card-title">{styImg.sourceImage.title}</h5>
           <p className="m-0">
             Styled as&nbsp;
-            <a data-html="true" data-toggle="tooltip" id={"styled-image-desc-" + this.props.image.image_id}
-               title={"<img class='img-thumbnail' src=" + sty_img.path + ">"}>
-              <strong>{sty_img.title}</strong> by <em>{sty_img.artist}</em>
+            <a data-html="true" data-toggle="tooltip"
+               id={"styled-image-desc-" + this.props.image.imageId}
+               ref={el => this.tooltipPart = el}
+               title={"<img class='img-thumbnail' src=" + styImg.path + ">"}>
+              <strong>{styImg.title}</strong> by <em>{styImg.artist}</em>
             </a>
           </p>
         </div>
       );
     }
-  }
-
-  componentDidMount() {
-    $("#styled-image-desc-" + this.props.image.image_id).tooltip();
   }
 }
 
@@ -447,27 +621,27 @@ class FeedCard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      'image': null,
-      'user': null
+      'image': null
     };
-    const url = '/ajax/get-image-details.json';
-    const data = {'image_id': this.props.image_id};
-    const payload = {
+    this.payload = {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        'imageId': this.props.imageId
+      }),
       credentials: 'same-origin',
-      headers: new Headers({'content-type': 'application/json'})
+      headers: new Headers({
+        'content-type': 'application/json'
+      })
     };
-    fetch(url, payload)
+    fetch('/ajax/get-image-details.json', this.payload)
     .then(r => r.json())
     .then(r => this.setState({
-      'image': r.image,
-      'user': r.image.user
+      'image': r.image
     }));
   }
 
   render() {
-    if (this.state.image === null || this.state.user === null) {
+    if (this.state.image === null) {
       return (
         <article className="card-feed col-12 mx-auto">
           <div className="card mx-2 my-4 shadow-sm">
@@ -480,10 +654,12 @@ class FeedCard extends React.Component {
         <article className="card-feed col-12 mx-auto">
           <div className="card mx-2 my-4 shadow-sm">
             <div className="card-img-top">
-              <img className="card-img-top image-detail-target" id={this.props.image_id} src={this.state.image.path} />
+              <img className="card-img-top image-detail-target"
+                   id={this.props.imageId} src={this.state.image.path} />
               <div className="card-overlay"></div>
-              <a className="card-username" href={"/user/" + this.state.user.username}>
-                {"@" + this.state.user.username}
+              <a className="card-username"
+                 href={"/user/" + this.state.image.user.username}>
+                {"@" + this.state.image.user.username}
               </a>
             </div>
 
@@ -491,11 +667,11 @@ class FeedCard extends React.Component {
 
             <footer className="bg-light card-footer d-flex flex-row pr-1 py-1">
               <small className="text-muted my-auto mr-auto">
-                {this.state.image.created_at}
+                {this.state.image.createdAt}
               </small>
 
               <FeedCardButtonGroup image={this.state.image}
-                                   user_id={this.props.user_id} />
+                                   userId={this.props.userId} />
 
             </footer>
           </div>
@@ -512,15 +688,17 @@ class LibraryCard extends React.Component {
     this.state = {
       'image': null
     };
-    const url = '/ajax/get-image-details.json';
-    const data = {'image_id': this.props.image_id};
-    const payload = {
+    this.payload = {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        'imageId': this.props.imageId
+      }),
       credentials: 'same-origin',
-      headers: new Headers({'content-type': 'application/json'})
+      headers: new Headers({
+        'content-type': 'application/json'
+      })
     };
-    fetch(url, payload)
+    fetch('/ajax/get-image-details.json', this.payload)
     .then(r => r.json())
     .then(r => this.setState({
       'image': r.image
@@ -528,7 +706,7 @@ class LibraryCard extends React.Component {
   }
 
   render() {
-    if (this.state.image === null || this.state.user === null) {
+    if (this.state.image === null) {
       return (
         <article className="col-12 col-sm-11 col-md-6 col-lg-4 col-xl-3
                             mx-auto">
@@ -543,17 +721,18 @@ class LibraryCard extends React.Component {
                             mx-auto">
           <div className="card mx-2 my-4 shadow-sm">
             <img className="card-img-top image-detail-target"
-                 id={this.props.image_id} src={this.state.image.path} />
+                 id={this.props.imageId} src={this.state.image.path} />
 
             <CardBody image={this.state.image} />
 
             <footer className="bg-light card-footer d-flex flex-row pr-1 py-1">
               <small className="my-auto mr-auto text-muted">
-                {this.state.image.created_at}
+                {this.state.image.createdAt}
               </small>
 
-              <LibraryCardButtonGroup image={this.state.image}
-                                      user_id={this.props.user_id} />
+              <LibraryCardButtonGroup imageId={this.state.image.imageId}
+                                      isSource={this.state.image.sourceImage !== undefined}
+                                      userId={this.props.userId} />
 
             </footer>
           </div>
@@ -596,19 +775,19 @@ class LoginForm extends React.Component {
 class SignupForm extends React.Component {
   render() {
     return (
-      <div className="col-sm-12 col-md-10 col-lg-8 mx-auto">
-        <form action="/login" method="POST">
+      <div className="col-md-12 col-lg-10 mx-auto">
+        <form action="/signup" method="POST">
           <div className="form-group row">
-            <h3 className="ml-4 ml-sm-0">Login Form</h3>
+            <h3 className="ml-4 ml-sm-0">Signup</h3>
           </div>
 
-          <EmailFormField />
-          <CurrentPasswordFormField />
+          <UsernameFormField useColumns />
+          <EmailFormField useColumns />
+          <NewPasswordFormFieldGroup isRequired />
 
           <div className="d-flex flex-row">
 
-            <SignupLinkFormButton />
-            <LoginFormButton />
+            <SignupSubmitFormButton />
 
           </div>
         </form>
@@ -696,6 +875,7 @@ class UploadModal extends React.Component {
 }
 
 
+// TODO: need to fix this modal
 class ImageModal extends React.Component {
   constructor(props) {
     super(props);
@@ -703,7 +883,7 @@ class ImageModal extends React.Component {
       'image': null
     };
     const url = '/ajax/get-image-details.json';
-    const data = {'image_id': this.props.image_id};
+    const data = {'imageId': this.props.imageId};
     const payload = {
       method: 'POST',
       body: JSON.stringify(data),
@@ -743,7 +923,7 @@ class ImageModal extends React.Component {
               </div>
               <div class="modal-body">
                 <img class="border d-flex mx-auto rounded"
-                     id={this.state.image.image_id}
+                     id={this.state.image.imageId}
                      src={this.state.image.path} />
                 <h6 id="image-modal-user">
                   <a href={"/user/" + this.state.image.user.username}>
@@ -759,7 +939,7 @@ class ImageModal extends React.Component {
                   {this.state.image.created_at}
                 </small>
                 <FeedCardButtonGroup image={this.state.image}
-                                     user_id={this.props.user_id} />
+                                     userId={this.props.userId} />
               </footer>
             </div>
           </div>
@@ -774,17 +954,26 @@ class ImageModal extends React.Component {
 // Navbar
 
 
+class NavBrand extends React.Component {
+  render() {
+    return (
+      <a className="h1 mb-0 navbar-brand" href="/">
+        <span className="oi oi-brush"></span>&nbsp;
+        DeepPaint
+      </a>
+    );
+  }
+}
+
+
 class Navbar extends React.Component {
   render() {
-    if (this.props.user_id) {
+    if (this.props.userId) {
       return (
         <nav className="bg-dark border-dark navbar navbar-dark navbar-expand-md
                         shadow sticky-top">
           <div className="container">
-            <a className="h1 mb-0 navbar-brand" href="/">
-              <span className="oi oi-brush"></span>&nbsp;
-              Deep-Paint
-            </a>
+            <NavBrand />
             <button aria-controls="navbar-toggle" aria-expanded="false"
                     aria-label="Toggle navigation" className="navbar-toggler"
                     data-target="#navbar-toggle" data-toggle="collapse"
@@ -800,7 +989,9 @@ class Navbar extends React.Component {
               </div>
               <ul className="mr-auto navbar-nav order-1">
                 <li className="nav-item">
-                  <a className="nav-link" href="/" id="nav-home">Home</a>
+                  <a className="nav-link" href="/" id="nav-home">
+                    Home
+                  </a>
                 </li>
                 <li className="nav-item">
                   <a className="nav-link" href="/library" id="nav-library">
@@ -838,12 +1029,9 @@ class Navbar extends React.Component {
     } else {
       return (
         <nav className="bg-dark border-dark navbar navbar-dark navbar-expand-md
-                    shadow sticky-top">
+                        shadow sticky-top">
           <div className="container">
-            <a className="h1 mb-0 navbar-brand" href="/">
-              <span className="oi oi-brush"></span>&nbsp;
-              Deep-Paint
-            </a>
+            <NavBrand />
             <button aria-controls="navbar-toggle" aria-expanded="false"
                     aria-label="Toggle navigation" className="navbar-toggler"
                     data-target="#navbar-toggle" data-toggle="collapse"
@@ -896,18 +1084,13 @@ class Navbar extends React.Component {
 
 
 class FeedPage extends React.Component {
-  constructor(props) {
-    super(props);
-    this.getCards = this.getCards.bind(this);
-  }
-
-  getCards() {
+  getCards = () => {
     let cards = [];
-    for(let i = 0; i < this.props.image_ids.length; i++) {
+    for(let i = 0; i < this.props.imageIds.length; i++) {
       cards.push(
-        <FeedCard key={this.props.image_ids[i]}
-                  image_id={this.props.image_ids[i]}
-                  user_id={this.props.user_id}/>
+        <FeedCard key={this.props.imageIds[i]}
+                  imageId={this.props.imageIds[i]}
+                  userId={this.props.userId}/>
       );
     }
     return cards;
@@ -924,18 +1107,13 @@ class FeedPage extends React.Component {
 
 
 class LibraryPage extends React.Component {
-  constructor(props) {
-    super(props);
-    this.getCards = this.getCards.bind(this);
-  }
-
-  getCards() {
+  getCards = () => {
     let cards = [];
-    for(let i = 0; i < this.props.image_ids.length; i++) {
+    for(let i = 0; i < this.props.imageIds.length; i++) {
       cards.push(
-        <LibraryCard key={this.props.image_ids[i]}
-                     image_id={this.props.image_ids[i]}
-                     user_id={this.props.user_id}/>
+        <LibraryCard key={this.props.imageIds[i]}
+                     imageId={this.props.imageIds[i]}
+                     userId={this.props.userId}/>
       );
     }
     return cards;

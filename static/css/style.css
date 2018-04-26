@@ -55,6 +55,9 @@ a.btn {
 .card-username:hover {
   color: #fff;
 }
+#password-confirm-display {
+  min-width: 2.5em;
+}
 .oi-circle-check {
   color: green;
 }
