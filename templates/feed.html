@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <div id="root" class="row"></div>
+  <div id="root-feed" class="row"></div>
 {% endblock %}
 
 {% block script %}
@@ -9,10 +9,7 @@
     ReactDOM.render(
       <FeedPage imageIds={ {{- images -}} }
                 userId="{{ session.get('user_id') }}" />,
-      document.querySelector("#root")
+      document.querySelector("#root-feed")
     );
-  </script>
-  <script type="text/javascript">
-    $("#nav-home").addClass("active");
   </script>
 {% endblock %}

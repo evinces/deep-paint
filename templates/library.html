@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <div id="root"></div>
+  <div id="root-library"></div>
 {% endblock %}
 
 {% block script %}
@@ -9,10 +9,7 @@
     ReactDOM.render(
       <LibraryPage imageIds={ {{- images -}} }
                    userId="{{ session.get('user_id') }}" />,
-      document.querySelector("#root")
+      document.querySelector("#root-library")
     );
-  </script>
-  <script type="text/javascript">
-    $("#nav-library").addClass("active");
   </script>
 {% endblock %}

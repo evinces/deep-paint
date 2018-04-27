@@ -9,7 +9,7 @@ class ImageButton extends React.Component {
   constructor(props) {
     super(props);
     this.tooltipPart = null;
-    this.id = this.props.name + "-btn-" + this.props.imageId;
+    this.id = `${this.props.name}-btn-${this.props.imageId}`;
     this.title = this.props.name[0].toUpperCase() + this.props.name.slice(1);
   }
 
@@ -23,7 +23,7 @@ class ImageButton extends React.Component {
               id={this.id} ref={el => this.tooltipPart = el}
               title={this.title} type="button"
               onClick={this.props.onClickAction}>
-        <span className={"oi " + this.props.iconClass}></span>
+        <span className={`oi ${this.props.iconClass}`}></span>
       </button>
     );
   }
@@ -96,15 +96,15 @@ class LikeButton extends React.Component {
 class ImageLinkButton extends ImageButton {
   constructor(props) {
     super(props);
-    this.href = "/" + this.props.name + "?image_id=" + this.props.imageId;
+    this.href = `/${this.props.name}?image_id=${this.props.imageId}`;
   }
 
   render() {
     return (
       <a className="border btn bg-white" data-toggle="tooltip"
-         href={this.href} id={this.id} ref={el => this.btnEl = el}
+         href={this.href} id={this.id} ref={el => this.tooltipPart = el}
          role="button" title={this.title}>
-        <span className={"oi " + this.props.iconClass}></span>
+        <span className={`oi ${this.props.iconClass}`}></span>
       </a>
     );
   }
@@ -126,10 +126,10 @@ class NavButton extends React.Component {
   render() {
     return (
       <button className="btn btn-light mr-2"
-              data-target={"#" + this.props.name + "-modal"}
-              data-toggle="modal" id={"navbar " + this.props.name + "-btn"}
+              data-target={`#${this.props.name}-modal`}
+              data-toggle="modal" id={`navbar${this.props.name}-btn`}
               type="button">
-        <span className={"oi " + this.props.icon}></span>&nbsp;
+        <span className={`oi ${this.props.icon}`}></span>&nbsp;
         {this.props.name.charAt(0).toUpperCase() + this.props.name.slice(1)}
       </button>
     );
@@ -157,9 +157,9 @@ class LoginNavButton extends React.Component {
 class NavAButton extends React.Component {
   render() {
     return (
-      <a className="btn btn-light" href={"/" + this.props.name}
-         id={"navbar-" + this.props.name + "-btn"}>
-        <span className={"oi " + this.props.icon}></span>&nbsp;
+      <a className="btn btn-light" href={`/${this.props.name}`}
+         id={`navbar-${this.props.name}-btn`}>
+        <span className={`oi ${this.props.icon}`}></span>&nbsp;
         {this.props.name.charAt(0).toUpperCase() + this.props.name.slice(1)}
       </a>
     );
@@ -195,10 +195,10 @@ class CloseModalButton extends React.Component {
 class SubmitFormButton extends React.Component {
   constructor(props) {
     super(props);
-    this.id = this.props.name + "-submit-form-btn";
+    this.id = `${this.props.name}-submit-form-btn`;
     this.title = this.props.name[0].toUpperCase() + this.props.name.slice(1);
-    this.buttonClass = "btn btn-primary " + this.props.buttonClass
-    this.iconClass = "oi " + this.props.iconClass + " small"
+    this.buttonClass = `btn btn-primary ${this.props.buttonClass}`;
+    this.iconClass = `oi ${this.props.iconClass} small"`;
   }
 
   render() {
@@ -262,56 +262,35 @@ class SignupLinkFormButton extends React.Component {
 // Button Groups
 
 
-class FeedCardButtonGroup extends React.Component {
+class CardButtonGroup extends React.Component {
   render() {
-    if (this.props.image.userId === this.props.userId) {
-      return (
-        <nav className="btn-group" role="group">
-          <StyleButton imageId={this.props.image.imageId}
-                       userId={this.props.userId} />
-          <ShareButton imageId={this.props.image.imageId}
-                       userId={this.props.userId} />
-          <EditButton imageId={this.props.image.imageId}
-                      userId={this.props.userId} />
-        </nav>
-      );
-    } else {
-      return (
-        <nav className="btn-group" role="group">
-          <LikeButton imageId={this.props.image.imageId}
-                      userId={this.props.userId} />
-          <ShareButton imageId={this.props.image.imageId}
-                       userId={this.props.userId} />
-        </nav>
-      );
-    }
-  }
-}
-
-
-class LibraryCardButtonGroup extends React.Component {
-  render() {
-    if (this.props.isSource) {
-      return (
-        <nav className="btn-group" role="group">
+    const buttons = [
+      <LikeButton imageId={this.props.imageId}
+                  userId={this.props.userId}
+                  key={`${this.props.imageId}-like`} />,
+      <ShareButton imageId={this.props.imageId}
+                   userId={this.props.userId}
+                   key={`${this.props.imageId}-share`}  />
+    ];
+    if (this.props.isOwner) {
+      if (this.props.isSource) {
+        buttons.push(
           <StyleButton imageId={this.props.imageId}
-                       userId={this.props.userId} />
-          <ShareButton imageId={this.props.imageId}
-                       userId={this.props.userId} />
-          <EditButton imageId={this.props.imageId}
-                      userId={this.props.userId} />
-        </nav>
-      );
-    } else {
-      return (
-        <nav className="btn-group" role="group">
-          <ShareButton imageId={this.props.imageId}
-                       userId={this.props.userId} />
-          <EditButton imageId={this.props.imageId}
-                      userId={this.props.userId} />
-        </nav>
+                       userId={this.props.userId}
+                       key={`${this.props.imageId}-style`} />
+        );
+      }
+      buttons.push(
+        <EditButton imageId={this.props.imageId}
+                    userId={this.props.userId}
+                    key={`${this.props.imageId}-edit`}  />
       );
     }
+    return (
+      <nav className="btn-group" role="group">
+        {buttons}
+      </nav>
+    );
   }
 }
 
@@ -326,7 +305,7 @@ class CurrentPasswordFormField extends React.Component {
       return (
         <div className="form-group row">
           <label className="col-sm-3 col-form-label"
-                 htmlFor="col-current-password-form-field">
+                 htmlFor="current-password-form-field">
             Password
           </label>
           <div className="col-sm-9">
@@ -340,7 +319,7 @@ class CurrentPasswordFormField extends React.Component {
     } else {
       return (
         <div className="form-group">
-          <label htmlFor="current-password-form-field">
+          <label htmlFor="current-password-modal-form-field">
             Password
           </label>
           <input autoComplete="current-password" className="form-control"
@@ -410,17 +389,14 @@ class FileDescriptionFormField extends React.Component {
 class FileSelectFormField extends React.Component {
   constructor(props) {
     super(props);
-    this.updateLabel = this.updateLabel.bind(this);
     this.state = {filename: "Choose image file"};
+    this.labelEl = null;
   }
 
-  updateLabel() {
-    const file = document.querySelector('#file-select-form-field').files[0];
-    if (file !== undefined) {
-      this.setState({filename: file.name});
-    } else {
-      this.setState({filename: "Choose image file"});
-    }
+  updateLabel = () => {
+    this.setState({filename: this.labelEl.files[0] !== undefined ?
+                             file.name :
+                             "Choose image file"});
   }
 
   render() {
@@ -431,7 +407,8 @@ class FileSelectFormField extends React.Component {
                type="file" onChange={this.updateLabel} />
         <label className="custom-file-label text-truncate"
                htmlFor="file-select-form-field"
-               id="file-select-form-field-label">
+               id="file-select-form-field-label"
+               ref={el => this.labelEl = el}>
           {this.state.filename}
         </label>
         <small className="ml-2 text-muted">
@@ -446,12 +423,12 @@ class FileSelectFormField extends React.Component {
 class UsernameFormField extends React.Component {
   constructor(props) {
     super(props);
-    this.forceLower = this.forceLower.bind(this);
+    this.inputEl = null;
+    this.title = "Usernames must be 3 to 32 characters, must start with a letter, and may only contain lowercase letters, numbers, or dashes.";
   }
 
-  forceLower() {
-    let field = document.querySelector('#username-form-field');
-    field.value = field.value.toLower();
+  forceLower = () => {
+    this.inputEl.value = this.inputEl.value.toLowerCase();
   }
 
   render() {
@@ -469,9 +446,8 @@ class UsernameFormField extends React.Component {
                  id="username-form-field" name="username" minLength="3"
                  maxLength="32" onChange={this.forceLower}
                  pattern="^[a-z](?:[-]?[a-z0-9]+)+"
-                 placeholder="Enter username" required="true"
-                 title="Usernames must be 3 to 32 characters, must start with a letter, and may only contain lowercase letters, numbers, or dashes."
-                 type="text" />
+                 placeholder="Enter username" ref={el => this.inputEl = el}
+                 required="true" title={this.title} type="text" />
         </div>
       </div>
     );
@@ -487,36 +463,35 @@ class NewPasswordFormFieldGroup extends React.Component {
       strength: " ",
       confirmClass: "oi-circle"
     };
-    this.checkStrength = this.checkStrength.bind(this);
-    this.checkConfirm = this.checkConfirm.bind(this);
-    this.strengths = {
+    this.newPassEl = null;
+    this.confirmEl = null;
+  }
+
+  checkStrength = () => {
+    const password = this.newPassEl.value;
+    const strengths = {
       0: "Worst",
       1: "Bad",
       2: "Weak",
       3: "Good",
       4: "Strong"
     }
-  }
-
-  checkStrength() {
-    let password = document.querySelector("#new-password-form-field").value;
-    let result = zxcvbn(password);
     if (password !== "") {
-      this.setState({strength: "Password Strength: " +
-                               this.strengths[result.score]});
+      this.setState({
+        strength: `Strength: ${strengths[zxcvbn(password).score]}`
+      });
     } else {
-      this.setState({strength: " "});
+      this.setState({
+        strength: " "
+      });
     }
   }
 
-  checkConfirm() {
-    let password = document.querySelector("#new-password-form-field").value;
-    let confirm = document.querySelector("#new-password-confirm-form-field").value;
-    if (password === confirm) {
-      this.setState({confirmClass: "oi-circle-check"});
-    } else {
-      this.setState({confirmClass: "oi-circle-x"});
-    }
+  checkConfirm = () => {
+    this.setState({
+      confirmClass: this.newPassEl.value === this.confirmEl.value ?
+                    "oi-circle-check" : "oi-circle-x"
+    });
   }
 
   render() {
@@ -538,7 +513,7 @@ class NewPasswordFormFieldGroup extends React.Component {
                    id="new-password-form-field" minLength="8" name="password"
                    onChange={this.checkStrength}
                    placeholder="Enter new password"
-                   required={this.isRequired}
+                   ref={el => this.newPassEl = el} required={this.isRequired}
                    title="Passwords must have at least 8 characters"
                    type="password" />
           </div>
@@ -551,14 +526,15 @@ class NewPasswordFormFieldGroup extends React.Component {
           <div className="col-sm-8 col-md-9 input-group">
             <div className="input-group-prepend">
               <div className="input-group-text" id="password-confirm-display">
-                <span className={"oi " + this.state.confirmClass}></span>
+                <span className={`oi ${this.state.confirmClass}`}></span>
               </div>
             </div>
             <input autoComplete="new-password" className="form-control"
                    id="new-password-confirm-form-field"
                    onChange={this.checkConfirm}
                    placeholder="Re-enter new password"
-                   required={this.isRequired} type="password" />
+                   ref={el => this.confirmEl = el} required={this.isRequired}
+                   type="password" />
           </div>
         </div>
       </div>
@@ -600,9 +576,9 @@ class CardBody extends React.Component {
           <p className="m-0">
             Styled as&nbsp;
             <a data-html="true" data-toggle="tooltip"
-               id={"styled-image-desc-" + this.props.image.imageId}
+               id={`styled-image-desc-${this.props.image.imageId}`}
                ref={el => this.tooltipPart = el}
-               title={"<img class='img-thumbnail' src=" + styImg.path + ">"}>
+               title={`<img class="img-thumbnail" src="${styImg.path}">`}>
               <strong>{styImg.title}</strong> by <em>{styImg.artist}</em>
             </a>
           </p>
@@ -623,7 +599,7 @@ class FeedCard extends React.Component {
     this.state = {
       'image': null
     };
-    this.payload = {
+    fetch('/ajax/get-image-details.json', {
       method: 'POST',
       body: JSON.stringify({
         'imageId': this.props.imageId
@@ -632,11 +608,12 @@ class FeedCard extends React.Component {
       headers: new Headers({
         'content-type': 'application/json'
       })
-    };
-    fetch('/ajax/get-image-details.json', this.payload)
+    })
     .then(r => r.json())
     .then(r => this.setState({
-      'image': r.image
+      'image': r.image,
+      'isOwner': r.image.user.userId == this.props.userId,
+      'isSource': r.image.sourceImage != undefined
     }));
   }
 
@@ -658,8 +635,8 @@ class FeedCard extends React.Component {
                    id={this.props.imageId} src={this.state.image.path} />
               <div className="card-overlay"></div>
               <a className="card-username"
-                 href={"/user/" + this.state.image.user.username}>
-                {"@" + this.state.image.user.username}
+                 href={`/user/${this.state.image.user.username}`}>
+                @{this.state.image.user.username}
               </a>
             </div>
 
@@ -670,8 +647,10 @@ class FeedCard extends React.Component {
                 {this.state.image.createdAt}
               </small>
 
-              <FeedCardButtonGroup image={this.state.image}
-                                   userId={this.props.userId} />
+              <CardButtonGroup imageId={this.state.image.imageId}
+                               isOwner={this.state.isOwner}
+                               isSource={this.state.isSource}
+                               userId={this.props.userId} />
 
             </footer>
           </div>
@@ -688,7 +667,7 @@ class LibraryCard extends React.Component {
     this.state = {
       'image': null
     };
-    this.payload = {
+    fetch('/ajax/get-image-details.json', {
       method: 'POST',
       body: JSON.stringify({
         'imageId': this.props.imageId
@@ -697,11 +676,12 @@ class LibraryCard extends React.Component {
       headers: new Headers({
         'content-type': 'application/json'
       })
-    };
-    fetch('/ajax/get-image-details.json', this.payload)
+    })
     .then(r => r.json())
     .then(r => this.setState({
-      'image': r.image
+      'image': r.image,
+      'isOwner': r.image.user.userId == this.props.userId,
+      'isSource': r.image.sourceImage != undefined
     }));
   }
 
@@ -730,9 +710,10 @@ class LibraryCard extends React.Component {
                 {this.state.image.createdAt}
               </small>
 
-              <LibraryCardButtonGroup imageId={this.state.image.imageId}
-                                      isSource={this.state.image.sourceImage !== undefined}
-                                      userId={this.props.userId} />
+              <CardButtonGroup imageId={this.state.image.imageId}
+                               isOwner={this.state.isOwner}
+                               isSource={this.state.isSource}
+                               userId={this.props.userId} />
 
             </footer>
           </div>
@@ -880,30 +861,18 @@ class ImageModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      'image': null
+      "image": null
     };
-    const url = '/ajax/get-image-details.json';
-    const data = {'imageId': this.props.imageId};
-    const payload = {
-      method: 'POST',
-      body: JSON.stringify(data),
-      credentials: 'same-origin',
-      headers: new Headers({'content-type': 'application/json'})
-    };
-    fetch(url, payload)
-    .then(r => r.json())
-    .then(r => this.setState({
-      'image': r.image
-    }));
   }
 
   render() {
-    if (this.state.image === null || this.state.user === null) {
+    if (this.state.image === null) {
       return (
-        <div aria-hidden="true" class="modal fade" id="image-modal" role="dialog"
-           tabindex="-1">
-          <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content">
+        <div aria-hidden="true" className="modal fade" id="image-modal"
+             role="dialog" tabIndex="-1">
+          <div className="modal-dialog modal-dialog-centered modal-lg"
+               role="document">
+            <div className="modal-content">
               <p>Loading...</p>
             </div>
           </div>
@@ -911,22 +880,24 @@ class ImageModal extends React.Component {
       );
     } else {
       return (
-        <div aria-hidden="true" class="modal fade" id="image-modal" role="dialog"
-           tabindex="-1">
-          <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="image-modal-title">
+      <div aria-hidden="true" aria-labelledby="image-modal-title"
+           className="modal fade" id="image-modal" role="dialog"
+           tabIndex="-1">
+          <div className="modal-dialog modal-dialog-centered modal-lg"
+               role="document">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title" id="image-modal-title">
                   {this.state.image.title}
                 </h5>
                 <CloseModalButton />
               </div>
-              <div class="modal-body">
-                <img class="border d-flex mx-auto rounded"
+              <div className="modal-body">
+                <img className="border d-flex mx-auto rounded"
                      id={this.state.image.imageId}
                      src={this.state.image.path} />
                 <h6 id="image-modal-user">
-                  <a href={"/user/" + this.state.image.user.username}>
+                  <a href={`/user/${this.state.image.user.username}`}>
                     @{this.state.image.user.username}
                   </a>
                 </h6>
@@ -1086,7 +1057,7 @@ class Navbar extends React.Component {
 class FeedPage extends React.Component {
   getCards = () => {
     let cards = [];
-    for(let i = 0; i < this.props.imageIds.length; i++) {
+    for (let i = 0; i < this.props.imageIds.length; i++) {
       cards.push(
         <FeedCard key={this.props.imageIds[i]}
                   imageId={this.props.imageIds[i]}
@@ -1109,11 +1080,11 @@ class FeedPage extends React.Component {
 class LibraryPage extends React.Component {
   getCards = () => {
     let cards = [];
-    for(let i = 0; i < this.props.imageIds.length; i++) {
+    for (let i = 0; i < this.props.imageIds.length; i++) {
       cards.push(
         <LibraryCard key={this.props.imageIds[i]}
                      imageId={this.props.imageIds[i]}
-                     userId={this.props.userId}/>
+                     userId={this.props.userId} />
       );
     }
     return cards;
@@ -1123,7 +1094,13 @@ class LibraryPage extends React.Component {
     return (
       <div className="row">
         {this.getCards()}
+        <ImageModal />
       </div>
     );
   }
+}
+
+
+class App extends React.Component {
+
 }
