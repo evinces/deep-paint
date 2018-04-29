@@ -56,11 +56,15 @@ class LikeButton extends React.Component {
   constructor(props) {
     super(props);
     this.state = {"isLiked": false};
-    this.setLikeState("/ajax/get-like-state.json");
+    if (this.props.userId !== "None") {
+      this.setLikeState("/ajax/get-like-state.json");
+    }
   }
 
   toggleLike = () => {
-    this.setLikeState("/ajax/toggle-like-state.json");
+    if (this.props.userId !== "None") {
+      this.setLikeState("/ajax/toggle-like-state.json");
+    }
   }
 
   setLikeState = (url) => {
@@ -390,13 +394,13 @@ class FileSelectFormField extends React.Component {
   constructor(props) {
     super(props);
     this.state = {filename: "Choose image file"};
-    this.labelEl = null;
+    this.inputEl = null;
   }
 
   updateLabel = () => {
-    this.setState({filename: this.labelEl.files[0] !== undefined ?
-                             file.name :
-                             "Choose image file"});
+    const file = this.inputEl.files[0];
+    const filename = file !== undefined ? file.name : "Choose image file"
+    this.setState({filename: filename});
   }
 
   render() {
@@ -404,11 +408,11 @@ class FileSelectFormField extends React.Component {
       <div className="custom-file form-group">
         <input className="custom-file-input form-control"
                id="file-select-form-field" name="image" required="true"
-               type="file" onChange={this.updateLabel} />
+               type="file" onChange={this.updateLabel}
+               ref={el => this.inputEl = el} />
         <label className="custom-file-label text-truncate"
                htmlFor="file-select-form-field"
-               id="file-select-form-field-label"
-               ref={el => this.labelEl = el}>
+               id="file-select-form-field-label">
           {this.state.filename}
         </label>
         <small className="ml-2 text-muted">
@@ -632,7 +636,9 @@ class FeedCard extends React.Component {
           <div className="card mx-2 my-4 shadow-sm">
             <div className="card-img-top">
               <img className="card-img-top image-detail-target"
-                   id={this.props.imageId} src={this.state.image.path} />
+                   id={this.props.imageId}
+                   onClick={e => this.props.setFocusImage(this.state.image)}
+                   src={this.state.image.path} />
               <div className="card-overlay"></div>
               <a className="card-username"
                  href={`/user/${this.state.image.user.username}`}>
@@ -667,6 +673,9 @@ class LibraryCard extends React.Component {
     this.state = {
       'image': null
     };
+  }
+
+  componentWillMount() {
     fetch('/ajax/get-image-details.json', {
       method: 'POST',
       body: JSON.stringify({
@@ -701,7 +710,9 @@ class LibraryCard extends React.Component {
                             mx-auto">
           <div className="card mx-2 my-4 shadow-sm">
             <img className="card-img-top image-detail-target"
-                 id={this.props.imageId} src={this.state.image.path} />
+                 id={this.props.imageId}
+                 onClick={e => this.props.setFocusImage(this.state.image)}
+                 src={this.state.image.path} />
 
             <CardBody image={this.state.image} />
 
@@ -855,21 +866,55 @@ class UploadModal extends React.Component {
   }
 }
 
-
 // TODO: need to fix this modal
 class ImageModal extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      "image": null
+      image: null,
+      isOwner: null,
+      isSource: null
     };
+    this.tooltipPart = null;
+  }
+
+  setImage = () => {
+    this.setState({
+      isOwner: this.props.image.user.userId == this.props.userId,
+      isSource: this.props.image.sourceImage != undefined,
+      title: (
+         this.props.image.sourceImage != undefined ?
+         this.props.image.sourceImage.title :
+         this.props.image.styledImage.sourceImage.title
+      ),
+      description: (
+        this.props.image.sourceImage != undefined ? (
+          <p className="mx-4 my-2" id="image-modal-description">
+            {this.props.image.sourceImage.description}
+          </p>
+        ) : (
+          <p className="mx-4 my-2" id="image-modal-description">
+            Styled as&nbsp;
+            <a data-html="true" data-toggle="tooltip"
+               ref={el => this.tooltipPart = el}
+               title={`<img class="img-thumbnail" src="${this.props.image.styledImage.path}">`}>
+              <strong>{this.props.image.styledImage.title}</strong> by <em>{this.props.image.styledImage.artist}</em>
+            </a>
+          </p>
+        )
+      )
+    });
+  }
+
+  componentDidUpdate() {
+    $(this.tooltipPart).tooltip();
   }
 
   render() {
-    if (this.state.image === null) {
+    if (this.props.image === null) {
       return (
         <div aria-hidden="true" className="modal fade" id="image-modal"
-             role="dialog" tabIndex="-1">
+             role="dialog" tabIndex="-1" onFocus={this.setImage}>
           <div className="modal-dialog modal-dialog-centered modal-lg"
                role="document">
             <div className="modal-content">
@@ -880,37 +925,39 @@ class ImageModal extends React.Component {
       );
     } else {
       return (
-      <div aria-hidden="true" aria-labelledby="image-modal-title"
-           className="modal fade" id="image-modal" role="dialog"
-           tabIndex="-1">
+        <div aria-hidden="true" aria-labelledby="image-modal-title"
+             className="modal fade" id="image-modal"
+             role="dialog" tabIndex="-1" onFocus={this.setImage}>
           <div className="modal-dialog modal-dialog-centered modal-lg"
                role="document">
-            <div className="modal-content">
-              <div className="modal-header">
+            <div className="border-0 modal-content">
+              <div className="border-0 modal-header py-2">
                 <h5 className="modal-title" id="image-modal-title">
-                  {this.state.image.title}
+                  {this.state.title}&nbsp;
+                  <small className="ml-2 text-muted">by&nbsp;
+                    <a href={`/user/${this.props.image.user.username}`}
+                       if="image-modal-user">
+                      @{this.props.image.user.username}
+                    </a>
+                  </small>
                 </h5>
                 <CloseModalButton />
               </div>
-              <div className="modal-body">
-                <img className="border d-flex mx-auto rounded"
-                     id={this.state.image.imageId}
-                     src={this.state.image.path} />
-                <h6 id="image-modal-user">
-                  <a href={`/user/${this.state.image.user.username}`}>
-                    @{this.state.image.user.username}
-                  </a>
-                </h6>
-                <p id="image-modal-description">
-                  {this.state.image.description}
-                </p>
+              <div className="modal-body p-0">
+                <img className="d-flex mx-auto w-100"
+                     id={this.props.image.imageId}
+                     src={this.props.image.path} />
+                {this.state.description}
               </div>
               <footer className="modal-footer d-flex flex-row pr-1 py-1">
                 <small className="my-auto mr-auto text-muted">
-                  {this.state.image.created_at}
+                  {this.props.image.createdAt}
                 </small>
-                <FeedCardButtonGroup image={this.state.image}
-                                     userId={this.props.userId} />
+
+                <CardButtonGroup imageId={this.props.image.imageId}
+                                 isOwner={this.state.isOwner}
+                                 isSource={this.state.isSource}
+                                 userId={this.props.userId} />
               </footer>
             </div>
           </div>
@@ -939,7 +986,7 @@ class NavBrand extends React.Component {
 
 class Navbar extends React.Component {
   render() {
-    if (this.props.userId) {
+    if (this.props.userId !== "None") {
       return (
         <nav className="bg-dark border-dark navbar navbar-dark navbar-expand-md
                         shadow sticky-top">
@@ -1054,53 +1101,73 @@ class Navbar extends React.Component {
 // Pages
 
 
-class FeedPage extends React.Component {
-  getCards = () => {
-    let cards = [];
-    for (let i = 0; i < this.props.imageIds.length; i++) {
-      cards.push(
-        <FeedCard key={this.props.imageIds[i]}
-                  imageId={this.props.imageIds[i]}
-                  userId={this.props.userId}/>
-      );
-    }
-    return cards;
+class FeedView extends React.Component {
+  constructor(props) {
+    super(props);
+    this.cardList = [];
+    this.state = {focusImage: null};
+  }
+
+  componentWillMount() {
+    // TODO: replace this with forwarded ref
+    document.querySelector("#nav-home").classList.add("active");
+    this.cardList = this.cardList.concat(this.props.imageIds.map(
+      (imageId) => <FeedCard key={imageId}
+                             imageId={imageId}
+                             userId={this.props.userId}
+                             setFocusImage={this.setFocusImage} />
+    ));
+  }
+
+  setFocusImage = (image) => {
+    this.setState({focusImage: image});
+    // TODO: replace this with forwarded ref
+    $('#image-modal').modal('show');
   }
 
   render() {
     return (
       <div className="row">
-        {this.getCards()}
+        {this.cardList}
+        <ImageModal image={this.state.focusImage}
+                    userId={this.props.userId} />
       </div>
     );
   }
 }
 
 
-class LibraryPage extends React.Component {
-  getCards = () => {
-    let cards = [];
-    for (let i = 0; i < this.props.imageIds.length; i++) {
-      cards.push(
-        <LibraryCard key={this.props.imageIds[i]}
-                     imageId={this.props.imageIds[i]}
-                     userId={this.props.userId} />
-      );
-    }
-    return cards;
+class LibraryView extends React.Component {
+  constructor(props) {
+    super(props);
+    this.cardList = [];
+    this.state = {focusImage: null};
+  }
+
+  componentWillMount() {
+    // TODO: replace this with forwarded ref
+    document.querySelector("#nav-library").classList.add("active");
+    this.cardList = this.cardList.concat(this.props.imageIds.map(
+      (imageId) => <LibraryCard key={imageId}
+                                imageId={imageId}
+                                userId={this.props.userId}
+                                setFocusImage={this.setFocusImage} />
+    ));
+  }
+
+  setFocusImage = (image) => {
+    this.setState({focusImage: image});
+    // TODO: replace this with forwarded ref
+    $('#image-modal').modal('show');
   }
 
   render() {
     return (
       <div className="row">
-        {this.getCards()}
-        <ImageModal />
+        {this.cardList}
+        <ImageModal image={this.state.focusImage}
+                    userId={this.props.userId} />
       </div>
     );
   }
-}
-
-
-class App extends React.Component {
-
 }

@@ -3,13 +3,17 @@
 from model import (User, Image, SourceImage, StyledImage, TFModel, Style,
                    Comment, Like, Tag, ImageTag, db, connect_to_db)
 from werkzeug.datastructures import FileStorage
+import os
+
+
+BASEDIR = os.getcwd()
 
 
 def seed_data(testing=False):
     tf_model = TFModel.create(title='fast-style-transfer',
                               description='Created by Logan Engstrom')
 
-    style_dir = 'fast-style-transfer/styles/'
+    style_dir = BASEDIR + '/fast-style-transfer/styles/'
 
     muse_file = FileStorage(stream=open(style_dir + 'muse.ckpt'))
     muse_image = FileStorage(stream=open(style_dir + 'muse.jpg'))

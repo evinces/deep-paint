@@ -64,52 +64,6 @@
 
   <div id="root-upload-modal"></div>
 
-<!-- Image modal ---------------------------------------------------------- -->
-
-  <div aria-hidden="true" class="modal fade" id="image-modal" role="dialog"
-       tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="image-modal-title">&nbsp;</h5>
-          <button type="button" class="close" data-dismiss="modal"
-                  aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <img class="border d-flex mx-auto rounded" id="image-modal-image"
-               src="#">
-          <div class="justify-content-between">
-            <h6 id="image-modal-user">&nbsp;</h6>
-            <span id="image-modal-created-at">&nbsp;</span>
-          </div>
-          <p id="image-modal-description">&nbsp;</p>
-        </div>
-        <div class="modal-footer">
-          <nav class="btn-group">
-            <button class="border btn bg-white" data-toggle="tooltip"
-                    id="image-modal-like-btn" title="Like" type="button">
-              <span class="oi oi-heart"></span>
-            </button>
-            <button class="border btn bg-white" data-toggle="tooltip"
-                    id="image-modal-comment-btn" title="Comment" type="button">
-              <span class="oi oi-chat"></span>
-            </button>
-            <button class="border btn bg-white" data-toggle="tooltip"
-                    id="image-modal-tag-btn" title="Tag" type="button">
-              <span class="oi oi-tags"></span>
-            </button>
-            <button class="border btn bg-white" data-toggle="tooltip"
-                    id="image-modal-share-btn" title="Share" type="button">
-              <span class="oi oi-share-boxed"></span>
-            </button>
-          </nav>
-        </div>
-      </div>
-    </div>
-  </div>
-
 <!-- Page content --------------------------------------------------------- -->
 
   <div class="container mt-4">
@@ -145,19 +99,10 @@
   </script>
 
   <script type="text/jsx">
-    {% with userId = session.get('userId') %}
-      {% if userId %}
-        ReactDOM.render(
-          <Navbar userId={ {{- userId -}} } />,
-          document.querySelector("#root-navbar")
-        );
-      {% else %}
-        ReactDOM.render(
-          <Navbar />,
-          document.querySelector("#root-navbar")
-        );
-      {% endif %}
-    {% endwith %}
+    ReactDOM.render(
+      <Navbar userId={ {{- session.get('userId') -}} } />,
+      document.querySelector("#root-navbar")
+    );
     ReactDOM.render(
       <LoginModal />,
       document.querySelector("#root-login-modal")
@@ -166,32 +111,6 @@
       <UploadModal />,
       document.querySelector("#root-upload-modal")
     );
-  </script>
-
-  <script type="text/javascript">
-    // image modal
-    $('.image-detail-target').on('click', function () {
-      let image_id = $(this).prop('id');
-      $.get('/image.json', {'image_id': image_id}, function (data) {
-        console.log(data);
-        if (data.path !== undefined) {
-          $('#image-modal-image').attr('src', data.path);
-          if (data.source !== null) {
-            $('#image-modal-title').text(data.source.title);
-            $('#image-modal-description').text(data.source.description);
-          }
-          if (data.style !== null) {
-            $('#image-modal-description').html(
-              $('#image-modal-description').text() + '<br />Styled as ' +
-                data.style.title + ' by ' + data.style.artist
-            );
-          }
-          $('#image-modal').modal('show');
-        } else {
-          console.log('error: ' + data.message);
-        }
-      });
-    });
   </script>
 
   {% block script %}

@@ -431,9 +431,9 @@ class Style(db.Model):
         db.session.add(style)
         db.session.commit()
 
-        if path.isfile(style.get_path()):
-            remove(style.get_path())
-        style_file.save(style.get_path())
+        if path.isfile(BASEPATH + style.get_path()):
+            remove(BASEPATH + style.get_path())
+        style_file.save(BASEPATH + style.get_path())
 
         return style
 
