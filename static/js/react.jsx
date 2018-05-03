@@ -1,20 +1,20 @@
 // React classes
 
-
 // ========================================================================= //
 // Buttons
+// ========================================================================= //
 
+// Image Generic
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 class ImageButton extends React.Component {
   constructor(props) {
     super(props);
     this.tooltipPart = null;
   }
-
   componentDidMount() {
     $(this.tooltipPart).tooltip();
   }
-
   render() {
     return (
       <button className="border btn bg-white"
@@ -32,6 +32,9 @@ class ImageButton extends React.Component {
 }
 
 
+// Share
+// ------------------------------------------------------------------------- //
+
 class ShareButton extends React.Component {
   render() {
     return (
@@ -42,6 +45,8 @@ class ShareButton extends React.Component {
   }
 }
 
+// Edit
+// ------------------------------------------------------------------------- //
 
 class EditButton extends React.Component {
   render() {
@@ -53,6 +58,8 @@ class EditButton extends React.Component {
   }
 }
 
+// Like
+// ------------------------------------------------------------------------- //
 
 class LikeButton extends React.Component {
   constructor(props) {
@@ -62,13 +69,11 @@ class LikeButton extends React.Component {
       this.setLikeState("/ajax/get-like-state.json");
     }
   }
-
   toggleLike = () => {
     if (this.props.loggedInAs !== null) {
       this.setLikeState("/ajax/toggle-like-state.json");
     }
   }
-
   setLikeState = (url) => {
     fetch(url, {
       method: "POST",
@@ -86,7 +91,6 @@ class LikeButton extends React.Component {
                this.setState({"isLiked": r.isLiked}) :
                console.log(r));
   }
-
   render() {
     return (
       <ImageButton iconClass={(this.state.isLiked ?
@@ -99,13 +103,14 @@ class LikeButton extends React.Component {
   }
 }
 
+// Image Link Generic
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 class ImageLinkButton extends ImageButton {
   constructor(props) {
     super(props);
     this.href = `/${this.props.name}?image_id=${this.props.imageId}`;
   }
-
   render() {
     return (
       <a className="border btn bg-white" data-toggle="tooltip"
@@ -117,6 +122,8 @@ class ImageLinkButton extends ImageButton {
   }
 }
 
+// Sytle
+// ------------------------------------------------------------------------- //
 
 class StyleButton extends React.Component {
   render() {
@@ -128,6 +135,8 @@ class StyleButton extends React.Component {
   }
 }
 
+// Nav Button Generic
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 class NavButton extends React.Component {
   render() {
@@ -147,6 +156,9 @@ class NavButton extends React.Component {
   }
 }
 
+// Upload
+// ------------------------------------------------------------------------- //
+
 class UploadNavButton extends React.Component {
   render() {
     return (
@@ -155,6 +167,8 @@ class UploadNavButton extends React.Component {
   }
 }
 
+// Login
+// ------------------------------------------------------------------------- //
 
 class LoginNavButton extends React.Component {
   render() {
@@ -165,8 +179,10 @@ class LoginNavButton extends React.Component {
   }
 }
 
+// Nav Link Generic
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
-class NavAButton extends React.Component {
+class NavLinkButton extends React.Component {
   render() {
     let title = (this.props.title ?
                  this.props.title :
@@ -182,15 +198,19 @@ class NavAButton extends React.Component {
   }
 }
 
+// Logout
+// ------------------------------------------------------------------------- //
 
 class LogoutNavButton extends React.Component {
   render() {
     return (
-      <NavAButton name="logout" icon="oi-account-logout" />
+      <NavLinkButton name="logout" icon="oi-account-logout" />
     );
   }
 }
 
+// Close Modal
+// ------------------------------------------------------------------------- //
 
 class CloseModalButton extends React.Component {
   render() {
@@ -203,10 +223,8 @@ class CloseModalButton extends React.Component {
   }
 }
 
-
-// ========================================================================= //
-// Form Buttons
-
+// Submit Form Generic
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 class SubmitFormButton extends React.Component {
   constructor(props) {
@@ -218,7 +236,6 @@ class SubmitFormButton extends React.Component {
     this.buttonClass = `btn btn-primary ${this.props.buttonClass}`;
     this.iconClass = `oi ${this.props.iconClass} small"`;
   }
-
   render() {
     return (
       <button className={this.buttonClass} id={this.id} type="submit">
@@ -229,6 +246,8 @@ class SubmitFormButton extends React.Component {
   }
 }
 
+// Login Form
+// ------------------------------------------------------------------------- //
 
 class LoginSubmitFormButton extends React.Component {
   render() {
@@ -240,6 +259,8 @@ class LoginSubmitFormButton extends React.Component {
   }
 }
 
+// Signup Form
+// ------------------------------------------------------------------------- //
 
 class SignupSubmitFormButton extends React.Component {
   render() {
@@ -251,6 +272,8 @@ class SignupSubmitFormButton extends React.Component {
   }
 }
 
+// Upload Form
+// ------------------------------------------------------------------------- //
 
 class UploadSubmitFormButton extends React.Component {
   render() {
@@ -262,6 +285,8 @@ class UploadSubmitFormButton extends React.Component {
   }
 }
 
+// Signup Link Form
+// ------------------------------------------------------------------------- //
 
 class SignupLinkFormButton extends React.Component {
   render() {
@@ -275,10 +300,12 @@ class SignupLinkFormButton extends React.Component {
   }
 }
 
-
 // ========================================================================= //
 // Button Groups
+// ========================================================================= //
 
+// Card Buttons
+// ------------------------------------------------------------------------- //
 
 class CardButtonGroup extends React.Component {
   render() {
@@ -312,10 +339,12 @@ class CardButtonGroup extends React.Component {
   }
 }
 
-
 // ========================================================================= //
 // Form Fields
+// ========================================================================= //
 
+// Current Password
+// ------------------------------------------------------------------------- //
 
 class CurrentPasswordFormField extends React.Component {
   render() {
@@ -350,6 +379,8 @@ class CurrentPasswordFormField extends React.Component {
   }
 }
 
+// Email
+// ------------------------------------------------------------------------- //
 
 class EmailFormField extends React.Component {
   render() {
@@ -381,6 +412,8 @@ class EmailFormField extends React.Component {
   }
 }
 
+// Upload Title
+// ------------------------------------------------------------------------- //
 
 class FileTitleFormField extends React.Component {
   render() {
@@ -391,6 +424,8 @@ class FileTitleFormField extends React.Component {
   }
 }
 
+// Upload Description
+// ------------------------------------------------------------------------- //
 
 class FileDescriptionFormField extends React.Component {
   render() {
@@ -403,6 +438,8 @@ class FileDescriptionFormField extends React.Component {
   }
 }
 
+// Upload File
+// ------------------------------------------------------------------------- //
 
 class FileSelectFormField extends React.Component {
   constructor(props) {
@@ -410,14 +447,12 @@ class FileSelectFormField extends React.Component {
     this.state = {filename: "Choose image file"};
     this.inputEl = null;
   }
-
   updateLabel = () => {
     this.setState({
       filename: (this.inputEl.files[0] !== undefined ?
                  this.inputEl.files[0].name : "Choose image file")
     });
   }
-
   render() {
     return (
       <div className="custom-file form-group">
@@ -438,6 +473,8 @@ class FileSelectFormField extends React.Component {
   }
 }
 
+// Username
+// ------------------------------------------------------------------------- //
 
 class UsernameFormField extends React.Component {
   constructor(props) {
@@ -445,11 +482,9 @@ class UsernameFormField extends React.Component {
     this.inputEl = null;
     this.title = "Usernames must be 3 to 32 characters, must start with a letter, and may only contain lowercase letters, numbers, or dashes.";
   }
-
   forceLower = () => {
     this.inputEl.value = this.inputEl.value.toLowerCase();
   }
-
   render() {
     return (
       <div className="form-group row">
@@ -473,6 +508,8 @@ class UsernameFormField extends React.Component {
   }
 }
 
+// New Password Field Group
+// ------------------------------------------------------------------------- //
 
 class NewPasswordFormFieldGroup extends React.Component {
   constructor(props) {
@@ -485,7 +522,6 @@ class NewPasswordFormFieldGroup extends React.Component {
     this.newPassEl = null;
     this.confirmEl = null;
   }
-
   checkStrength = () => {
     const password = this.newPassEl.value;
     const strengths = ["Worst", "Bad", "Weak", "Good", "Strong"];
@@ -497,14 +533,12 @@ class NewPasswordFormFieldGroup extends React.Component {
       this.setState({strength: null});
     }
   }
-
   checkConfirm = () => {
     this.setState({
       confirmClass: (this.newPassEl.value === this.confirmEl.value ?
                      "oi-circle-check" : "oi-circle-x")
     });
   }
-
   render() {
     return (
       <div className="m-0 p-0">
@@ -553,21 +587,21 @@ class NewPasswordFormFieldGroup extends React.Component {
   }
 }
 
-
 // ========================================================================= //
 // Card Contents
+// ========================================================================= //
 
+// Card Body
+// ------------------------------------------------------------------------- //
 
 class CardBody extends React.Component {
   constructor(props) {
     super(props);
     this.tooltipPart = null;
   }
-
   componentDidMount() {
     $(this.tooltipPart).tooltip();
   }
-
   render() {
     let title = null;
     let description = null;
@@ -604,10 +638,12 @@ class CardBody extends React.Component {
   }
 }
 
-
 // ========================================================================= //
 // Cards
+// ========================================================================= //
 
+// Feed
+// ------------------------------------------------------------------------- //
 
 class FeedCard extends React.Component {
   render() {
@@ -643,6 +679,8 @@ class FeedCard extends React.Component {
   }
 }
 
+// Library
+// ------------------------------------------------------------------------- //
 
 class LibraryCard extends React.Component {
   render() {
@@ -671,10 +709,12 @@ class LibraryCard extends React.Component {
   }
 }
 
-
 // ========================================================================= //
-// Page Items
+// Page Elements
+// ========================================================================= //
 
+// Library Header
+// ------------------------------------------------------------------------- //
 
 class LibraryHeader extends React.Component {
   constructor(props) {
@@ -726,10 +766,12 @@ class LibraryHeader extends React.Component {
   }
 }
 
-
 // ========================================================================= //
 // Forms
+// ========================================================================= //
 
+// Login
+// ------------------------------------------------------------------------- //
 
 class LoginForm extends React.Component {
   render() {
@@ -739,15 +781,11 @@ class LoginForm extends React.Component {
           <div className="form-group row">
             <h3 className="ml-4 ml-sm-0">Login</h3>
           </div>
-
           <EmailFormField useColumns />
           <CurrentPasswordFormField useColumns />
-
           <div className="d-flex flex-row">
-
             <SignupLinkFormButton />
             <LoginSubmitFormButton />
-
           </div>
         </form>
       </div>
@@ -755,6 +793,8 @@ class LoginForm extends React.Component {
   }
 }
 
+// Signup
+// ------------------------------------------------------------------------- //
 
 class SignupForm extends React.Component {
   render() {
@@ -764,15 +804,11 @@ class SignupForm extends React.Component {
           <div className="form-group row">
             <h3 className="ml-4 ml-sm-0">Signup</h3>
           </div>
-
           <UsernameFormField useColumns />
           <EmailFormField useColumns />
           <NewPasswordFormFieldGroup isRequired />
-
           <div className="d-flex flex-row">
-
             <SignupSubmitFormButton />
-
           </div>
         </form>
       </div>
@@ -783,7 +819,10 @@ class SignupForm extends React.Component {
 
 // ========================================================================= //
 // Modals
+// ========================================================================= //
 
+// Login
+// ------------------------------------------------------------------------- //
 
 class LoginModal extends React.Component {
   render() {
@@ -794,22 +833,16 @@ class LoginModal extends React.Component {
           <div className="modal-content">
             <div className="modal-header py-2">
               <h5 className="modal-title" id="login-modal-title">Login</h5>
-
               <CloseModalButton />
-
             </div>
             <form action="/login" method="POST">
               <div className="modal-body">
-
                 <EmailFormField />
                 <CurrentPasswordFormField />
-
               </div>
               <div className="modal-footer p-2">
-
                 <SignupLinkFormButton />
                 <LoginSubmitFormButton />
-
               </div>
             </form>
           </div>
@@ -819,6 +852,8 @@ class LoginModal extends React.Component {
   }
 }
 
+// Upload
+// ------------------------------------------------------------------------- //
 
 class UploadModal extends React.Component {
   render() {
@@ -832,23 +867,17 @@ class UploadModal extends React.Component {
               <h5 className="modal-title" id="upload-modal-title">
                 Choose an image file to upload
               </h5>
-
               <CloseModalButton />
-
             </div>
             <form action="/upload" encType="multipart/form-data"
                   method="POST">
               <div className="modal-body">
-
                 <FileTitleFormField />
                 <FileDescriptionFormField />
                 <FileSelectFormField />
-
               </div>
               <div className="modal-footer p-2">
-
                 <UploadSubmitFormButton />
-
               </div>
             </form>
           </div>
@@ -858,7 +887,9 @@ class UploadModal extends React.Component {
   }
 }
 
-// TODO: need to fix this modal
+// Image
+// ------------------------------------------------------------------------- //
+
 class ImageModal extends React.Component {
   constructor(props) {
     super(props);
@@ -869,7 +900,6 @@ class ImageModal extends React.Component {
     };
     this.tooltipPart = null;
   }
-
   setImage = () => {
     this.setState({
       isOwner: this.props.image.user.userId == this.props.loggedInAs,
@@ -903,11 +933,9 @@ class ImageModal extends React.Component {
       )
     });
   }
-
   componentDidUpdate() {
     $(this.tooltipPart).tooltip();
   }
-
   render() {
     if (this.props.image === null) {
       return (
@@ -951,7 +979,6 @@ class ImageModal extends React.Component {
                 <small className="my-auto mr-auto text-muted">
                   {this.props.image.createdAt}
                 </small>
-
                 <CardButtonGroup imageId={this.props.image.imageId}
                                  isOwner={this.state.isOwner}
                                  isSource={this.state.isSource}
@@ -965,10 +992,12 @@ class ImageModal extends React.Component {
   }
 }
 
-
 // ========================================================================= //
 // Navbar
+// ========================================================================= //
 
+// Brand
+// ------------------------------------------------------------------------- //
 
 class NavBrand extends React.Component {
   render() {
@@ -981,6 +1010,8 @@ class NavBrand extends React.Component {
   }
 }
 
+// Navbar
+// ------------------------------------------------------------------------- //
 
 class Navbar extends React.Component {
   constructor(props) {
@@ -988,191 +1019,117 @@ class Navbar extends React.Component {
     this.homeEl = null;
     this.libraryEl = null;
     this.state = {
-      aboutClasses: "",
-      feedClasses: "",
-      libraryClasses: ""
+      aboutClass: "",
+      feedClass: "",
+      libraryClass: ""
     };
   }
-
   setActive = () => {
     console.log(`fire setActive, this.props.view = ${this.props.view}`);
+    this.setState({
+      aboutClass: "",
+      feedClass: "",
+      libraryClass: ""
+    });
     if (this.props.view === "feed") {
-      this.setState({
-        aboutClasses: "",
-        feedClasses: "active",
-        libraryClasses: ""
-      });
+      this.setState({feedClass: "active"});
     } else if (this.props.view === "library") {
-      this.setState({
-        aboutClasses: "",
-        feedClasses: "",
-        libraryClasses: "active"
-      });
+      this.setState({libraryClass: "active"});
     // } else if (this.props.view === "about") {
-    //   this.setState({
-    //     aboutClasses: "active",
-    //     feedClasses: "",
-    //     libraryClasses: ""
-    //   });
-    } else {
-      this.setState({
-        aboutClasses: "",
-        feedClasses: "",
-        libraryClasses: ""
-      });
+    //   this.setState({aboutClass: "active"});
     }
   }
-
   componentWillMount() {
     this.setActive();
   }
-
   render() {
+    let buttons = null;
+    let links = null;
     if (this.props.loggedInAs !== null) {
-      return (
-        <nav className="bg-dark border-dark navbar navbar-dark navbar-expand-md
-                        shadow sticky-top">
-          <div className="container">
-            <NavBrand />
-            <button aria-controls="navbar-toggle" aria-expanded="false"
-                    aria-label="Toggle navigation" className="navbar-toggler"
-                    data-target="#navbar-toggle" data-toggle="collapse"
-                    type="button">
-              <span className="navbar-toggler-icon"></span>
-            </button>
-            <div className="collapse navbar-collapse" id="navbar-toggle">
-              <div className="ml-auto order-2">
-
-                <UploadNavButton />
-                <LogoutNavButton />
-
-              </div>
-              <ul className="mr-auto navbar-nav order-1">
-                <li className="nav-item">
-                  <a className={`nav-link ${this.state.feedClasses}`}
-                     id="nav-home" onClick={e => this.props.setView("feed")}
-                     ref={el => this.homeEl = el}>
-                    Home
-                  </a>
-                </li>
-                <li className="nav-item">
-                  <a className={`nav-link ${this.state.libraryClasses}`}
-                     id="nav-library"
-                     onClick={e => this.props.setView("library")}
-                     ref={el => this.libraryEl = el}>
-                    Library
-                  </a>
-                </li>
-                <li className="dropdown nav-item">
-                  <a aria-expanded="false" aria-haspopup="true"
-                     className={`dropdown-toggle nav-link ${this.state.aboutClasses}`}
-                     data-toggle="dropdown" id="navbar-about-dropdown">
-                    About
-                  </a>
-                  <div aria-labelledby="navbar-about-dropdown"
-                       className="dropdown-menu">
-                    <a className="dropdown-item" href="/about">
-                      About this project
-                    </a>
-                    <a className="dropdown-item" href="/about#tensorflow">
-                      How does style-transfer work?
-                    </a>
-                    <a className="dropdown-item"
-                       href="https://github.com/evinces/deep-paint">
-                      <small>
-                        <span className="oi oi-external-link"></span>
-                      </small>&nbsp;
-                      View the project GitHub
-                    </a>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </nav>
+      buttons = (
+        <UploadNavButton />
+        <LogoutNavButton />
+      );
+      links = (
+        <li className="nav-item">
+          <a className={`nav-link ${this.state.libraryClass}`}
+             id="nav-library"
+             onClick={e => this.props.setView("library")}
+             ref={el => this.libraryEl = el}>
+            Library
+          </a>
+        </li>
       );
     } else {
-      return (
-        <nav className="bg-dark border-dark navbar navbar-dark navbar-expand-md
-                        shadow sticky-top">
-          <div className="container">
-            <NavBrand />
-            <button aria-controls="navbar-toggle" aria-expanded="false"
-                    aria-label="Toggle navigation" className="navbar-toggler"
-                    data-target="#navbar-toggle" data-toggle="collapse"
-                    type="button">
-              <span className="navbar-toggler-icon"></span>
-            </button>
-            <div className="collapse navbar-collapse" id="navbar-toggle">
-              <div className="ml-auto order-2">
-                <LoginNavButton />
-              </div>
-              <ul className="mr-auto navbar-nav order-1">
-                <li className="nav-item">
-                  <a className="nav-link" id="nav-home"
-                     onClick={e => this.props.setView('feed')}
-                     ref={el => this.homeEl = el}>
-                    Home
-                  </a>
-                </li>
-                <li className="dropdown nav-item">
-                  <a aria-expanded="false" aria-haspopup="true"
-                     className={`dropdown-toggle nav-link ${this.state.aboutClasses}`}
-                     data-toggle="dropdown" id="navbar-about-dropdown">
-                    About
-                  </a>
-                  <div aria-labelledby="navbar-about-dropdown"
-                       className="dropdown-menu">
-                    <a className="dropdown-item" href="/about">
-                      About this project
-                    </a>
-                    <a className="dropdown-item" href="/about#tensorflow">
-                      How does style-transfer work?
-                    </a>
-                    <a className="dropdown-item"
-                       href="https://github.com/evinces/deep-paint">
-                      <small>
-                        <span className="oi oi-external-link"></span>&nbsp;
-                      </small>
-                      View the project GitHub
-                    </a>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </nav>
+      buttons = (
+        <LoginNavButton />
       );
     }
+    return (
+      <nav className="bg-dark border-dark navbar navbar-dark navbar-expand-md
+                      shadow sticky-top">
+        <div className="container">
+          <NavBrand />
+          <button aria-controls="navbar-toggle" aria-expanded="false"
+                  aria-label="Toggle navigation" className="navbar-toggler"
+                  data-target="#navbar-toggle" data-toggle="collapse"
+                  type="button">
+            <span className="navbar-toggler-icon"></span>
+          </button>
+          <div className="collapse navbar-collapse" id="navbar-toggle">
+            <div className="ml-auto order-2">
+              {buttons}
+            </div>
+            <ul className="mr-auto navbar-nav order-1">
+              <li className="nav-item">
+                <a className={`nav-link ${this.state.feedClass}`}
+                   id="nav-home" onClick={e => this.props.setView("feed")}
+                   ref={el => this.homeEl = el}>
+                  Home
+                </a>
+              </li>
+              {links}
+              <li className="dropdown nav-item">
+                <a aria-expanded="false" aria-haspopup="true"
+                   className={`dropdown-toggle nav-link ${this.state.aboutClass}`}
+                   data-toggle="dropdown" href="#" id="navbar-about-dropdown">
+                  About
+                </a>
+                <div aria-labelledby="navbar-about-dropdown"
+                     className="dropdown-menu">
+                  <a className="dropdown-item" href="#"
+                     onClick={e => this.props.setView("about")}>
+                    About this project
+                  </a>
+                  <a className="dropdown-item"
+                     href="https://github.com/evinces/deep-paint">
+                    <small>
+                      <span className="oi oi-external-link"></span>
+                    </small>&nbsp;
+                    View the project GitHub
+                  </a>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    );
   }
 }
 
-
 // ========================================================================= //
-// Pages
+// Views
+// ========================================================================= //
 
-function getImages(requestBody) {
-  return fetch("/ajax/get-images.json", {
-    method: "POST",
-    body: JSON.stringify(requestBody),
-    credentials: "same-origin",
-    headers: new Headers({
-      "content-type": "application/json"
-    })
-  })
-  .then(r => r.json())
-  .then(r => {
-    console.log(r);
-    return r;
-  });
-}
+// Feed / Home
+// ------------------------------------------------------------------------- //
 
 class FeedView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {cardList: []};
   }
-
   componentWillMount() {
     getImages({
       limit: 20,
@@ -1196,11 +1153,9 @@ class FeedView extends React.Component {
       }
     });
   }
-
   componentWillUnmount() {
     this.setState({cardList: []});
   }
-
   render() {
     return (
       <div className="row">
@@ -1210,12 +1165,14 @@ class FeedView extends React.Component {
   }
 }
 
+// Library / User
+// ------------------------------------------------------------------------- //
+
 class LibraryView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {cardList: []};
   }
-
   componentWillMount() {
     getImages({
       limit: null,
@@ -1240,11 +1197,9 @@ class LibraryView extends React.Component {
       }
     });
   }
-
   componentWillUnmount() {
     this.setState({cardList: []});
   }
-
   render() {
     let header = <LibraryHeader loggedInAs={this.props.loggedInAs} />;
     if (this.props.focusUser) {
@@ -1264,6 +1219,10 @@ class LibraryView extends React.Component {
   }
 }
 
+// ========================================================================= //
+// App
+// ========================================================================= //
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -1275,17 +1234,17 @@ class App extends React.Component {
       view: null
     };
   }
-
   componentDidMount() {
     this.setView(this.props.view);
   }
-
   setView = (view) => {
     console.log(`setting view as: ${view}`);
     this.setState({view: view});
+
     // TODO: replace this with forwarded ref
     let feedEl = $("#nav-home");
     let libraryEl = $("#nav-library");
+
     if (view === "feed") {
       feedEl.addClass("active");
       libraryEl.removeClass("active");
@@ -1297,20 +1256,18 @@ class App extends React.Component {
       libraryEl.removeClass("active");
     }
   }
-
   setFocusImage = (image) => {
     console.log(`setting focusImage as: ${image.imageId}`);
     this.setState({focusImage: image});
+
     // TODO: replace this with forwarded ref
     $("#image-modal").modal("show");
   }
-
   setFocusUser = (user) => {
     console.log(`setting setFocusUser as: ${user.username}`);
     this.setState({focusUser: user});
     this.setView("user")
   }
-
   render() {
     let views = {
       feed: (<FeedView loggedInAs={this.state.loggedInAs}
@@ -1344,6 +1301,31 @@ class App extends React.Component {
     );
   }
 }
+
+// ========================================================================= //
+// Helper Functions
+// ========================================================================= //
+
+// getImages
+// ------------------------------------------------------------------------- //
+
+function getImages(requestBody) {
+  return fetch("/ajax/get-images.json", {
+    method: "POST",
+    body: JSON.stringify(requestBody),
+    credentials: "same-origin",
+    headers: new Headers({
+      "content-type": "application/json"
+    })
+  })
+  .then(r => r.json())
+  .then(r => {
+    console.log(r);
+    return r;
+  });
+}
+
+
 
 
 
