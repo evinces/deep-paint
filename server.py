@@ -27,8 +27,98 @@ def index():
     return render_template('feed.html', images=image_ids)
 
 
+@app.route('/ajax/get-user.json', methods=['POST'])
+def get_user_ajax():
+    """Get user details"""
+
+    ajax = request.get_json()
+    user_id = ajax['userId']
+    if user_id is None:
+        return jsonify({'message': 'no userId'})
+
+    user = User.query.get(int(user_id))
+    result = {
+        'user': {
+            'userId': user.user_id,
+            'username': user.username,
+            'createdAt': user.created_at.strftime("%b %d, %Y")
+        }
+    }
+
+    if user_id == session.get('userId'):
+        result['user']['email'] = user.email
+        result['user']['is_public'] = user.pref_is_public
+
+    return jsonify(result)
+
+
+@app.route('/ajax/get-images.json', methods=['POST'])
+def get_images_ajax():
+    """Used for React views"""
+
+    ajax = request.get_json()
+    limit = ajax['limit']
+    offset = ajax['offset']
+    order_by_date = ajax['orderByDate']
+    user_id = ajax['userId']
+
+    images = Image.query.filter(
+        db.or_(Image.source_image != None,
+               Image.styled_image != None))
+
+    if user_id:
+        images = images.filter(Image.user_id == user_id)
+    if order_by_date:
+        if order_by_date == "desc":
+            images = images.order_by(Image.created_at.desc())
+        else:
+            images = images.order_by(Image.created_at)
+    if limit:
+        images = images.limit(int(limit))
+    if offset:
+        images = images.offset(int(offset))
+
+    images = images.all()
+
+    result = {
+        "count": 0,
+        "images": []
+    }
+
+    for image in images:
+        result["count"] += 1
+        result["images"].append({
+            "imageId": image.image_id,
+            "createdAt": image.created_at.strftime("%b %d, %Y"),
+            "path": image.get_path(),
+            "user": {
+                "userId": image.user.user_id,
+                "username": image.user.username,
+                "createdAt": image.user.created_at.strftime("%b %d, %Y")
+            }
+        })
+        if image.source_image:
+            result["images"][-1]["sourceImage"] = {
+                "title": image.source_image.title,
+                "description": image.source_image.description
+            }
+        if image.styled_image:
+            result["images"][-1]["styledImage"] = {
+                "artist": image.styled_image.style.artist,
+                "title": image.styled_image.style.title,
+                "path": image.styled_image.style.image.get_path(),
+                "sourceImage": {
+                    "title": image.styled_image.source_image.title,
+                    "imageId": image.styled_image.source_image.image_id
+                }
+            }
+
+    from pprint import pprint; pprint(result)
+    return jsonify(result)
+
+
 @app.route('/ajax/get-image-details.json', methods=['POST'])
-def get_image_details():
+def get_image_details_ajax():
     """Image details ajax"""
 
     ajax = request.get_json()
@@ -69,7 +159,7 @@ def get_image_details():
 
 
 @app.route('/ajax/toggle-like-state.json', methods=['POST'])
-def toggle_like_state():
+def toggle_like_state_ajax():
     """Toggle the Like state on an image via ajax"""
 
     ajax = request.get_json()
@@ -84,7 +174,7 @@ def toggle_like_state():
 
 
 @app.route('/ajax/get-like-state.json', methods=['POST'])
-def get_like_state():
+def get_like_state_ajax():
     """Get the Like state for an image for the logged in user"""
 
     ajax = request.get_json()
