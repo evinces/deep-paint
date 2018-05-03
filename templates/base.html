@@ -2,11 +2,7 @@
 <html lang="en">
 
 <head>
-  <title>
-    {% block title %}
-      DeepPaint | Photo Styling
-    {% endblock %}
-  </title>
+  <title>{% block title %}DeepPaint | Photo Styling{% endblock %}</title>
 
   <!-- Required meta tags -->
   <meta charset="utf-8">
@@ -18,13 +14,13 @@
         href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"
         integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"
         rel="stylesheet">
-  <link rel="stylesheet" href="/static/font/css/open-iconic-bootstrap.css">
+  <link href="/static/font/css/open-iconic-bootstrap.css" rel="stylesheet">
 
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css?family=Cutive|Nunito|Sniglet" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Sniglet" rel="stylesheet">
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="/static/css/style.css">
+  <link href="/static/css/style.css" rel="stylesheet">
 
   {% block head %}
   {% endblock %}
@@ -51,6 +47,7 @@
     {% endfor %}
 
   </div>
+
 <!-- Page content --------------------------------------------------------- -->
 
   {% block content %}
@@ -59,30 +56,41 @@
 
 <!-- Javascript ----------------------------------------------------------- -->
 
-  <!-- React (must load before jQuery) -->
+  <!-- import React -->
   <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
 
-  <!-- Babel (load with React, transpile for production) -->
+  <!-- import Babel (for development) -->
   <script src="http://unpkg.com/babel-standalone"></script>
-  <script src="/static/js/react.jsx" type="text/jsx"></script>
 
-  <!-- Popper Javascript (required for Bootstrap) -->
+  <!-- import Zxcvbn (for password strength verification) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.2.0/zxcvbn.js">
+  </script>
+
+  <!-- import Popper (required for Bootstrap) -->
   <script crossorigin="anonymous" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
 
-  <!-- jQuery (required for Bootstrap) -->
+  <!-- import jQuery (required for Bootstrap) -->
   <script crossorigin="anonymous"
           src="https://code.jquery.com/jquery-3.3.1.min.js">
   </script>
 
-  <!-- Bootstrap -->
+  <!-- import Bootstrap -->
   <script crossorigin="anonymous" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
 
-  <!-- Dropbox password strength API -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.2.0/zxcvbn.js">
-  </script>
+
+  <!-- main -->
+  <script src="/static/js/react.jsx" type="text/jsx"></script>
+
 
   {% block script %}
+  <script type="text/jsx">
+    ReactDOM.render(
+      <App loggedInAs="{{- session.get('userId') -}}"
+           view="feed" />,
+      document.querySelector("#root")
+    );
+  </script>
   {% endblock %}
 
 </body>

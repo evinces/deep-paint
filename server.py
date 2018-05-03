@@ -29,7 +29,7 @@ def index():
 def show_view(view):
     """Generic view"""
 
-    if view not in ['feed, library, user']:
+    if view not in ['feed', 'library', 'user']:
         view = 'feed'
 
     return render_template('main.html', view=view)
@@ -344,7 +344,14 @@ def toggle_like_state_ajax():
     user = User.query.get(user_id)
     image = Image.query.get(ajax['imageId'])
     like = Like.toggle(user, image)
-    return jsonify({'isLiked': like is not None})
+    like_count = len(Like.query.filter_by(image=image).all())
+    result = {
+        'like': {
+            'isLiked': like is not None,
+            'likeCount': like_count
+        }
+    }
+    return jsonify(result)
 
 
 @app.route('/ajax/get-like-state.json', methods=['POST'])
@@ -359,7 +366,14 @@ def get_like_state_ajax():
     user = User.query.get(user_id)
     image = Image.query.get(ajax['imageId'])
     like = Like.query.filter_by(user=user, image=image).one_or_none()
-    return jsonify({'isLiked': like is not None})
+    like_count = len(Like.query.filter_by(image=image).all())
+    result = {
+        'like': {
+            'isLiked': like is not None,
+            'likeCount': like_count
+        }
+    }
+    return jsonify(result)
 
 
 # ========================================================================== #
@@ -368,6 +382,6 @@ def get_like_state_ajax():
 
 if __name__ == '__main__':
     app.debug = True
-    # DebugToolbarExtension(app)
+    DebugToolbarExtension(app)
     app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
     app.run()

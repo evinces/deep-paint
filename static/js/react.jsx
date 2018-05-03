@@ -16,6 +16,16 @@ class ImageButton extends React.Component {
     $(this.tooltipPart).tooltip();
   }
   render() {
+    const icons = [
+      <span className={`oi ${this.props.iconClass}`} key="oi"></span>
+    ];
+    if (this.props.badge) {
+      icons.push(
+        <span className="badge badge-pill p-0 ml-1" key="badge">
+          {this.props.badge}
+        </span>
+      );
+    }
     return (
       <button className="border btn bg-white"
               data-toggle="tooltip"
@@ -25,7 +35,7 @@ class ImageButton extends React.Component {
               title={(this.props.name[0].toUpperCase() +
                       this.props.name.slice(1))}
               type="button">
-        <span className={`oi ${this.props.iconClass}`}></span>
+        {icons}
       </button>
     );
   }
@@ -64,7 +74,10 @@ class EditButton extends React.Component {
 class LikeButton extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {"isLiked": false};
+    this.state = {
+      "isLiked": false,
+      "likeCount": 0
+    };
     if (this.props.loggedInAs !== null) {
       this.setLikeState("/ajax/get-like-state.json");
     }
@@ -87,9 +100,12 @@ class LikeButton extends React.Component {
       })
     })
     .then(r => r.json())
-    .then(r => r.isLiked !== undefined ?
-               this.setState({"isLiked": r.isLiked}) :
-               console.log(r));
+    .then(r => (r.like !== undefined ?
+                this.setState({
+                  "isLiked": r.like.isLiked,
+                  "likeCount": r.like.likeCount
+                }) :
+                console.log('setLikeState', r)));
   }
   render() {
     return (
@@ -98,7 +114,8 @@ class LikeButton extends React.Component {
                                "oi-heart")}
                    imageId={this.props.imageId}
                    name={(this.state.isLiked ? "unlike" : "like")}
-                   onClickAction={this.toggleLike} />
+                   onClickAction={this.toggleLike}
+                   badge={this.state.likeCount} />
     );
   }
 }
@@ -122,7 +139,7 @@ class ImageLinkButton extends ImageButton {
   }
 }
 
-// Sytle
+// Style
 // ------------------------------------------------------------------------- //
 
 class StyleButton extends React.Component {
@@ -1043,13 +1060,11 @@ class Navbar extends React.Component {
     this.setActive();
   }
   render() {
-    let buttons = null;
+    let buttons = [];
     let links = null;
     if (this.props.loggedInAs !== null) {
-      buttons = (
-        <UploadNavButton />
-        <LogoutNavButton />
-      );
+      buttons.push(<UploadNavButton key="upload" />);
+      buttons.push(<LogoutNavButton key="logout" />);
       links = (
         <li className="nav-item">
           <a className={`nav-link ${this.state.libraryClass}`}
@@ -1061,9 +1076,7 @@ class Navbar extends React.Component {
         </li>
       );
     } else {
-      buttons = (
-        <LoginNavButton />
-      );
+      buttons.push(<LoginNavButton key="login" />);
     }
     return (
       <nav className="bg-dark border-dark navbar navbar-dark navbar-expand-md
@@ -1199,6 +1212,9 @@ class LibraryView extends React.Component {
   }
   componentWillUnmount() {
     this.setState({cardList: []});
+    if (this.props.focusUser) {
+      this.setFocusUser(null);
+    }
   }
   render() {
     let header = <LibraryHeader loggedInAs={this.props.loggedInAs} />;
@@ -1274,7 +1290,8 @@ class App extends React.Component {
                        setFocusImage={this.setFocusImage}
                        setFocusUser={this.setFocusUser}
                        setView={this.setView} />),
-      library: (<LibraryView loggedInAs={this.state.loggedInAs}
+      library: (<LibraryView focusUser={null}
+                             loggedInAs={this.state.loggedInAs}
                              setFocusImage={this.setFocusImage}
                              setView={this.setView} />),
       user: (<LibraryView focusUser={this.state.focusUser}
@@ -1325,6 +1342,8 @@ function getImages(requestBody) {
   });
 }
 
+// History event
+// ------------------------------------------------------------------------- //
 
 
 
