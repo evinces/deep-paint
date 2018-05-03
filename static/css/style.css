@@ -1,3 +1,11 @@
+body {
+  background-image: url("/static/image/rainbow-01.svg");
+  background-size: 100% auto;
+  background-repeat: space repeat-y;
+  background-position: top;
+  background-color: #fff;
+}
+
 #root-navbar {
   display: contents;
 }

@@ -29,7 +29,7 @@ def index():
 def show_view(view):
     """Generic view"""
 
-    if view not in ['feed', 'library', 'user']:
+    if view not in ['feed', 'library', 'user', 'signup']:
         view = 'feed'
 
     return render_template('main.html', view=view)
@@ -345,6 +345,7 @@ def toggle_like_state_ajax():
     image = Image.query.get(ajax['imageId'])
     like = Like.toggle(user, image)
     like_count = len(Like.query.filter_by(image=image).all())
+
     result = {
         'like': {
             'isLiked': like is not None,
@@ -367,6 +368,7 @@ def get_like_state_ajax():
     image = Image.query.get(ajax['imageId'])
     like = Like.query.filter_by(user=user, image=image).one_or_none()
     like_count = len(Like.query.filter_by(image=image).all())
+
     result = {
         'like': {
             'isLiked': like is not None,

@@ -349,7 +349,7 @@ class CardButtonGroup extends React.Component {
       );
     }
     return (
-      <nav className="btn-group" role="group">
+      <nav className="btn-group ml-auto" role="group">
         {buttons}
       </nav>
     );
@@ -644,9 +644,12 @@ class CardBody extends React.Component {
     }
     return (
       <div className="card-body px-3 py-2">
-        <h5 className="card-title">
+        <h5 className="card-title mb-0">
           {title}
         </h5>
+        <small className="d-block mb-2 text-muted">
+          {this.props.image.createdAt}
+        </small>
         <p className="card-text m-0">
           {description}
         </p>
@@ -668,7 +671,7 @@ class FeedCard extends React.Component {
     let isSource = this.props.image.sourceImage != undefined;
     return (
       <div className="card-feed col-12 mx-auto">
-        <div className="card mx-2 my-4 shadow-sm">
+        <div className="card mx-2 my-4 shadow">
           <div className="card-img-top">
             <img className="card-img-top image-detail-target"
                  id={this.props.image.imageId}
@@ -682,9 +685,6 @@ class FeedCard extends React.Component {
           </div>
           <CardBody image={this.props.image} />
           <div className="bg-light card-footer d-flex flex-row pr-1 py-1">
-            <small className="text-muted my-auto mr-auto">
-              {this.props.image.createdAt}
-            </small>
             <CardButtonGroup imageId={this.props.image.imageId}
                              isOwner={isOwner}
                              isSource={isSource}
@@ -705,16 +705,13 @@ class LibraryCard extends React.Component {
     let isSource = this.props.image.sourceImage != undefined;
     return (
       <div className="col-12 col-sm-11 col-md-6 col-lg-4 col-xl-3 mx-auto">
-        <div className="card mx-2 my-4 shadow-sm">
+        <div className="card mx-2 my-4 shadow">
           <img className="card-img-top image-detail-target"
                id={this.props.imageId}
                onClick={e => this.props.setFocusImage(this.props.image)}
                src={this.props.image.path} />
           <CardBody image={this.props.image} />
           <div className="bg-light card-footer d-flex flex-row pr-1 py-1">
-            <small className="my-auto mr-auto text-muted">
-              {this.props.image.createdAt}
-            </small>
             <CardButtonGroup imageId={this.props.image.imageId}
                              isOwner={isOwner}
                              isSource={isSource}
@@ -1235,6 +1232,28 @@ class LibraryView extends React.Component {
   }
 }
 
+// Signup
+// ------------------------------------------------------------------------- //
+
+class SignupView extends React.Component {
+  render() {
+    return (
+      <SignupForm />
+    );
+  }
+}
+
+// Style
+// ------------------------------------------------------------------------- //
+
+class StyleView extends React.Component {
+  render() {
+    return (
+      <SignupForm />
+    );
+  }
+}
+
 // ========================================================================= //
 // App
 // ========================================================================= //
@@ -1256,6 +1275,7 @@ class App extends React.Component {
   setView = (view) => {
     console.log(`setting view as: ${view}`);
     this.setState({view: view});
+    history.pushState({}, view, view);
 
     // TODO: replace this with forwarded ref
     let feedEl = $("#nav-home");
@@ -1298,6 +1318,8 @@ class App extends React.Component {
                           loggedInAs={this.state.loggedInAs}
                           setFocusImage={this.setFocusImage}
                           setView={this.setView} />),
+      // style: (<StyleView setView={this.setView} />),
+      signup: (<SignupView setView={this.setView} />),
       // about: (<AboutView loggedInAs={this.state.loggedInAs}
       //                    setFocusImage={this.setFocusImage}
       //                    setView={this.setView} />)
