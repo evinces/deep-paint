@@ -174,7 +174,8 @@ def process_style():
         flash('No style selected', 'danger')
         return redirect('/style')
 
-    source_image = SourceImage.query.get(int(source_image_id))
+    source_image = SourceImage.query.filter_by(
+        image_id=int(source_image_id)).one_or_none()
     style = Style.query.get(int(style_id))
 
     styled_image = StyledImage.create(source_image, style)
@@ -215,6 +216,35 @@ def get_user_ajax():
         result['user']['email'] = user.email
         result['user']['is_public'] = user.pref_is_public
 
+    return jsonify(result)
+
+
+# Style interactions
+# -------------------------------------------------------------------------- #
+
+
+@app.route('/ajax/get-styles.json', methods=['POST'])
+def get_styles_ajax():
+    """Get all styles"""
+
+    styles = Style.query.all()
+
+    result = {
+        "count": 0,
+        "styles": []
+    }
+
+    for style in styles:
+        result["count"] += 1
+        result["styles"].append({
+            "artist": style.artist,
+            "styleId": style.style_id,
+            "imageId": style.image.image_id,
+            "imagePath": style.image.get_path(),
+            "title": style.title,
+        })
+
+    pprint(result)
     return jsonify(result)
 
 

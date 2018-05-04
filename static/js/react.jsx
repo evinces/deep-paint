@@ -124,14 +124,11 @@ class LikeButton extends React.Component {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 class ImageLinkButton extends ImageButton {
-  constructor(props) {
-    super(props);
-    this.href = `/${this.props.name}?image_id=${this.props.imageId}`;
-  }
   render() {
     return (
       <a className="border btn bg-white" data-toggle="tooltip"
-         href={this.href} id={this.id} ref={el => this.tooltipPart = el}
+         href="#" id={this.id} onClick={e => this.props.action(this.props.image)}
+         ref={el => this.tooltipPart = el}
          role="button" title={this.title}>
         <span className={`oi ${this.props.iconClass}`}></span>
       </a>
@@ -145,8 +142,9 @@ class ImageLinkButton extends ImageButton {
 class StyleButton extends React.Component {
   render() {
     return (
-      <ImageLinkButton iconClass="oi-brush"
-                       imageId={this.props.imageId}
+      <ImageLinkButton action={this.props.setImageToStyle}
+                       iconClass="oi-brush"
+                       image={this.props.image}
                        name="style" />
     );
   }
@@ -327,23 +325,24 @@ class SignupLinkFormButton extends React.Component {
 class CardButtonGroup extends React.Component {
   render() {
     const buttons = [
-      <LikeButton imageId={this.props.imageId}
+      <LikeButton imageId={this.props.image.imageId}
                   loggedInAs={this.props.loggedInAs}
                   key={`${this.props.imageId}-like`} />,
-      // <ShareButton imageId={this.props.imageId}
+      // <ShareButton imageId={this.props.image.imageId}
       //              loggedInAs={this.props.loggedInAs}
       //              key={`${this.props.imageId}-share`} />
     ];
     if (this.props.isOwner) {
       if (this.props.isSource) {
         buttons.push(
-          <StyleButton imageId={this.props.imageId}
+          <StyleButton image={this.props.image}
                        loggedInAs={this.props.loggedInAs}
-                       key={`${this.props.imageId}-style`} />
+                       key={`${this.props.imageId}-style`}
+                       setImageToStyle={this.props.setImageToStyle} />
         );
       }
       buttons.push(
-        <EditButton imageId={this.props.imageId}
+        <EditButton imageId={this.props.image.imageId}
                     loggedInAs={this.props.loggedInAs}
                     key={`${this.props.imageId}-edit`} />
       );
@@ -516,7 +515,7 @@ class UsernameFormField extends React.Component {
           <input autoComplete="username" className="form-control"
                  id="username-form-field" name="username" minLength="3"
                  maxLength="32" onChange={this.forceLower}
-                 pattern="^[a-z](?:[-]?[a-z0-9]+)+"
+                 pattern="^[a-z]([-]?[a-z0-9])+$"
                  placeholder="Enter username" ref={el => this.inputEl = el}
                  required="true" title={this.title} type="text" />
         </div>
@@ -685,10 +684,11 @@ class FeedCard extends React.Component {
           </div>
           <CardBody image={this.props.image} />
           <div className="bg-light card-footer d-flex flex-row pr-1 py-1">
-            <CardButtonGroup imageId={this.props.image.imageId}
+            <CardButtonGroup image={this.props.image}
                              isOwner={isOwner}
                              isSource={isSource}
-                             loggedInAs={this.props.loggedInAs} />
+                             loggedInAs={this.props.loggedInAs}
+                             setImageToStyle={this.props.setImageToStyle} />
           </div>
         </div>
       </div>
@@ -712,10 +712,41 @@ class LibraryCard extends React.Component {
                src={this.props.image.path} />
           <CardBody image={this.props.image} />
           <div className="bg-light card-footer d-flex flex-row pr-1 py-1">
-            <CardButtonGroup imageId={this.props.image.imageId}
+            <CardButtonGroup image={this.props.image}
                              isOwner={isOwner}
                              isSource={isSource}
-                             loggedInAs={this.props.loggedInAs} />
+                             loggedInAs={this.props.loggedInAs}
+                             setImageToStyle={this.props.setImageToStyle} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+// Style
+// ------------------------------------------------------------------------- //
+
+class StyleCard extends React.Component {
+  render() {
+    let bgClass = "bg-light";
+    if (this.props.style.styleId === this.props.selectedStyle) {
+      bgClass = "bg-primary text-light"
+    }
+    return (
+      <div className="col-12 col-sm-11 col-md-6 col-lg-4 col-xl-3 mx-auto">
+        <div className={`card mx-2 my-4 shadow ${bgClass}`}
+             onClick={e => this.props.setStyle(this.props.style.styleId)}>
+          <img className="card-img-top image-detail-target"
+               id={this.props.style.styleId}
+               src={this.props.style.imagePath} />
+          <div className="card-body px-3 py-2">
+            <h5 className="card-title mb-0">
+              {this.props.style.title}
+            </h5>
+            <em className="card-text m-0">
+              {this.props.style.artist}
+            </em>
           </div>
         </div>
       </div>
@@ -975,8 +1006,8 @@ class ImageModal extends React.Component {
                 <h5 className="modal-title" id="image-modal-title">
                   {this.state.title}&nbsp;
                   <small className="ml-2 text-muted">by&nbsp;
-                    <a href={`/user/${this.props.image.user.username}`}
-                       if="image-modal-user">
+                    <a onClick={e => this.props.setFocusUser(this.props.image.user)}
+                       idt="image-modal-user">
                       @{this.props.image.user.username}
                     </a>
                   </small>
@@ -993,10 +1024,11 @@ class ImageModal extends React.Component {
                 <small className="my-auto mr-auto text-muted">
                   {this.props.image.createdAt}
                 </small>
-                <CardButtonGroup imageId={this.props.image.imageId}
+                <CardButtonGroup image={this.props.image}
                                  isOwner={this.state.isOwner}
                                  isSource={this.state.isSource}
-                                 loggedInAs={this.props.loggedInAs} />
+                                 loggedInAs={this.props.loggedInAs}
+                                 setImageToStyle={this.props.setImageToStyle} />
               </footer>
             </div>
           </div>
@@ -1154,7 +1186,8 @@ class FeedView extends React.Component {
             (image) => <FeedCard key={image.imageId} image={image}
                                  loggedInAs={this.props.loggedInAs}
                                  setFocusImage={this.props.setFocusImage}
-                                 setFocusUser={this.props.setFocusUser} />
+                                 setFocusUser={this.props.setFocusUser}
+                                 setImageToStyle={this.props.setImageToStyle} />
           )
         );
         this.setState({cardList: cardList});
@@ -1198,7 +1231,8 @@ class LibraryView extends React.Component {
           r.images.map(
             (image) => <LibraryCard key={image.imageId} image={image}
                                     loggedInAs={this.props.loggedInAs}
-                                    setFocusImage={this.props.setFocusImage} />
+                                    setFocusImage={this.props.setFocusImage}
+                                    setImageToStyle={this.props.setImageToStyle} />
           )
         );
         this.setState({cardList: cardList});
@@ -1209,21 +1243,12 @@ class LibraryView extends React.Component {
   }
   componentWillUnmount() {
     this.setState({cardList: []});
-    if (this.props.focusUser) {
-      this.setFocusUser(null);
-    }
   }
   render() {
-    let header = <LibraryHeader loggedInAs={this.props.loggedInAs} />;
-    if (this.props.focusUser) {
-      header = (
-        <LibraryHeader loggedInAs={this.props.loggedInAs}
-                       focusUser={this.props.focusUser} />
-      );
-    }
     return (
       <div>
-        {header}
+        <LibraryHeader loggedInAs={this.props.loggedInAs}
+                       focusUser={this.props.focusUser} />
         <div className="row">
           {this.state.cardList}
         </div>
@@ -1247,9 +1272,59 @@ class SignupView extends React.Component {
 // ------------------------------------------------------------------------- //
 
 class StyleView extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isDisabled: true,
+      selectedStyle: "",
+      styleList: []
+    };
+  }
+  componentWillMount() {
+    fetch("/ajax/get-styles.json", {
+      method: "POST",
+      body: JSON.stringify({}),
+      credentials: "same-origin",
+      headers: new Headers({
+        "content-type": "application/json"
+      })
+    })
+    .then(r => r.json())
+    .then(r => {
+      if (r.count > 0) {
+        this.setState({styleList: r.styles});
+      } else {
+        console.log(r);
+      }
+    });
+  }
+  setStyle = (styleId) => {
+    this.setState({
+      selectedStyle: styleId,
+      isDisabled: false
+    });
+  }
   render() {
+    let styleList = this.state.styleList.map(
+      (style) => <StyleCard style={style} key={style.styleId}
+                            selectedStyle={this.state.selectedStyle}
+                            setStyle={this.setStyle} />
+    );
     return (
-      <SignupForm />
+      <div className="d-flex flex-row row">
+        <h4>Which style do you want to use?</h4>
+        <form action="/style" className="ml-auto" method="POST">
+          <input id="source_image_id" name="source_image_id" type="hidden"
+                 value={this.props.imageToStyle.imageId} />
+          <input id="style_id_input" name="style_id" type="hidden"
+                 value={this.state.selectedStyle} />
+          <input className="btn btn-primary" disabled={this.state.isDisabled}
+                 id="submit" name="Stylize" type="submit" />
+        </form>
+        <div className="row">
+            {styleList}
+        </div>
+      </div>
     );
   }
 }
@@ -1263,9 +1338,10 @@ class App extends React.Component {
     super(props);
     this.state = {
       focusImage: null,
+      focusUser: null,
+      imageToStyle: null,
       loggedInAs: (this.props.loggedInAs !== "None" ?
                    this.props.loggedInAs : null),
-      focusUser: null,
       view: null
     };
   }
@@ -1287,39 +1363,55 @@ class App extends React.Component {
     } else if (view === "library") {
       feedEl.removeClass("active");
       libraryEl.addClass("active");
+      this.setState({focusUser: null});
     } else {
       feedEl.removeClass("active");
       libraryEl.removeClass("active");
     }
   }
   setFocusImage = (image) => {
-    console.log(`setting focusImage as: ${image.imageId}`);
+    console.log(`setting focusImage as: ${image}`);
     this.setState({focusImage: image});
 
     // TODO: replace this with forwarded ref
     $("#image-modal").modal("show");
   }
   setFocusUser = (user) => {
-    console.log(`setting setFocusUser as: ${user.username}`);
+    console.log(`setting focusUser as: ${user}`);
+    if (user.userId == this.props.loggedInAs) {
+      this.setState({focusUser: user});
+      this.setView("library")
+    }
     this.setState({focusUser: user});
     this.setView("user")
+  }
+  setImageToStyle = (image) => {
+    console.log(`setting imageToStyle as: ${image}`);
+    this.setState({imageToStyle: image});
+    this.setView("style")
   }
   render() {
     let views = {
       feed: (<FeedView loggedInAs={this.state.loggedInAs}
                        setFocusImage={this.setFocusImage}
                        setFocusUser={this.setFocusUser}
+                       setImageToStyle={this.setImageToStyle}
                        setView={this.setView} />),
-      library: (<LibraryView focusUser={null}
+      library: (<LibraryView focusUser={this.state.focusUser}
                              loggedInAs={this.state.loggedInAs}
                              setFocusImage={this.setFocusImage}
+                             setFocusUser={this.setFocusUser}
+                             setImageToStyle={this.setImageToStyle}
                              setView={this.setView} />),
       user: (<LibraryView focusUser={this.state.focusUser}
                           loggedInAs={this.state.loggedInAs}
                           setFocusImage={this.setFocusImage}
+                          setFocusUser={this.setFocusUser}
                           setView={this.setView} />),
-      // style: (<StyleView setView={this.setView} />),
       signup: (<SignupView setView={this.setView} />),
+      style: (<StyleView imageToStyle={this.state.imageToStyle}
+                         loggedInAs={this.state.loggedInAs}
+                         setView={this.setView} />),
       // about: (<AboutView loggedInAs={this.state.loggedInAs}
       //                    setFocusImage={this.setFocusImage}
       //                    setView={this.setView} />)

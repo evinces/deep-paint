@@ -2,31 +2,31 @@
 
 {% block content %}
   <div class="container">
-      <div class="d-flex flex-row row">
-        <h4>Which style do you want to use?</h4>
-        <form action="/style" class="ml-auto" method="POST">
-          <input id="source_image_id" name="source_image_id" type="hidden"
-                 value="{{ source_image_id }}">
-          <input id="style_id_input" name="style_id" type="hidden" value="">
-          <input class="btn btn-primary" disabled="true" id="submit"
-                 name="Stylize" type="submit">
-        </form>
-      </div>
-      <div class="row">
+    <div class="d-flex flex-row row">
+      <h4>Which style do you want to use?</h4>
+      <form action="/style" class="ml-auto" method="POST">
+        <input id="source_image_id" name="source_image_id" type="hidden"
+               value="{{ source_image_id }}">
+        <input id="style_id_input" name="style_id" type="hidden" value="">
+        <input class="btn btn-primary" disabled="true" id="submit"
+               name="Stylize" type="submit">
+      </form>
+    </div>
+    <div class="row">
 
-        {% for style in styles %}
-          <div class="col-12 col-sm-11 col-md-6 col-lg-4 col-xl-3 mx-auto">
-            <div class="card mx-2 my-4" id="{{ style.style_id }}">
-              <img class="card-img-top" src="{{ style.image.get_path() }}">
-              <section class="card-body px-3 py-2">
-                <h5 class="card-title mb-1">{{ style.title }}</h5>
-                <h6 class="card-text"><em>by {{ style.artist }}</em></h6>
-              </section>
-            </div>
+      {% for style in styles %}
+        <div class="col-12 col-sm-11 col-md-6 col-lg-4 col-xl-3 mx-auto">
+          <div class="card mx-2 my-4" id="{{ style.style_id }}">
+            <img class="card-img-top" src="{{ style.image.get_path() }}">
+            <section class="card-body px-3 py-2">
+              <h5 class="card-title mb-1">{{ style.title }}</h5>
+              <h6 class="card-text"><em>by {{ style.artist }}</em></h6>
+            </section>
           </div>
-        {% endfor %}
+        </div>
+      {% endfor %}
 
-      </div>
+    </div>
   </div>
 {% endblock %}
 
