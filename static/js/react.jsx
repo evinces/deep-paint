@@ -109,13 +109,13 @@ class LikeButton extends React.Component {
   }
   render() {
     return (
-      <ImageButton iconClass={(this.state.isLiked ?
+      <ImageButton badge={this.state.likeCount}
+                   iconClass={(this.state.isLiked ?
                                "oi-heart text-danger" :
                                "oi-heart")}
                    imageId={this.props.imageId}
                    name={(this.state.isLiked ? "unlike" : "like")}
-                   onClickAction={this.toggleLike}
-                   badge={this.state.likeCount} />
+                   onClickAction={this.toggleLike} />
     );
   }
 }
@@ -124,12 +124,23 @@ class LikeButton extends React.Component {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 class ImageLinkButton extends ImageButton {
+  constructor(props) {
+    super(props);
+    this.tooltipPart = null;
+  }
+  componentDidMount() {
+    $(this.tooltipPart).tooltip({trigger: 'hover'});
+  }
+  componentWillUnmount() {
+    $(this.tooltipPart).tooltip('hide');
+  }
   render() {
     return (
       <a className="border btn bg-white" data-toggle="tooltip"
          href="#" id={this.id} onClick={e => this.props.action(this.props.image)}
          ref={el => this.tooltipPart = el}
-         role="button" title={this.title}>
+         role="button" title={(this.props.name[0].toUpperCase() +
+                               this.props.name.slice(1))}>
         <span className={`oi ${this.props.iconClass}`}></span>
       </a>
     );
@@ -154,18 +165,22 @@ class StyleButton extends React.Component {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 class NavButton extends React.Component {
+  constructor(props) {
+    super(props);
+    this.title = (this.props.title ?
+                  this.props.title :
+                  this.props.name.charAt(0).toUpperCase() +
+                  this.props.name.slice(1));
+    this.btnColor = (this.props.btnColor ? this.props.btnColor : "btn-light");
+  }
   render() {
-    let title = (this.props.title ?
-                 this.props.title :
-                 this.props.name.charAt(0).toUpperCase() +
-                 this.props.name.slice(1));
-    let btnColor = (this.props.btnColor ? this.props.btnColor : "btn-light");
     return (
-      <button className={`btn mr-2 ${btnColor}`}
+      <button className={`btn mr-2 ${this.btnColor}`}
               data-target={`#${this.props.name}-modal`}
               data-toggle="modal" id={`navbar${this.props.name}-btn`}
               type="button">
-        <span className={`oi ${this.props.icon}`}></span> {title}
+        <span className={`oi ${this.props.icon}`}></span>
+        {this.title}
       </button>
     );
   }
@@ -198,16 +213,20 @@ class LoginNavButton extends React.Component {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 class NavLinkButton extends React.Component {
+  constructor(props) {
+    super(props);
+    this.title = (this.props.title ?
+                  this.props.title :
+                  this.props.name.charAt(0).toUpperCase() +
+                  this.props.name.slice(1));
+    this.btnColor = (this.props.btnColor ? this.props.btnColor : "btn-light");
+  }
   render() {
-    let title = (this.props.title ?
-                 this.props.title :
-                 this.props.name.charAt(0).toUpperCase() +
-                 this.props.name.slice(1));
-    let btnColor = (this.props.btnColor ? this.props.btnColor : "btn-light");
     return (
-      <a className={`btn mr-2 ${btnColor}`} href={`/${this.props.name}`}
+      <a className={`btn mr-2 ${this.btnColor}`} href={`/${this.props.name}`}
          id={`navbar-${this.props.name}-btn`}>
-        <span className={`oi ${this.props.icon}`}></span> {title}
+        <span className={`oi ${this.props.icon}`}></span>
+        {this.title}
       </a>
     );
   }
@@ -323,6 +342,9 @@ class SignupLinkFormButton extends React.Component {
 // ------------------------------------------------------------------------- //
 
 class CardButtonGroup extends React.Component {
+  constructor(props) {
+    super(props);
+  }
   render() {
     const buttons = [
       <LikeButton imageId={this.props.image.imageId}
@@ -495,11 +517,8 @@ class FileSelectFormField extends React.Component {
 class UsernameFormField extends React.Component {
   constructor(props) {
     super(props);
-    this.inputEl = null;
+    this.inEl = null;
     this.title = "Usernames must be 3 to 32 characters, must start with a letter, and may only contain lowercase letters, numbers, or dashes.";
-  }
-  forceLower = () => {
-    this.inputEl.value = this.inputEl.value.toLowerCase();
   }
   render() {
     return (
@@ -514,9 +533,10 @@ class UsernameFormField extends React.Component {
           </div>
           <input autoComplete="username" className="form-control"
                  id="username-form-field" name="username" minLength="3"
-                 maxLength="32" onChange={this.forceLower}
+                 maxLength="32"
+                 onChange={e => this.inEl.value = this.inEl.value.toLowerCase()}
                  pattern="^[a-z]([-]?[a-z0-9])+$"
-                 placeholder="Enter username" ref={el => this.inputEl = el}
+                 placeholder="Enter username" ref={el => this.inEl = el}
                  required="true" title={this.title} type="text" />
         </div>
       </div>
@@ -533,7 +553,7 @@ class NewPasswordFormFieldGroup extends React.Component {
     this.isRequired = this.props.isRequired !== null;
     this.state = {
       strength: null,
-      confirmClass: "oi-circle"
+      confirmClass: "oi-circle-check"
     };
     this.newPassEl = null;
     this.confirmEl = null;
@@ -548,6 +568,7 @@ class NewPasswordFormFieldGroup extends React.Component {
     } else {
       this.setState({strength: null});
     }
+    this.checkConfirm();
   }
   checkConfirm = () => {
     this.setState({
@@ -614,19 +635,14 @@ class CardBody extends React.Component {
   constructor(props) {
     super(props);
     this.tooltipPart = null;
-  }
-  componentDidMount() {
-    $(this.tooltipPart).tooltip();
-  }
-  render() {
-    let title = null;
-    let description = null;
+    this.title = "";
+    this.description = "";
     if (this.props.image.sourceImage) {
-      title = this.props.image.sourceImage.title;
-      description = this.props.image.sourceImage.description;
+      this.title = this.props.image.sourceImage.title;
+      this.description = this.props.image.sourceImage.description;
     } else if (this.props.image.styledImage) {
-      title = this.props.image.styledImage.sourceImage.title;
-      description = (
+      this.title = this.props.image.styledImage.sourceImage.title;
+      this.description = (
         <span>
           Styled as&nbsp;
           <a data-html="true" data-toggle="tooltip"
@@ -641,16 +657,21 @@ class CardBody extends React.Component {
         </span>
       );
     }
+  }
+  componentDidMount() {
+    $(this.tooltipPart).tooltip();
+  }
+  render() {
     return (
       <div className="card-body px-3 py-2">
         <h5 className="card-title mb-0">
-          {title}
+          {this.title}
         </h5>
         <small className="d-block mb-2 text-muted">
           {this.props.image.createdAt}
         </small>
         <p className="card-text m-0">
-          {description}
+          {this.description}
         </p>
       </div>
     );
@@ -665,9 +686,12 @@ class CardBody extends React.Component {
 // ------------------------------------------------------------------------- //
 
 class FeedCard extends React.Component {
+  constructor(props) {
+    super(props);
+    this.isOwner = this.props.image.user.userId == this.props.loggedInAs;
+    this.isSource = this.props.image.sourceImage != undefined;
+  }
   render() {
-    let isOwner = this.props.image.user.userId == this.props.loggedInAs;
-    let isSource = this.props.image.sourceImage != undefined;
     return (
       <div className="card-feed col-12 mx-auto">
         <div className="card mx-2 my-4 shadow">
@@ -685,8 +709,8 @@ class FeedCard extends React.Component {
           <CardBody image={this.props.image} />
           <div className="bg-light card-footer d-flex flex-row pr-1 py-1">
             <CardButtonGroup image={this.props.image}
-                             isOwner={isOwner}
-                             isSource={isSource}
+                             isOwner={this.isOwner}
+                             isSource={this.isSource}
                              loggedInAs={this.props.loggedInAs}
                              setImageToStyle={this.props.setImageToStyle} />
           </div>
@@ -700,9 +724,12 @@ class FeedCard extends React.Component {
 // ------------------------------------------------------------------------- //
 
 class LibraryCard extends React.Component {
+  constructor(props) {
+    super(props);
+    this.isOwner = this.props.image.user.userId == this.props.loggedInAs;
+    this.isSource = this.props.image.sourceImage != undefined;
+  }
   render() {
-    let isOwner = this.props.image.user.userId == this.props.loggedInAs;
-    let isSource = this.props.image.sourceImage != undefined;
     return (
       <div className="col-12 col-sm-11 col-md-6 col-lg-4 col-xl-3 mx-auto">
         <div className="card mx-2 my-4 shadow">
@@ -713,8 +740,8 @@ class LibraryCard extends React.Component {
           <CardBody image={this.props.image} />
           <div className="bg-light card-footer d-flex flex-row pr-1 py-1">
             <CardButtonGroup image={this.props.image}
-                             isOwner={isOwner}
-                             isSource={isSource}
+                             isOwner={this.isOwner}
+                             isSource={this.isSource}
                              loggedInAs={this.props.loggedInAs}
                              setImageToStyle={this.props.setImageToStyle} />
           </div>
@@ -729,10 +756,8 @@ class LibraryCard extends React.Component {
 
 class StyleCard extends React.Component {
   render() {
-    let bgClass = "bg-light";
-    if (this.props.style.styleId === this.props.selectedStyle) {
-      bgClass = "bg-primary text-light"
-    }
+    let bgClass = (this.props.style.styleId === this.props.selectedStyle ?
+                   "bg-primary text-light" : "bg-light");
     return (
       <div className="col-12 col-sm-11 col-md-6 col-lg-4 col-xl-3 mx-auto">
         <div className={`card mx-2 my-4 shadow ${bgClass}`}
@@ -857,6 +882,49 @@ class SignupForm extends React.Component {
           </div>
         </form>
       </div>
+    );
+  }
+}
+
+// Style
+// ------------------------------------------------------------------------- //
+
+class StyleForm extends React.Component {
+  submitForm = (e) => {
+    e.preventDefault();
+    this.props.setLoading(true);
+    fetch("/ajax/style.json", {
+      method: "POST",
+      body: JSON.stringify({
+        imageId: this.props.imageToStyle.imageId,
+        styleId: this.props.selectedStyle
+      }),
+      credentials: "same-origin",
+      headers: new Headers({
+        "content-type": "application/json"
+      })
+    })
+    .then(r => r.json())
+    .then(r => {
+      this.props.setView("library");
+      if (r.image) {
+        this.props.setFocusImage(r.image);
+      } else {
+        console.log(r);
+      }
+    });
+  }
+  render() {
+    return (
+      <form action="/style" className="col-12 col-md-6 d-flex flex-row"
+            id="style-form" method="POST" onSubmit={e => this.submitForm(e)}>
+        <input id="source_image_id" name="source_image_id" type="hidden"
+               value={this.props.imageToStyle.imageId} />
+        <input id="style_id_input" name="style_id" type="hidden"
+               value={this.props.selectedStyle} />
+        <input className="btn btn-primary ml-auto" disabled={this.props.isDisabled}
+               id="submit" name="Stylize" type="submit" />
+      </form>
     );
   }
 }
@@ -1220,7 +1288,7 @@ class LibraryView extends React.Component {
     getImages({
       limit: null,
       offset: null,
-      orderByDate: true,
+      orderByDate: "desc",
       userId: (this.props.focusUser ?
                this.props.focusUser.userId :
                this.props.loggedInAs)
@@ -1276,6 +1344,7 @@ class StyleView extends React.Component {
     super(props);
     this.state = {
       isDisabled: true,
+      isLoading: false,
       selectedStyle: "",
       styleList: []
     };
@@ -1298,6 +1367,12 @@ class StyleView extends React.Component {
       }
     });
   }
+  setLoading = (isLoading) => {
+    this.setState({
+      isDisabled: true,
+      isLoading: isLoading
+    });
+  }
   setStyle = (styleId) => {
     this.setState({
       selectedStyle: styleId,
@@ -1305,25 +1380,35 @@ class StyleView extends React.Component {
     });
   }
   render() {
+    let formHeader = "Which style do you want to use?";
     let styleList = this.state.styleList.map(
       (style) => <StyleCard style={style} key={style.styleId}
                             selectedStyle={this.state.selectedStyle}
                             setStyle={this.setStyle} />
     );
-    return (
-      <div className="d-flex flex-row row">
-        <h4>Which style do you want to use?</h4>
-        <form action="/style" className="ml-auto" method="POST">
-          <input id="source_image_id" name="source_image_id" type="hidden"
-                 value={this.props.imageToStyle.imageId} />
-          <input id="style_id_input" name="style_id" type="hidden"
-                 value={this.state.selectedStyle} />
-          <input className="btn btn-primary" disabled={this.state.isDisabled}
-                 id="submit" name="Stylize" type="submit" />
-        </form>
-        <div className="row">
-            {styleList}
+    let contents = (
+      <div className="row">
+          {styleList}
+      </div>
+    );
+    if (this.state.isLoading) {
+      formHeader = "Painting...";
+      contents = (
+        <div className="col-12">
+          <img className="d-flex mx-auto" id="loading-gif" src="/static/image/fluid-loader.gif" />
         </div>
+      );
+    }
+    return (
+      <div className="row">
+        <h4 className="col-12 col-md-6">{formHeader}</h4>
+        <StyleForm imageToStyle={this.props.imageToStyle}
+                   isDisabled={this.state.isDisabled}
+                   selectedStyle={this.state.selectedStyle}
+                   setFocusImage={this.props.setFocusImage}
+                   setLoading={this.setLoading}
+                   setView={this.props.setView} />
+        {contents}
       </div>
     );
   }
@@ -1411,6 +1496,7 @@ class App extends React.Component {
       signup: (<SignupView setView={this.setView} />),
       style: (<StyleView imageToStyle={this.state.imageToStyle}
                          loggedInAs={this.state.loggedInAs}
+                         setFocusImage={this.setFocusImage}
                          setView={this.setView} />),
       // about: (<AboutView loggedInAs={this.state.loggedInAs}
       //                    setFocusImage={this.setFocusImage}
@@ -1455,10 +1541,6 @@ function getImages(requestBody) {
     return r;
   });
 }
-
-// History event
-// ------------------------------------------------------------------------- //
-
 
 
 

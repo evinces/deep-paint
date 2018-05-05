@@ -216,6 +216,7 @@ def get_user_ajax():
         result['user']['email'] = user.email
         result['user']['is_public'] = user.pref_is_public
 
+    pprint(result)
     return jsonify(result)
 
 
@@ -243,6 +244,51 @@ def get_styles_ajax():
             "imagePath": style.image.get_path(),
             "title": style.title,
         })
+
+    pprint(result)
+    return jsonify(result)
+
+
+@app.route('/ajax/style.json', methods=['POST'])
+def process_style_ajax_form():
+    """Style an image"""
+
+    ajax = request.get_json()
+    image_id = ajax['imageId']
+    style_id = ajax['styleId']
+
+    if image_id is None:
+        return jsonify({'message': 'no image part'})
+
+    if style_id is None:
+        return jsonify({'message': 'no style part'})
+
+    source_image = SourceImage.query.filter_by(
+        image_id=int(image_id)).one_or_none()
+    style = Style.query.get(int(style_id))
+
+    sty_img = StyledImage.create(source_image, style)
+    result = {
+        'image': {
+            'createdAt': sty_img.image.created_at.strftime("%b %d, %Y"),
+            'imageId': sty_img.image_id,
+            'path': sty_img.get_path(),
+            'styledImage': {
+                'artist': sty_img.style.artist,
+                'title': sty_img.style.title,
+                'path': sty_img.style.image.get_path(),
+                'sourceImage': {
+                    'imageId': sty_img.source_image.image_id,
+                    'title': sty_img.source_image.title,
+                },
+            },
+            'user': {
+                'userId': sty_img.image.user.user_id,
+                'username': sty_img.image.user.username,
+                'createdAt': sty_img.image.user.created_at.strftime("%b %d, %Y")
+            },
+        }
+    }
 
     pprint(result)
     return jsonify(result)
@@ -355,6 +401,8 @@ def get_image_details_ajax():
                 'imageId': image.styled_image.source_image.image_id
             }
         }
+
+    pprint(result)
     return jsonify(result)
 
 
@@ -382,6 +430,8 @@ def toggle_like_state_ajax():
             'likeCount': like_count
         }
     }
+
+    pprint(result)
     return jsonify(result)
 
 
@@ -405,6 +455,8 @@ def get_like_state_ajax():
             'likeCount': like_count
         }
     }
+
+    pprint(result)
     return jsonify(result)
 
 
