@@ -16,25 +16,22 @@ class ImageButton extends React.Component {
     $(this.tooltipPart).tooltip();
   }
   render() {
+    let title = this.props.name[0].toUpperCase() + this.props.name.slice(1)
     const icons = [
       <span className={`oi ${this.props.iconClass}`} key="oi"></span>
     ];
     if (this.props.badge) {
       icons.push(
-        <span className="badge badge-pill p-0 ml-1" key="badge">
+        <span className="badge badge-pill ml-1 p-0" key="badge">
           {this.props.badge}
         </span>
       );
     }
     return (
-      <button className="border btn bg-white"
-              data-toggle="tooltip"
-              id={`${this.props.name}-btn-${this.props.imageId}`}
-              ref={el => this.tooltipPart = el}
-              onClick={this.props.onClickAction}
-              title={(this.props.name[0].toUpperCase() +
-                      this.props.name.slice(1))}
-              type="button">
+      <button className="border btn bg-white" data-toggle="tooltip"
+              id={`${this.props.name}-btn-${this.props.image.imageId}`}
+              onClick={e => this.props.onClickAction(this.props.image)}
+              ref={el => this.tooltipPart = el} title={title} type="button">
         {icons}
       </button>
     );
@@ -48,9 +45,7 @@ class ImageButton extends React.Component {
 class ShareButton extends React.Component {
   render() {
     return (
-      <ImageButton iconClass="oi-share"
-                   imageId={this.props.imageId}
-                   name="share" />
+      <ImageButton iconClass="oi-share" image={this.props.image} name="share" />
     );
   }
 }
@@ -61,9 +56,8 @@ class ShareButton extends React.Component {
 class EditButton extends React.Component {
   render() {
     return (
-      <ImageButton iconClass="oi-cog"
-                   imageId={this.props.imageId}
-                   name="edit" />
+      <ImageButton iconClass="oi-cog" image={this.props.image} name="edit"
+                   onClickAction={this.props.setEditTarget} />
     );
   }
 }
@@ -89,32 +83,34 @@ class LikeButton extends React.Component {
   }
   setLikeState = (url) => {
     fetch(url, {
-      method: "POST",
       body: JSON.stringify({
-        "imageId": this.props.imageId,
-        "userId": this.props.loggedInAs
+        "imageId": this.props.image.imageId,
+        "userId": this.props.loggedInAs,
       }),
       credentials: "same-origin",
       headers: new Headers({
         "content-type": "application/json"
-      })
+      }),
+      method: "POST",
     })
     .then(r => r.json())
-    .then(r => (r.like !== undefined ?
-                this.setState({
-                  "isLiked": r.like.isLiked,
-                  "likeCount": r.like.likeCount
-                }) :
-                console.log('setLikeState', r)));
+    .then(r => {
+      if (r.like) {
+        this.setState({
+          "isLiked": r.like.isLiked,
+          "likeCount": r.like.likeCount,
+        });
+      } else {
+        console.log('setLikeState', r);
+      }
+    });
   }
   render() {
+    let iconClass = (this.state.isLiked ? "oi-heart text-danger" : "oi-heart");
+    let name = (this.state.isLiked ? "unlike" : "like");
     return (
-      <ImageButton badge={this.state.likeCount}
-                   iconClass={(this.state.isLiked ?
-                               "oi-heart text-danger" :
-                               "oi-heart")}
-                   imageId={this.props.imageId}
-                   name={(this.state.isLiked ? "unlike" : "like")}
+      <ImageButton badge={this.state.likeCount} iconClass={iconClass}
+                   image={this.props.image} name={name}
                    onClickAction={this.toggleLike} />
     );
   }
@@ -135,12 +131,12 @@ class ImageLinkButton extends ImageButton {
     $(this.tooltipPart).tooltip('hide');
   }
   render() {
+    let title = this.props.name[0].toUpperCase() + this.props.name.slice(1);
     return (
       <a className="border btn bg-white" data-toggle="tooltip"
-         href="#" id={this.id} onClick={e => this.props.action(this.props.image)}
-         ref={el => this.tooltipPart = el}
-         role="button" title={(this.props.name[0].toUpperCase() +
-                               this.props.name.slice(1))}>
+         href="#" id={this.id}
+         onClick={e => this.props.onClickAction(this.props.image)}
+         ref={el => this.tooltipPart = el} role="button" title={title}>
         <span className={`oi ${this.props.iconClass}`}></span>
       </a>
     );
@@ -153,7 +149,7 @@ class ImageLinkButton extends ImageButton {
 class StyleButton extends React.Component {
   render() {
     return (
-      <ImageLinkButton action={this.props.setImageToStyle}
+      <ImageLinkButton onClickAction={this.props.setStyleTarget}
                        iconClass="oi-brush"
                        image={this.props.image}
                        name="style" />
@@ -165,22 +161,17 @@ class StyleButton extends React.Component {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 class NavButton extends React.Component {
-  constructor(props) {
-    super(props);
-    this.title = (this.props.title ?
-                  this.props.title :
-                  this.props.name.charAt(0).toUpperCase() +
-                  this.props.name.slice(1));
-    this.btnColor = (this.props.btnColor ? this.props.btnColor : "btn-light");
-  }
   render() {
+    let title = (this.props.title ? this.props.title :
+                 this.props.name[0].toUpperCase() + this.props.name.slice(1));
+    let btnColor = (this.props.btnColor ? this.props.btnColor : "btn-light");
     return (
-      <button className={`btn mr-2 ${this.btnColor}`}
+      <button className={`btn mr-2 ${btnColor}`}
               data-target={`#${this.props.name}-modal`}
               data-toggle="modal" id={`navbar${this.props.name}-btn`}
               type="button">
         <span className={`oi ${this.props.icon}`}></span>
-        {this.title}
+        {title}
       </button>
     );
   }
@@ -213,20 +204,15 @@ class LoginNavButton extends React.Component {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 class NavLinkButton extends React.Component {
-  constructor(props) {
-    super(props);
-    this.title = (this.props.title ?
-                  this.props.title :
-                  this.props.name.charAt(0).toUpperCase() +
-                  this.props.name.slice(1));
-    this.btnColor = (this.props.btnColor ? this.props.btnColor : "btn-light");
-  }
   render() {
+    let title = (this.props.title ? this.props.title :
+                 this.props.name[0].toUpperCase() + this.props.name.slice(1));
+    let btnColor = (this.props.btnColor ? this.props.btnColor : "btn-light");
     return (
-      <a className={`btn mr-2 ${this.btnColor}`} href={`/${this.props.name}`}
+      <a className={`btn mr-2 ${btnColor}`} href={`/${this.props.name}`}
          id={`navbar-${this.props.name}-btn`}>
         <span className={`oi ${this.props.icon}`}></span>
-        {this.title}
+        {title}
       </a>
     );
   }
@@ -249,8 +235,7 @@ class LogoutNavButton extends React.Component {
 class CloseModalButton extends React.Component {
   render() {
     return (
-      <button aria-label="Close" className="close" data-dismiss="modal"
-              type="button">
+      <button className="close" data-dismiss="modal" type="button">
         <span aria-hidden="true">&times;</span>
       </button>
     );
@@ -261,20 +246,16 @@ class CloseModalButton extends React.Component {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 class SubmitFormButton extends React.Component {
-  constructor(props) {
-    super(props);
-    this.id = `${this.props.name}-submit-form-btn`;
-    this.title = (this.props.title ?
-                  this.props.title :
-                  this.props.name[0].toUpperCase() + this.props.name.slice(1));
-    this.buttonClass = `btn btn-primary ${this.props.buttonClass}`;
-    this.iconClass = `oi ${this.props.iconClass} small"`;
-  }
   render() {
+    let id = `${this.props.name}-submit-form-btn`;
+    let title = (this.props.title ? this.props.title :
+                 this.props.name[0].toUpperCase() + this.props.name.slice(1));
+    let buttonClass = `btn btn-primary ${this.props.buttonClass}`;
+    let iconClass = `oi ${this.props.iconClass} small"`;
     return (
-      <button className={this.buttonClass} id={this.id} type="submit">
-        <span className={this.iconClass}></span>&nbsp;
-        {this.title}
+      <button className={buttonClass} id={id} type="submit">
+        <span className={iconClass}></span>&nbsp;
+        {title}
       </button>
     );
   }
@@ -319,6 +300,19 @@ class UploadSubmitFormButton extends React.Component {
   }
 }
 
+// Edit Form
+// ------------------------------------------------------------------------- //
+
+class EditSubmitFormButton extends React.Component {
+  render() {
+    return (
+      <SubmitFormButton buttonClass="ml-auto"
+                        iconClass="oi-cloud-upload"
+                        name="edit" />
+    );
+  }
+}
+
 // Signup Link Form
 // ------------------------------------------------------------------------- //
 
@@ -347,26 +341,27 @@ class CardButtonGroup extends React.Component {
   }
   render() {
     const buttons = [
-      <LikeButton imageId={this.props.image.imageId}
-                  loggedInAs={this.props.loggedInAs}
-                  key={`${this.props.imageId}-like`} />,
-      // <ShareButton imageId={this.props.image.imageId}
-      //              loggedInAs={this.props.loggedInAs}
-      //              key={`${this.props.imageId}-share`} />
+      <LikeButton image={this.props.image}
+                  key={`${this.props.image.imageId}-like`}
+                  loggedInAs={this.props.loggedInAs} />,
+      // <ShareButton image={this.props.image}
+      //              key={`${this.props.image.imageId}-share`}
+      //              loggedInAs={this.props.loggedInAs} />
     ];
     if (this.props.isOwner) {
       if (this.props.isSource) {
         buttons.push(
           <StyleButton image={this.props.image}
+                       key={`${this.props.image.imageId}-style`}
                        loggedInAs={this.props.loggedInAs}
-                       key={`${this.props.imageId}-style`}
-                       setImageToStyle={this.props.setImageToStyle} />
+                       setStyleTarget={this.props.setStyleTarget} />
         );
       }
       buttons.push(
-        <EditButton imageId={this.props.image.imageId}
+        <EditButton image={this.props.image}
+                    key={`${this.props.image.imageId}-edit`}
                     loggedInAs={this.props.loggedInAs}
-                    key={`${this.props.imageId}-edit`} />
+                    setEditTarget={this.props.setEditTarget} />
       );
     }
     return (
@@ -386,34 +381,22 @@ class CardButtonGroup extends React.Component {
 
 class CurrentPasswordFormField extends React.Component {
   render() {
-    if (this.props.useColumns) {
-      return (
-        <div className="form-group row">
-          <label className="col-sm-3 col-form-label"
-                 htmlFor="current-password-form-field">
-            Password
-          </label>
-          <div className="col-sm-9">
-            <input autoComplete="current-password" className="form-control"
-                   id="current-password-form-field" name="password"
-                   placeholder="Enter password" required="true"
-                   type="password"/>
-          </div>
-        </div>
-      );
-    } else {
-      return (
-        <div className="form-group">
-          <label htmlFor="current-password-modal-form-field">
-            Password
-          </label>
+    let isRequired = (this.props.isRequired ? true : false);
+    let groupClass = (this.props.useColumns ? "form-group row" : "form-group");
+    let inputClass = (this.props.useColumns ? "col-sm-9" : undefined);;
+    let labelClass = (this.props.useColumns ? "col-form-label col-sm-3" : undefined);
+    return (
+      <div className={groupClass}>
+        <label className={labelClass}>
+          Password
+        </label>
+        <div className={inputClass}>
           <input autoComplete="current-password" className="form-control"
-                 id="current-password-modal-form-field" name="password"
-                 placeholder="Enter password" required="true"
+                 name="password" placeholder="Enter password" required={isRequired}
                  type="password"/>
         </div>
-      );
-    }
+      </div>
+    );
   }
 }
 
@@ -422,31 +405,23 @@ class CurrentPasswordFormField extends React.Component {
 
 class EmailFormField extends React.Component {
   render() {
-    if (this.props.useColumns) {
-      return (
-        <div className="form-group row">
-          <label className="col-sm-3 col-form-label" htmlFor="col-email-form-field">
-            Email address
-          </label>
-          <div className="col-sm-9">
-            <input autoComplete="email" className="form-control"
-                   id="email-form-field" name="email" placeholder="Enter email"
-                   required="true" type="email" />
-          </div>
+    let isRequired = (this.props.isRequired ? true : false);
+    let groupClass = (this.props.useColumns ? "form-group row" : "form-group");
+    let inputClass = (this.props.useColumns ? "col-sm-9" : undefined);;
+    let labelClass = (this.props.useColumns ? "col-form-label col-sm-3" : undefined);
+    let placeholder = (this.props.placeholder ?
+                       this.props.placeholder : "Enter email");
+    return (
+      <div className={groupClass}>
+        <label className={labelClass}>
+          Email address
+        </label>
+        <div className={inputClass}>
+          <input autoComplete="email" className="form-control" name="email"
+                 placeholder={placeholder} required={isRequired} type="email" />
         </div>
-      );
-    } else {
-      return (
-        <div className="form-group">
-          <label htmlFor="email-form-field">
-            Email address
-          </label>
-          <input autoComplete="email" className="form-control"
-                 id="email-modal-form-field" name="email"
-                 placeholder="Enter email" required="true" type="email" />
-        </div>
-      );
-    }
+      </div>
+    );
   }
 }
 
@@ -454,10 +429,26 @@ class EmailFormField extends React.Component {
 // ------------------------------------------------------------------------- //
 
 class FileTitleFormField extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      value: (this.props.startingVal ? this.props.startingVal : ''),
+    }
+  }
+  handleChange = (e) => {
+    this.setState({
+      value: e.target.value
+    });
+    if (this.props.callback) {
+      this.props.callback(e.target.value);
+    }
+  }
   render() {
+    let isRequired = (this.props.isRequired ? true : false);
     return (
-      <input className="form-control mb-2" id="file-title-form-field"
-             name="title" placeholder="Title" required="true" type="text" />
+      <input className="form-control mb-2" name="title"
+             onChange={e => this.handleChange(e)} placeholder="Enter title"
+             required={isRequired} type="text" value={this.state.value} />
     )
   }
 }
@@ -466,11 +457,27 @@ class FileTitleFormField extends React.Component {
 // ------------------------------------------------------------------------- //
 
 class FileDescriptionFormField extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      value: (this.props.startingVal ? this.props.startingVal : '')
+    }
+  }
+  handleChange = (e) => {
+    this.setState({
+      value: e.target.value
+    });
+    if (this.props.callback) {
+      this.props.callback(e.target.value);
+    }
+  }
   render() {
+    let isRequired = (this.props.isRequired ? true : false);
     return (
-      <textarea className="form-control mb-2" id="file-description-form-field"
-                maxLength="700" name="description" placeholder="Description..."
-                rows="3">
+      <textarea className="form-control mb-2" defaultValue={this.state.value}
+                maxLength="700" name="description"
+                onChange={e => this.handleChange(e)}
+                placeholder="Enter description..." required={isRequired} rows="3">
       </textarea>
     );
   }
@@ -482,8 +489,8 @@ class FileDescriptionFormField extends React.Component {
 class FileSelectFormField extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {filename: "Choose image file"};
     this.inputEl = null;
+    this.state = {filename: "Choose image file"};
   }
   updateLabel = () => {
     this.setState({
@@ -492,15 +499,13 @@ class FileSelectFormField extends React.Component {
     });
   }
   render() {
+    let isRequired = (this.props.isRequired ? true : false);
     return (
       <div className="custom-file form-group">
-        <input className="custom-file-input form-control"
-               id="file-select-form-field" name="image" required="true"
-               type="file" onChange={this.updateLabel}
-               ref={el => this.inputEl = el} />
-        <label className="custom-file-label text-truncate"
-               htmlFor="file-select-form-field"
-               id="file-select-form-field-label">
+        <input className="custom-file-input form-control" name="image"
+               onChange={this.updateLabel} required={isRequired}
+               ref={el => this.inputEl = el} type="file" />
+        <label className="custom-file-label text-truncate">
           {this.state.filename}
         </label>
         <small className="ml-2 text-muted">
@@ -518,9 +523,12 @@ class UsernameFormField extends React.Component {
   constructor(props) {
     super(props);
     this.inEl = null;
-    this.title = "Usernames must be 3 to 32 characters, must start with a letter, and may only contain lowercase letters, numbers, or dashes.";
   }
   render() {
+    let isRequired = (this.props.isRequired ? true : false);
+    let title = "Usernames must be 3 to 32 characters, must start with a letter, and may only contain lowercase letters, numbers, or dashes.";
+    let placeholder = (this.props.placeholder ?
+                       this.props.placeholder : "Enter username");
     return (
       <div className="form-group row">
         <label className="col-sm-4 col-md-3 col-form-label"
@@ -532,12 +540,11 @@ class UsernameFormField extends React.Component {
             <div className="input-group-text">@</div>
           </div>
           <input autoComplete="username" className="form-control"
-                 id="username-form-field" name="username" minLength="3"
-                 maxLength="32"
+                 name="username" maxLength="32" minLength="3"
                  onChange={e => this.inEl.value = this.inEl.value.toLowerCase()}
-                 pattern="^[a-z]([-]?[a-z0-9])+$"
-                 placeholder="Enter username" ref={el => this.inEl = el}
-                 required="true" title={this.title} type="text" />
+                 pattern="^[a-z]([-]?[a-z0-9])+$" placeholder={placeholder}
+                 ref={el => this.inEl = el} required={isRequired} title={title}
+                 type="text" />
         </div>
       </div>
     );
@@ -712,7 +719,8 @@ class FeedCard extends React.Component {
                              isOwner={this.isOwner}
                              isSource={this.isSource}
                              loggedInAs={this.props.loggedInAs}
-                             setImageToStyle={this.props.setImageToStyle} />
+                             setEditTarget={this.props.setEditTarget}
+                             setStyleTarget={this.props.setStyleTarget} />
           </div>
         </div>
       </div>
@@ -734,7 +742,7 @@ class LibraryCard extends React.Component {
       <div className="col-12 col-sm-11 col-md-6 col-lg-4 col-xl-3 mx-auto">
         <div className="card mx-2 my-4 shadow">
           <img className="card-img-top image-detail-target"
-               id={this.props.imageId}
+               id={this.props.image.imageId}
                onClick={e => this.props.setFocusImage(this.props.image)}
                src={this.props.image.path} />
           <CardBody image={this.props.image} />
@@ -743,7 +751,8 @@ class LibraryCard extends React.Component {
                              isOwner={this.isOwner}
                              isSource={this.isSource}
                              loggedInAs={this.props.loggedInAs}
-                             setImageToStyle={this.props.setImageToStyle} />
+                             setEditTarget={this.props.setEditTarget}
+                             setStyleTarget={this.props.setStyleTarget} />
           </div>
         </div>
       </div>
@@ -851,8 +860,8 @@ class LoginForm extends React.Component {
           <div className="form-group row">
             <h3 className="ml-4 ml-sm-0">Login</h3>
           </div>
-          <EmailFormField useColumns />
-          <CurrentPasswordFormField useColumns />
+          <EmailFormField isRequired useColumns />
+          <CurrentPasswordFormField isRequired useColumns />
           <div className="d-flex flex-row">
             <SignupLinkFormButton />
             <LoginSubmitFormButton />
@@ -874,8 +883,8 @@ class SignupForm extends React.Component {
           <div className="form-group row">
             <h3 className="ml-4 ml-sm-0">Signup</h3>
           </div>
-          <UsernameFormField useColumns />
-          <EmailFormField useColumns />
+          <UsernameFormField isRequired useColumns />
+          <EmailFormField isRequired useColumns />
           <NewPasswordFormFieldGroup isRequired />
           <div className="d-flex flex-row">
             <SignupSubmitFormButton />
@@ -896,7 +905,7 @@ class StyleForm extends React.Component {
     fetch("/ajax/style.json", {
       method: "POST",
       body: JSON.stringify({
-        imageId: this.props.imageToStyle.imageId,
+        imageId: this.props.styleTarget.imageId,
         styleId: this.props.selectedStyle
       }),
       credentials: "same-origin",
@@ -919,7 +928,7 @@ class StyleForm extends React.Component {
       <form action="/style" className="col-12 col-md-6 d-flex flex-row"
             id="style-form" method="POST" onSubmit={e => this.submitForm(e)}>
         <input id="source_image_id" name="source_image_id" type="hidden"
-               value={this.props.imageToStyle.imageId} />
+               value={this.props.styleTarget.imageId} />
         <input id="style_id_input" name="style_id" type="hidden"
                value={this.props.selectedStyle} />
         <input className="btn btn-primary ml-auto" disabled={this.props.isDisabled}
@@ -950,8 +959,8 @@ class LoginModal extends React.Component {
             </div>
             <form action="/login" method="POST">
               <div className="modal-body">
-                <EmailFormField />
-                <CurrentPasswordFormField />
+                <EmailFormField isRequired />
+                <CurrentPasswordFormField isRequired />
               </div>
               <div className="modal-footer p-2">
                 <SignupLinkFormButton />
@@ -985,12 +994,101 @@ class UploadModal extends React.Component {
             <form action="/upload" encType="multipart/form-data"
                   method="POST">
               <div className="modal-body">
-                <FileTitleFormField />
-                <FileDescriptionFormField />
-                <FileSelectFormField />
+                <FileTitleFormField isRequired />
+                <FileDescriptionFormField isRequired />
+                <FileSelectFormField isRequired />
               </div>
               <div className="modal-footer p-2">
                 <UploadSubmitFormButton />
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+
+// Edit
+// ------------------------------------------------------------------------- //
+
+class EditModal extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      title: '',
+      description: '',
+    }
+    this.modalEl = null;
+  }
+  setDescription = (description) => {
+    this.setState({
+      description: description
+    });
+  }
+  setTitle = (title) => {
+    this.setState({
+      title: title
+    });
+  }
+  submitForm = (e) => {
+    e.preventDefault();
+    fetch("/ajax/edit-image.json", {
+      method: "POST",
+      body: JSON.stringify({
+        imageId: this.props.image.imageId,
+        userId: this.props.loggedInAs,
+        title: this.state.title,
+        description: this.state.description,
+      }),
+      credentials: "same-origin",
+      headers: new Headers({
+        "content-type": "application/json"
+      })
+    })
+    .then(r => r.json())
+    .then(r => {
+      this.props.setView("library");
+      if (r.edits) {
+        $(this.modalEl).modal('hide');
+      } else {
+        console.log(r);
+      }
+    });
+  }
+  render() {
+    let title = "";
+    let description = "";
+    if (this.props.image) {
+      if (this.props.image.sourceImage) {
+        title = this.props.image.sourceImage.title;
+        description = this.props.image.sourceImage.description;
+      } else {
+        title = this.props.image.styledImage.sourceImage.title;
+        description = this.props.image.styledImage.sourceImage.description;
+      }
+    }
+    return (
+      <div className="modal fade" id="edit-modal" ref={el => this.modalEl = el}
+           role="dialog" tabIndex="-1">
+        <div className="modal-dialog modal-dialog-centered" role="document">
+          <div className="modal-content">
+            <div className="modal-header py-2">
+              <h5 className="modal-title" id="upload-modal-title">
+                Edit image
+              </h5>
+              <CloseModalButton />
+            </div>
+            <form action="/edit" encType="multipart/form-data"
+                  method="POST" onSubmit={e => this.submitForm(e)}>
+              <div className="modal-body">
+                <FileTitleFormField callback={this.setTitle}
+                                    startingVal={title} />
+                <FileDescriptionFormField callback={this.setDescription}
+                                          startingVal={description} />
+              </div>
+              <div className="modal-footer p-2">
+                <EditSubmitFormButton />
               </div>
             </form>
           </div>
@@ -1096,7 +1194,8 @@ class ImageModal extends React.Component {
                                  isOwner={this.state.isOwner}
                                  isSource={this.state.isSource}
                                  loggedInAs={this.props.loggedInAs}
-                                 setImageToStyle={this.props.setImageToStyle} />
+                                 setEditTarget={this.props.setEditTarget}
+                                 setStyleTarget={this.props.setStyleTarget} />
               </footer>
             </div>
           </div>
@@ -1250,12 +1349,13 @@ class FeedView extends React.Component {
     .then(r => {
       if (r.count > 0) {
         let cardList = this.state.cardList.concat(
-          r.images.map(
-            (image) => <FeedCard key={image.imageId} image={image}
-                                 loggedInAs={this.props.loggedInAs}
-                                 setFocusImage={this.props.setFocusImage}
-                                 setFocusUser={this.props.setFocusUser}
-                                 setImageToStyle={this.props.setImageToStyle} />
+          r.images.map((image) =>
+            <FeedCard image={image} key={image.imageId}
+                      loggedInAs={this.props.loggedInAs}
+                      setEditTarget={this.props.setEditTarget}
+                      setFocusImage={this.props.setFocusImage}
+                      setFocusUser={this.props.setFocusUser}
+                      setStyleTarget={this.props.setStyleTarget} />
           )
         );
         this.setState({cardList: cardList});
@@ -1296,11 +1396,12 @@ class LibraryView extends React.Component {
     .then(r => {
       if (r.count > 0) {
         let cardList = this.state.cardList.concat(
-          r.images.map(
-            (image) => <LibraryCard key={image.imageId} image={image}
-                                    loggedInAs={this.props.loggedInAs}
-                                    setFocusImage={this.props.setFocusImage}
-                                    setImageToStyle={this.props.setImageToStyle} />
+          r.images.map((image) =>
+            <LibraryCard image={image} key={image.imageId}
+                         loggedInAs={this.props.loggedInAs}
+                         setEditTarget={this.props.setEditTarget}
+                         setFocusImage={this.props.setFocusImage}
+                         setStyleTarget={this.props.setStyleTarget} />
           )
         );
         this.setState({cardList: cardList});
@@ -1346,17 +1447,17 @@ class StyleView extends React.Component {
       isDisabled: true,
       isLoading: false,
       selectedStyle: "",
-      styleList: []
+      styleList: [],
     };
   }
   componentWillMount() {
     fetch("/ajax/get-styles.json", {
-      method: "POST",
       body: JSON.stringify({}),
       credentials: "same-origin",
       headers: new Headers({
         "content-type": "application/json"
-      })
+      }),
+      method: "POST",
     })
     .then(r => r.json())
     .then(r => {
@@ -1370,44 +1471,44 @@ class StyleView extends React.Component {
   setLoading = (isLoading) => {
     this.setState({
       isDisabled: true,
-      isLoading: isLoading
+      isLoading: isLoading,
     });
   }
   setStyle = (styleId) => {
     this.setState({
+      isDisabled: false,
       selectedStyle: styleId,
-      isDisabled: false
     });
   }
   render() {
-    let formHeader = "Which style do you want to use?";
-    let styleList = this.state.styleList.map(
-      (style) => <StyleCard style={style} key={style.styleId}
-                            selectedStyle={this.state.selectedStyle}
-                            setStyle={this.setStyle} />
-    );
     let contents = (
       <div className="row">
           {styleList}
       </div>
     );
+    let formHeader = "Which style do you want to use?";
+    let styleList = this.state.styleList.map((style) =>
+      <StyleCard key={style.styleId} selectedStyle={this.state.selectedStyle}
+                 setStyle={this.setStyle} style={style} />
+    );
     if (this.state.isLoading) {
-      formHeader = "Painting...";
       contents = (
         <div className="col-12">
-          <img className="d-flex mx-auto" id="loading-gif" src="/static/image/fluid-loader.gif" />
+          <img className="d-flex mx-auto" id="loading-gif"
+               src="/static/image/fluid-loader.gif" />
         </div>
       );
+      formHeader = "Painting...";
     }
     return (
       <div className="row">
         <h4 className="col-12 col-md-6">{formHeader}</h4>
-        <StyleForm imageToStyle={this.props.imageToStyle}
-                   isDisabled={this.state.isDisabled}
+        <StyleForm isDisabled={this.state.isDisabled}
                    selectedStyle={this.state.selectedStyle}
                    setFocusImage={this.props.setFocusImage}
                    setLoading={this.setLoading}
-                   setView={this.props.setView} />
+                   setView={this.props.setView}
+                   styleTarget={this.props.styleTarget} />
         {contents}
       </div>
     );
@@ -1422,20 +1523,69 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      editTarget: null,
       focusImage: null,
       focusUser: null,
-      imageToStyle: null,
       loggedInAs: (this.props.loggedInAs !== "None" ?
                    this.props.loggedInAs : null),
-      view: null
+      styleTarget: null,
+      view: null,
     };
   }
   componentDidMount() {
     this.setView(this.props.view);
   }
+  setEditTarget = (image) => {
+    console.log("setting editTarget");
+    console.log(image);
+    this.setState({
+      editTarget: image
+    });
+
+    // TODO: replace this with forwarded ref
+    $("#edit-modal").modal("show");
+  }
+  setFocusImage = (image) => {
+    console.log("setting focusImage");
+    console.log(image);
+    this.setState({
+      focusImage: image
+    });
+
+    // TODO: replace this with forwarded ref
+    $("#image-modal").modal("show");
+  }
+  setFocusUser = (user) => {
+    console.log("setting focusUser");
+    console.log(user);
+    this.setState({
+      focusUser: user
+    });
+    if (user.userId == this.props.loggedInAs) {
+      this.setView("library");
+    }
+    this.setView("user");
+  }
+  setLoggedInAs = (user) => {
+    // placeholder
+  }
+  setStyleTarget = (image) => {
+    console.log("setting styleTarget");
+    console.log(image);
+    this.setState({
+      styleTarget: image
+    });
+    this.setView("style");
+  }
   setView = (view) => {
-    console.log(`setting view as: ${view}`);
-    this.setState({view: view});
+    console.log("setting view");
+    console.log(view);
+    this.setState({
+      view: "none"
+    });
+    this.setState({
+      view: view
+    });
     history.pushState({}, view, view);
 
     // TODO: replace this with forwarded ref
@@ -1454,66 +1604,71 @@ class App extends React.Component {
       libraryEl.removeClass("active");
     }
   }
-  setFocusImage = (image) => {
-    console.log(`setting focusImage as: ${image}`);
-    this.setState({focusImage: image});
-
-    // TODO: replace this with forwarded ref
-    $("#image-modal").modal("show");
-  }
-  setFocusUser = (user) => {
-    console.log(`setting focusUser as: ${user}`);
-    if (user.userId == this.props.loggedInAs) {
-      this.setState({focusUser: user});
-      this.setView("library")
-    }
-    this.setState({focusUser: user});
-    this.setView("user")
-  }
-  setImageToStyle = (image) => {
-    console.log(`setting imageToStyle as: ${image}`);
-    this.setState({imageToStyle: image});
-    this.setView("style")
-  }
   render() {
     let views = {
-      feed: (<FeedView loggedInAs={this.state.loggedInAs}
-                       setFocusImage={this.setFocusImage}
-                       setFocusUser={this.setFocusUser}
-                       setImageToStyle={this.setImageToStyle}
-                       setView={this.setView} />),
-      library: (<LibraryView focusUser={this.state.focusUser}
-                             loggedInAs={this.state.loggedInAs}
-                             setFocusImage={this.setFocusImage}
-                             setFocusUser={this.setFocusUser}
-                             setImageToStyle={this.setImageToStyle}
-                             setView={this.setView} />),
-      user: (<LibraryView focusUser={this.state.focusUser}
-                          loggedInAs={this.state.loggedInAs}
-                          setFocusImage={this.setFocusImage}
-                          setFocusUser={this.setFocusUser}
-                          setView={this.setView} />),
-      signup: (<SignupView setView={this.setView} />),
-      style: (<StyleView imageToStyle={this.state.imageToStyle}
-                         loggedInAs={this.state.loggedInAs}
-                         setFocusImage={this.setFocusImage}
-                         setView={this.setView} />),
-      // about: (<AboutView loggedInAs={this.state.loggedInAs}
-      //                    setFocusImage={this.setFocusImage}
-      //                    setView={this.setView} />)
+      none: "",
+      // about: (
+      //   <AboutView loggedInAs={this.state.loggedInAs}
+      //              setFocusImage={this.setFocusImage}
+      //              setView={this.setView} />
+      // ),
+      feed: (
+        <FeedView loggedInAs={this.state.loggedInAs}
+                  setEditTarget={this.setEditTarget}
+                  setFocusImage={this.setFocusImage}
+                  setFocusUser={this.setFocusUser}
+                  setStyleTarget={this.setStyleTarget}
+                  setView={this.setView} />
+      ),
+      library: (
+        <LibraryView focusUser={this.state.focusUser}
+                     loggedInAs={this.state.loggedInAs}
+                     setEditTarget={this.setEditTarget}
+                     setFocusImage={this.setFocusImage}
+                     setFocusUser={this.setFocusUser}
+                     setStyleTarget={this.setStyleTarget}
+                     setView={this.setView} />
+      ),
+      // login: (
+      //   <LoginView setLoggedInAs={this.setLoggedInAs}
+      //              setView={this.setView} />
+      // ),
+      signup: (
+        <SignupView setLoggedInAs={this.setLoggedInAs}
+                    setView={this.setView} />
+      ),
+      style: (
+        <StyleView loggedInAs={this.state.loggedInAs}
+                   setFocusImage={this.setFocusImage}
+                   setView={this.setView}
+                   styleTarget={this.state.styleTarget} />
+      ),
+      user: (
+        <LibraryView focusUser={this.state.focusUser}
+                     loggedInAs={this.state.loggedInAs}
+                     setEditTarget={this.setEditTarget}
+                     setFocusImage={this.setFocusImage}
+                     setFocusUser={this.setFocusUser}
+                     setView={this.setView} />
+      ),
     };
     return (
       <div id="app">
         <Navbar loggedInAs={this.state.loggedInAs}
                 setView={this.setView}
                 view={this.state.view} />
-        <div id="main-container" className="container mt-4">
+        <div className="container mt-4" id="main-container">
           {views[this.state.view]}
         </div>
+        <EditModal image={this.state.editTarget}
+                   loggedInAs={this.state.loggedInAs}
+                   setFocusImage={this.setFocusImage}
+                   setView={this.setView} />
+        <ImageModal image={this.state.focusImage}
+                    loggedInAs={this.state.loggedInAs}
+                    setEditTarget={this.props.setEditTarget} />
         <LoginModal />
         <UploadModal />
-        <ImageModal image={this.state.focusImage}
-                    loggedInAs={this.state.loggedInAs} />
       </div>
     );
   }
@@ -1528,12 +1683,12 @@ class App extends React.Component {
 
 function getImages(requestBody) {
   return fetch("/ajax/get-images.json", {
-    method: "POST",
     body: JSON.stringify(requestBody),
     credentials: "same-origin",
     headers: new Headers({
       "content-type": "application/json"
-    })
+    }),
+    method: "post",
   })
   .then(r => r.json())
   .then(r => {
