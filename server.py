@@ -163,13 +163,14 @@ def upload_image():
 
 @app.route('/style', methods=['POST'])
 def process_style():
-    source_image_id = request.form.get('source_image_id')
-    style_id = request.form.get('style_id')
+    """Style an image via form"""
 
+    source_image_id = request.form.get('source_image_id')
     if source_image_id is None:
         flash('No image selected', 'danger')
         return redirect('/style')
 
+    style_id = request.form.get('style_id')
     if style_id is None:
         flash('No style selected', 'danger')
         return redirect('/style')
@@ -199,11 +200,15 @@ def get_user_ajax():
     """Get user details"""
 
     ajax = request.get_json()
+
     user_id = ajax.get('userId')
     if user_id is None:
         return jsonify({'message': 'no user part'})
 
     user = User.query.get(int(user_id))
+    if user is None:
+        return jsonify({'message': 'user not found'})
+
     result = {
         'user': {
             'createdAt': user.created_at.strftime('%b %d, %Y'),
@@ -214,7 +219,7 @@ def get_user_ajax():
 
     if user_id == session.get('userId'):
         result['user']['email'] = user.email
-        result['user']['is_public'] = user.pref_is_public
+        result['user']['isPublic'] = user.pref_is_public
 
     pprint(result)
     return jsonify(result)
@@ -254,18 +259,21 @@ def process_style_ajax_form():
     """Style an image"""
 
     ajax = request.get_json()
-    image_id = ajax.get('imageId')
-    style_id = ajax.get('styleId')
 
+    image_id = ajax.get('imageId')
     if image_id is None:
         return jsonify({'message': 'no image part'})
-
+    style_id = ajax.get('styleId')
     if style_id is None:
         return jsonify({'message': 'no style part'})
 
     source_image = SourceImage.query.filter_by(
         image_id=int(image_id)).one_or_none()
+    if source_image is None:
+        return jsonify({'message': 'image not found'})
     style = Style.query.get(int(style_id))
+    if style is None:
+        return jsonify({'message': 'style not found'})
 
     sty_img = StyledImage.create(source_image, style)
     result = {
@@ -370,11 +378,14 @@ def get_image_details_ajax():
     """Image details ajax"""
 
     ajax = request.get_json()
+
     image_id = ajax.get('imageId')
     if image_id is None:
         return jsonify({'message': 'no image part'})
-
     image = Image.query.get(image_id)
+    if image is None:
+        return jsonify({'message': 'image not found'})
+
     result = {
         'image': {
             'createdAt': image.created_at.strftime("%b %d, %Y"),
@@ -414,18 +425,19 @@ def edit_image():
     """Edit image"""
 
     ajax = request.get_json()
-    image_id = ajax.get('imageId')
-    user_id = ajax.get('userId')
 
+    image_id = ajax.get('imageId')
     if image_id is None:
         return jsonify({'message': 'no image part'})
-
+    user_id = ajax.get('userId')
     if user_id is None:
         return jsonify({'message': 'no user part'})
-
     image = Image.query.get(int(image_id))
+    if image is None:
+        return jsonify({'message': 'image not found'})
     user = User.query.get(int(user_id))
-
+    if user is None:
+        return jsonify({'message': 'user not found'})
     if image.user != user:
         return jsonify({'message': 'permission denied'})
 
@@ -466,6 +478,43 @@ def edit_image():
     return jsonify(result)
 
 
+# @app.route('/ajax/delete-image.json', methods=['POST'])
+# def delete_image():
+#     """Edit image"""
+
+#     ajax = request.get_json()
+
+#     image_id = ajax.get('imageId')
+#     if image_id is None:
+#         return jsonify({'message': 'no image part'})
+#     user_id = ajax.get('userId')
+#     if user_id is None:
+#         return jsonify({'message': 'no user part'})
+#     image = Image.query.get(int(image_id))
+#     if image is None:
+#         return jsonify({'message': 'image not found'})
+#     user = User.query.get(int(user_id))
+#     if user is None:
+#         return jsonify({'message': 'user not found'})
+#     if image.user != user:
+#         return jsonify({'message': 'permission denied'})
+
+#     if image.styled_image:
+#         db.session.delete(image.styled_image)
+#         db.session.delete(image)
+
+#     if image.source_image:
+#         for styled_image in image.source_image.styled_images:
+#             db.session.delete(styled_image.image)
+#             db.session.delete(styled_image)
+#         db.session.delete(image.source_image)
+#         db.session.delete(image)
+
+#     db.session.commit()
+
+#     return jsonify({'message': 'image deleted'})
+
+
 # Like interactions
 # -------------------------------------------------------------------------- #
 
@@ -479,13 +528,16 @@ def toggle_like_state_ajax():
     image_id = ajax.get('imageId')
     if image_id is None:
         return jsonify({'message': 'no image part'})
-
     user_id = session.get('userId')
     if user_id is None:
         return jsonify({'message': 'no user part'})
-
-    user = User.query.get(user_id)
     image = Image.query.get(image_id)
+    if image is None:
+        return jsonify({'message': 'image not found'})
+    user = User.query.get(user_id)
+    if user is None:
+        return jsonify({'message': 'user not found'})
+
     like = Like.toggle(user, image)
     like_count = len(Like.query.filter_by(image=image).all())
 
@@ -509,13 +561,16 @@ def get_like_state_ajax():
     image_id = ajax.get('imageId')
     if image_id is None:
         return jsonify({'message': 'no image part'})
-
     user_id = session.get('userId')
     if user_id is None:
         return jsonify({'message': 'no user part'})
-
-    user = User.query.get(user_id)
     image = Image.query.get(image_id)
+    if image is None:
+        return jsonify({'message': 'image not found'})
+    user = User.query.get(user_id)
+    if user is None:
+        return jsonify({'message': 'user not found'})
+
     like = Like.query.filter_by(user=user, image=image).one_or_none()
     like_count = len(Like.query.filter_by(image=image).all())
 

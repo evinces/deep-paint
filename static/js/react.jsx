@@ -101,7 +101,7 @@ class LikeButton extends React.Component {
           "likeCount": r.like.likeCount,
         });
       } else {
-        console.log('setLikeState', r);
+        console.log(r);
       }
     });
   }
@@ -306,9 +306,10 @@ class UploadSubmitFormButton extends React.Component {
 class EditSubmitFormButton extends React.Component {
   render() {
     return (
-      <SubmitFormButton buttonClass="ml-auto"
-                        iconClass="oi-cloud-upload"
-                        name="edit" />
+      <SubmitFormButton buttonClass="ml-2"
+                        iconClass="oi-file"
+                        name="save"
+                        title="Save Changes" />
     );
   }
 }
@@ -327,6 +328,72 @@ class SignupLinkFormButton extends React.Component {
     );
   }
 }
+
+// Delete Button
+// ------------------------------------------------------------------------- //
+
+// class DeleteButton extends React.Component {
+//   triggerDelete = () => {
+//     $('#delete-modal').modal('show');
+//   }
+//   render() {
+//     return (
+//       <button className="btn btn-info ml-auto" id="delete-btn"
+//               onClick={e => this.triggerDelete()}>
+//         <span className="oi oi-trash small"></span>&nbsp;
+//         Delete Image
+//       </button>
+//     );
+//   }
+// }
+
+// class DeleteModal extends React.Component {
+//   submitDelete = () => {
+//     fetch('/ajax/delete-image.json', {
+//       body: JSON.stringify({
+//         imageId: this.props.image.imageId,
+//         userId: this.props.loggedInAs,
+//       }),
+//       credentials: "same-origin",
+//       headers: new Headers({
+//         "content-type": "application/json",
+//       }),
+//       method: "POST",
+//     })
+//     .then(r => r.json())
+//     .then(r => {
+//       if (r.message === "image deleted") {
+//         $('#edit-modal').modal('hide');
+//         this.setView("library");
+//       } else {
+//         console.log(r);
+//       }
+//     });
+//   }
+//   render() {
+//     let body = (
+//     );
+//     return (
+//       <div aria-hidden="true" aria-labelledby="delete-modal-title"
+//            className="fade modal" id="delete-modal" role="dialog" tabIndex="-1">
+//         <div className="modal-dialog modal-dialog-centered" role="document">
+//           <div className="modal-content">
+//             <div className="modal-header py-2">
+//               <h5 className="modal-title" id="delete-modal-title">Are you sure?</h5>
+//               <CloseModalButton />
+//             </div>
+//             <form action="/delete" method="POST"
+//                   onSubmit={e => this.submitDelete(e)}>
+//               <div className="modal-footer p-2">
+//                 <LoginSubmitFormButton />
+//               </div>
+//             </form>
+//           </div>
+//         </div>
+//       </div>
+//     );
+//   }
+// }
 
 // ========================================================================= //
 // Button Groups
@@ -1331,6 +1398,32 @@ class Navbar extends React.Component {
 // Views
 // ========================================================================= //
 
+// About
+// ------------------------------------------------------------------------- //
+
+class AboutView extends React.Component {
+  render() {
+    return (
+      <div className="row">
+        <div className="col-12 col-md-10 col-lg-8">
+          <h3 id="about-deep-paint">
+            About DeepPaint
+          </h3>
+          <p>...</p>
+          <h3 id="about-tensorflow">
+            About Style Transfer
+          </h3>
+          <p>...</p>
+          <h3 id="about-author">
+            About the Author
+          </h3>
+          <p>...</p>
+        </div>
+      </div>
+    );
+  }
+}
+
 // Feed / Home
 // ------------------------------------------------------------------------- //
 
@@ -1607,11 +1700,11 @@ class App extends React.Component {
   render() {
     let views = {
       none: "",
-      // about: (
-      //   <AboutView loggedInAs={this.state.loggedInAs}
-      //              setFocusImage={this.setFocusImage}
-      //              setView={this.setView} />
-      // ),
+      about: (
+        <AboutView loggedInAs={this.state.loggedInAs}
+                   setFocusImage={this.setFocusImage}
+                   setView={this.setView} />
+      ),
       feed: (
         <FeedView loggedInAs={this.state.loggedInAs}
                   setEditTarget={this.setEditTarget}
