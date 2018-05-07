@@ -170,7 +170,7 @@ class NavButton extends React.Component {
               data-target={`#${this.props.name}-modal`}
               data-toggle="modal" id={`navbar${this.props.name}-btn`}
               type="button">
-        <span className={`oi ${this.props.icon}`}></span>
+        <span className={`oi mr-2 ${this.props.icon}`}></span>
         {title}
       </button>
     );
@@ -211,7 +211,7 @@ class NavLinkButton extends React.Component {
     return (
       <a className={`btn mr-2 ${btnColor}`} href={`/${this.props.name}`}
          id={`navbar-${this.props.name}-btn`}>
-        <span className={`oi ${this.props.icon}`}></span>
+        <span className={`oi mr-2 ${this.props.icon}`}></span>
         {title}
       </a>
     );
@@ -1491,30 +1491,25 @@ class LandingView extends React.Component {
     return (
       <div className="carousel slide carousel-fade" data-ride="carousel" id="landing-carousel">
         <div className="carousel-inner" onClick={e => this.props.setView("feed")}>
-          <div className="carousel-item active">
-            <img className="d-block w-100" src="/static/image/seattle-mopop.png" />
-            <div className="carousel-caption d-none d-md-block">
-              <div className="carousel-caption-background"></div>
+          <div className="carousel-item active" id="slide-1">
+            <div className="carousel-caption-background"></div>
+            <div className="carousel-caption">
               <h5>DeepPaint</h5>
               <p>Style photos with the power of machine learning</p>
             </div>
           </div>
-          <div className="carousel-item">
-            <img className="d-block w-100"
-                 src="/static/image/seattle-public-market.png" />
-            <div className="carousel-caption d-none d-md-block bg-opaic-black">
-              <div className="carousel-caption-background"></div>
-              <h5>Slide 2</h5>
-              <p>Slide 2 text...</p>
+          <div className="carousel-item" id="slide-2">
+            <div className="carousel-caption-background"></div>
+            <div className="carousel-caption">
+              <h5>Photo Sharing</h5>
+              <p>Share your photos with the DeepPaint community</p>
             </div>
           </div>
-          <div className="carousel-item">
-            <img className="d-block w-100"
-                 src="/static/image/portland-old-downtown.png" />
-            <div className="carousel-caption d-none d-md-block">
-              <div className="carousel-caption-background"></div>
-              <h5>Slide 3</h5>
-              <p>Slide 3 text...</p>
+          <div className="carousel-item" id="slide-3">
+            <div className="carousel-caption-background"></div>
+            <div className="carousel-caption">
+              <h5>Get Started</h5>
+              <p>Click to start styling your favorite photos</p>
             </div>
           </div>
         </div>
@@ -1744,7 +1739,9 @@ class App extends React.Component {
     this.setState({
       view: view
     });
-    history.pushState({}, view, view);
+    if (view !== "landing") {
+      history.pushState({}, view, view);
+    }
 
     // TODO: replace this with forwarded ref
     let feedEl = $("#nav-home");

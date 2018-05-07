@@ -1,9 +1,17 @@
-body {
+#app {
   background-image: url("/static/image/rainbow-01.svg");
   background-size: 1500px auto;
-  background-repeat: space repeat-y;
+  background-repeat: repeat-y;
   background-position: top;
   background-color: #fff;
+}
+
+.mt-6 {
+  margin-top: 4rem!important;
+}
+a.btn {
+  color: buttontext;
+  background-color: buttonface;
 }
 
 #root-navbar {
@@ -16,11 +24,6 @@ body {
 #image-modal-image {
   max-height: 1024px;
   max-width: 100%;
-}
-
-a.btn {
-  color: buttontext;
-  background-color: buttonface;
 }
 
 .card-body {
@@ -64,8 +67,23 @@ a.btn {
   color: #fff;
 }
 
+[id^="slide"] {
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-color: #333;
+  background-size: cover;
+}
+#slide-1 {
+  background-image: url("/static/image/seattle-mopop.png");
+}
+#slide-2 {
+  background-image: url("/static/image/seattle-public-market.png");
+}
+#slide-3 {
+  background-image: url("/static/image/portland-old-downtown.png");
+}
 .carousel-caption {
-  bottom: 50%;
+  bottom: 10%;
   font-family: 'Sniglet', cursive;
   font-size: 1.75em;
   text-shadow: 1px 1px 2px black;
@@ -75,23 +93,24 @@ a.btn {
   font-weight: bold;
 }
 .carousel-caption-background {
-  background-color: rgb(0,0,0,0.4);
-  border-radius: 50%;
-  filter: blur(50px);
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
+  background: linear-gradient(to top,
+                              rgba(0,0,0,0.5) 0px,
+                              rgba(0,0,0,0.4) 28%,
+                              rgba(0,0,0,0.1) 38%,
+                              rgba(0,0,0,0.0) 40%);
+  height: 100vh;
+  width: 100vw;
   z-index: -1;
 }
 .carousel-control-next, .carousel-control-prev {
-  filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(1px 1px 2px black);
   opacity: 0.7;
 }
-
-.about-header {
-  text-shadow: 1px 1px 2px white;
+.carousel-control-next-icon, .carousel-control-prev-icon {
+  position: absolute;
+  height: 40px;
+  width: 40px;
+  bottom: 15%;
 }
 
 #password-confirm-display {
@@ -102,12 +121,4 @@ a.btn {
 }
 .oi-circle-x {
   color: red;
-}
-
-.mt-6 {
-  margin-top: 4rem!important;
-}
-
-.tooltip {
-  filter: drop-shadow(1px, 2px, 3px, 3px, black);
 }
