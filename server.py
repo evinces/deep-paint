@@ -20,16 +20,16 @@ connect_to_db(app)
 
 @app.route('/')
 def index():
-    """Homepage / Feed"""
+    """Homepage"""
 
-    return render_template('main.html', view="feed")
+    return render_template('main.html', view="landing")
 
 
 @app.route('/<view>', methods=['GET'])
 def show_view(view):
     """Generic view"""
 
-    if view not in ['feed', 'library', 'user', 'signup']:
+    if view not in ['about', 'feed', 'library', 'signup', 'user', ]:
         view = 'feed'
 
     return render_template('main.html', view=view)

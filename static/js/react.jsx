@@ -834,6 +834,8 @@ class StyleCard extends React.Component {
   render() {
     let bgClass = (this.props.style.styleId === this.props.selectedStyle ?
                    "bg-primary text-light" : "bg-light");
+    console.log(`render StyleCard: ${this.props.style.styleId}`);
+
     return (
       <div className="col-12 col-sm-11 col-md-6 col-lg-4 col-xl-3 mx-auto">
         <div className={`card mx-2 my-4 shadow ${bgClass}`}
@@ -1315,8 +1317,8 @@ class Navbar extends React.Component {
       this.setState({feedClass: "active"});
     } else if (this.props.view === "library") {
       this.setState({libraryClass: "active"});
-    // } else if (this.props.view === "about") {
-    //   this.setState({aboutClass: "active"});
+    } else if (this.props.view === "about") {
+      this.setState({aboutClass: "active"});
     }
   }
   componentWillMount() {
@@ -1405,19 +1407,31 @@ class AboutView extends React.Component {
   render() {
     return (
       <div className="row">
-        <div className="col-12 col-md-10 col-lg-8">
-          <h3 id="about-deep-paint">
-            About DeepPaint
-          </h3>
-          <p>...</p>
-          <h3 id="about-tensorflow">
-            About Style Transfer
-          </h3>
-          <p>...</p>
-          <h3 id="about-author">
-            About the Author
-          </h3>
-          <p>...</p>
+        <div className="col-12 col-sm-10 col-md-8 col-lg-6 mx-auto">
+          <div className="card px-4 py-3 my-5">
+            <h3 className="about-header" id="about-deep-paint">
+              About DeepPaint
+            </h3>
+            <p className="">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vehicula mauris sed metus aliquam hendrerit. Curabitur gravida finibus eros, eu imperdiet leo cursus tincidunt.
+            </p>
+          </div>
+          <div className="card px-4 py-3 my-5">
+            <h3 className="about-header" id="about-tensorflow">
+              About Style Transfer
+            </h3>
+            <p className="">
+              Nulla vehicula placerat urna hendrerit aliquet. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vitae nisi ac arcu interdum pellentesque vel ut enim.
+            </p>
+          </div>
+          <div className="card px-4 py-3 my-5">
+            <h3 className="about-header" id="about-author">
+              About the Author
+            </h3>
+            <p className="">
+              Aenean rhoncus eros sed porta mollis. Sed et erat ante. Aliquam at cursus nisl. Vivamus nec facilisis magna, non pretium quam. Nunc placerat fermentum rhoncus.
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -1434,7 +1448,7 @@ class FeedView extends React.Component {
   }
   componentWillMount() {
     getImages({
-      limit: 20,
+      limit: 50,
       offset: null,
       orderByDate: "desc",
       userId: null,
@@ -1464,6 +1478,54 @@ class FeedView extends React.Component {
     return (
       <div className="row">
         {this.state.cardList}
+      </div>
+    );
+  }
+}
+
+// Landing
+// ------------------------------------------------------------------------- //
+
+class LandingView extends React.Component {
+  render() {
+    return (
+      <div className="carousel slide carousel-fade" data-ride="carousel" id="landing-carousel">
+        <div className="carousel-inner" onClick={e => this.props.setView("feed")}>
+          <div className="carousel-item active">
+            <img className="d-block w-100" src="/static/image/seattle-mopop.png" />
+            <div className="carousel-caption d-none d-md-block">
+              <div className="carousel-caption-background"></div>
+              <h5>DeepPaint</h5>
+              <p>Style photos with the power of machine learning</p>
+            </div>
+          </div>
+          <div className="carousel-item">
+            <img className="d-block w-100"
+                 src="/static/image/seattle-public-market.png" />
+            <div className="carousel-caption d-none d-md-block bg-opaic-black">
+              <div className="carousel-caption-background"></div>
+              <h5>Slide 2</h5>
+              <p>Slide 2 text...</p>
+            </div>
+          </div>
+          <div className="carousel-item">
+            <img className="d-block w-100"
+                 src="/static/image/portland-old-downtown.png" />
+            <div className="carousel-caption d-none d-md-block">
+              <div className="carousel-caption-background"></div>
+              <h5>Slide 3</h5>
+              <p>Slide 3 text...</p>
+            </div>
+          </div>
+        </div>
+        <a className="carousel-control-prev" data-slide="prev"
+           href="#landing-carousel" role="button">
+          <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+        </a>
+        <a className="carousel-control-next" data-slide="next"
+           href="#landing-carousel" role="button">
+          <span className="carousel-control-next-icon" aria-hidden="true"></span>
+        </a>
       </div>
     );
   }
@@ -1574,20 +1636,20 @@ class StyleView extends React.Component {
     });
   }
   render() {
-    let contents = (
-      <div className="row">
-          {styleList}
-      </div>
-    );
     let formHeader = "Which style do you want to use?";
     let styleList = this.state.styleList.map((style) =>
       <StyleCard key={style.styleId} selectedStyle={this.state.selectedStyle}
                  setStyle={this.setStyle} style={style} />
     );
+    let contents = (
+      <div className="row">
+          {styleList}
+      </div>
+    );
     if (this.state.isLoading) {
       contents = (
         <div className="col-12">
-          <img className="d-flex mx-auto" id="loading-gif"
+          <img className="d-flex mx-auto my-5" id="loading-gif"
                src="/static/image/fluid-loader.gif" />
         </div>
       );
@@ -1671,6 +1733,9 @@ class App extends React.Component {
     this.setView("style");
   }
   setView = (view) => {
+    if (view === "landing" && this.state.loggedInAs) {
+      view = "feed";
+    }
     console.log("setting view");
     console.log(view);
     this.setState({
@@ -1713,6 +1778,9 @@ class App extends React.Component {
                   setStyleTarget={this.setStyleTarget}
                   setView={this.setView} />
       ),
+      landing: (
+        <LandingView setView={this.setView} />
+      ),
       library: (
         <LibraryView focusUser={this.state.focusUser}
                      loggedInAs={this.state.loggedInAs}
@@ -1745,8 +1813,8 @@ class App extends React.Component {
                      setView={this.setView} />
       ),
     };
-    return (
-      <div id="app">
+    let content = (
+      <div>
         <Navbar loggedInAs={this.state.loggedInAs}
                 setView={this.setView}
                 view={this.state.view} />
@@ -1762,6 +1830,18 @@ class App extends React.Component {
                     setEditTarget={this.props.setEditTarget} />
         <LoginModal />
         <UploadModal />
+      </div>
+    );
+    if (this.state.view === 'landing') {
+      content = (
+        <div className="w-100">
+          {views[this.state.view]}
+        </div>
+      );
+    }
+    return (
+      <div className="w-100" id="app">
+      {content}
       </div>
     );
   }
