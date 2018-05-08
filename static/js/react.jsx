@@ -15,6 +15,10 @@ class ImageButton extends React.Component {
   componentDidMount() {
     $(this.tooltipPart).tooltip();
   }
+  handleClick = () => {
+    $("#image-modal").modal("hide");
+    this.props.onClickAction(this.props.image);
+  }
   render() {
     let title = this.props.name[0].toUpperCase() + this.props.name.slice(1)
     const icons = [
@@ -30,7 +34,7 @@ class ImageButton extends React.Component {
     return (
       <button className="border btn bg-white" data-toggle="tooltip"
               id={`${this.props.name}-btn-${this.props.image.imageId}`}
-              onClick={e => this.props.onClickAction(this.props.image)}
+              onClick={e => this.handleClick()}
               ref={el => this.tooltipPart = el} title={title} type="button">
         {icons}
       </button>
@@ -183,7 +187,7 @@ class NavButton extends React.Component {
 class UploadNavButton extends React.Component {
   render() {
     return (
-      <NavButton name="upload" icon="oi-cloud-upload" />
+      <NavButton btnColor="btn-primary" name="upload" icon="oi-cloud-upload" />
     );
   }
 }
@@ -224,7 +228,8 @@ class NavLinkButton extends React.Component {
 class LogoutNavButton extends React.Component {
   render() {
     return (
-      <NavLinkButton name="logout" icon="oi-account-logout" />
+      <NavLinkButton btnColor="btn-outline-light" icon="oi-account-logout"
+                     name="logout" />
     );
   }
 }
@@ -251,10 +256,10 @@ class SubmitFormButton extends React.Component {
     let title = (this.props.title ? this.props.title :
                  this.props.name[0].toUpperCase() + this.props.name.slice(1));
     let buttonClass = `btn btn-primary ${this.props.buttonClass}`;
-    let iconClass = `oi ${this.props.iconClass} small"`;
+    let iconClass = `oi mr-2 ${this.props.iconClass} small"`;
     return (
       <button className={buttonClass} id={id} type="submit">
-        <span className={iconClass}></span>&nbsp;
+        <span className={iconClass}></span>
         {title}
       </button>
     );
@@ -322,7 +327,7 @@ class SignupLinkFormButton extends React.Component {
     return (
       <a className="btn btn-info ml-auto" href="/signup"
          id="signup-link-form-btn">
-        <span className="oi oi-plus small"></span>&nbsp;
+        <span className="oi oi-plus mr-2 small"></span>
         Signup
       </a>
     );
@@ -499,7 +504,7 @@ class FileTitleFormField extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: (this.props.startingVal ? this.props.startingVal : ''),
+      value: "",
     }
   }
   handleChange = (e) => {
@@ -511,10 +516,13 @@ class FileTitleFormField extends React.Component {
     }
   }
   render() {
+    let placeholder = (this.props.placeholder ? this.props.placeholder :
+                       "Enter title...")
     let isRequired = (this.props.isRequired ? true : false);
     return (
       <input className="form-control mb-2" name="title"
-             onChange={e => this.handleChange(e)} placeholder="Enter title"
+             onChange={e => this.handleChange(e)}
+             placeholder={placeholder}
              required={isRequired} type="text" value={this.state.value} />
     )
   }
@@ -527,7 +535,7 @@ class FileDescriptionFormField extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: (this.props.startingVal ? this.props.startingVal : '')
+      value: ""
     }
   }
   handleChange = (e) => {
@@ -539,12 +547,14 @@ class FileDescriptionFormField extends React.Component {
     }
   }
   render() {
+    let placeholder = (this.props.placeholder ? this.props.placeholder :
+                       "Enter description...")
     let isRequired = (this.props.isRequired ? true : false);
     return (
       <textarea className="form-control mb-2" defaultValue={this.state.value}
                 maxLength="700" name="description"
                 onChange={e => this.handleChange(e)}
-                placeholder="Enter description..." required={isRequired} rows="3">
+                placeholder={placeholder} required={isRequired} rows="3">
       </textarea>
     );
   }
@@ -1120,6 +1130,7 @@ class EditModal extends React.Component {
       this.props.setView("library");
       if (r.edits) {
         $(this.modalEl).modal('hide');
+        this.props.setFocusImage(r.image);
       } else {
         console.log(r);
       }
@@ -1128,13 +1139,24 @@ class EditModal extends React.Component {
   render() {
     let title = "";
     let description = "";
+    let message = null;
     if (this.props.image) {
       if (this.props.image.sourceImage) {
         title = this.props.image.sourceImage.title;
         description = this.props.image.sourceImage.description;
+        message = (
+          <small className="text-muted my-0 mx-2">
+            Note: Editing an original image will edit its styled images as well.
+          </small>
+        );
       } else {
         title = this.props.image.styledImage.sourceImage.title;
         description = this.props.image.styledImage.sourceImage.description;
+        message = (
+          <small className="text-muted my-0 mx-2">
+            Note: Editing a styled image will edit the original as well.
+          </small>
+        );
       }
     }
     return (
@@ -1152,9 +1174,10 @@ class EditModal extends React.Component {
                   method="POST" onSubmit={e => this.submitForm(e)}>
               <div className="modal-body">
                 <FileTitleFormField callback={this.setTitle}
-                                    startingVal={title} />
+                                    placeholder={title} />
                 <FileDescriptionFormField callback={this.setDescription}
-                                          startingVal={description} />
+                                          placeholder={description} />
+                {message}
               </div>
               <div className="modal-footer p-2">
                 <EditSubmitFormButton />
@@ -1284,7 +1307,8 @@ class ImageModal extends React.Component {
 class NavBrand extends React.Component {
   render() {
     return (
-      <a className="h1 mb-0 navbar-brand" href="/">
+      <a className="h1 mb-0 navbar-brand" href="#"
+         onClick={e => this.props.setView("landing")}>
         <span className="oi oi-brush"></span>&nbsp;
         DeepPaint
       </a>
@@ -1303,7 +1327,7 @@ class Navbar extends React.Component {
     this.state = {
       aboutClass: "",
       feedClass: "",
-      libraryClass: ""
+      libraryClass: "",
     };
   }
   setActive = () => {
@@ -1311,7 +1335,7 @@ class Navbar extends React.Component {
     this.setState({
       aboutClass: "",
       feedClass: "",
-      libraryClass: ""
+      libraryClass: "",
     });
     if (this.props.view === "feed") {
       this.setState({feedClass: "active"});
@@ -1347,7 +1371,7 @@ class Navbar extends React.Component {
       <nav className="bg-dark border-dark navbar navbar-dark navbar-expand-md
                       shadow sticky-top">
         <div className="container">
-          <NavBrand />
+          <NavBrand setView={this.props.setView} />
           <button aria-controls="navbar-toggle" aria-expanded="false"
                   aria-label="Toggle navigation" className="navbar-toggler"
                   data-target="#navbar-toggle" data-toggle="collapse"
@@ -1509,7 +1533,7 @@ class LandingView extends React.Component {
             <div className="carousel-caption-background"></div>
             <div className="carousel-caption">
               <h5>Get Started</h5>
-              <p>Click to start styling your favorite photos</p>
+              <p>Click anywhere to start styling your photos</p>
             </div>
           </div>
         </div>
@@ -1521,6 +1545,12 @@ class LandingView extends React.Component {
            href="#landing-carousel" role="button">
           <span className="carousel-control-next-icon" aria-hidden="true"></span>
         </a>
+        <nav className="navbar fixed-bottom navbar-dark bg-dark">
+          <button className="btn btn-outline-light d-flex ml-auto"
+                  onClick={e => this.props.setView("feed")}>
+            Get Started
+          </button>
+        </nav>
       </div>
     );
   }
@@ -1739,7 +1769,10 @@ class App extends React.Component {
     this.setState({
       view: view
     });
-    if (view !== "landing") {
+
+    if (view === "landing") {
+      history.pushState({}, view, "");
+    } else {
       history.pushState({}, view, view);
     }
 
@@ -1818,27 +1851,33 @@ class App extends React.Component {
         <div className="container mt-4" id="main-container">
           {views[this.state.view]}
         </div>
+      </div>
+    );
+    switch (this.state.view) {
+      case "landing":
+        content = (
+          <div className="w-100">
+            {views[this.state.view]}
+          </div>
+        );
+      case "about":
+        $("body").removeClass("bg-rainbow");
+        break;
+      default:
+        $("body").addClass("bg-rainbow");
+    }
+    return (
+      <div className="w-100" id="app">
+        {content}
+        <ImageModal image={this.state.focusImage}
+                    loggedInAs={this.state.loggedInAs}
+                    setEditTarget={this.setEditTarget} />
         <EditModal image={this.state.editTarget}
                    loggedInAs={this.state.loggedInAs}
                    setFocusImage={this.setFocusImage}
                    setView={this.setView} />
-        <ImageModal image={this.state.focusImage}
-                    loggedInAs={this.state.loggedInAs}
-                    setEditTarget={this.props.setEditTarget} />
         <LoginModal />
         <UploadModal />
-      </div>
-    );
-    if (this.state.view === 'landing') {
-      content = (
-        <div className="w-100">
-          {views[this.state.view]}
-        </div>
-      );
-    }
-    return (
-      <div className="w-100" id="app">
-      {content}
       </div>
     );
   }
@@ -1866,7 +1905,6 @@ function getImages(requestBody) {
     return r;
   });
 }
-
 
 
 

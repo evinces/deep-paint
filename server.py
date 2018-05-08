@@ -474,6 +474,34 @@ def edit_image():
 
     db.session.commit()
 
+    result['image'] = {
+        'createdAt': image.created_at.strftime('%b %d, %Y'),
+        'imageId': image.image_id,
+        'path': image.get_path(),
+        'user': {
+            'userId': image.user.user_id,
+            'username': image.user.username,
+            'createdAt': image.user.created_at.strftime(
+                '%b %d, %Y')
+        },
+    }
+    if image.source_image:
+        result['image']['sourceImage'] = {
+            'imageId': image.source_image.image_id,
+            'title': image.source_image.title,
+            'description': image.source_image.description,
+        }
+    elif image.styled_image:
+        result['image']['styledImage'] = {
+            'artist': image.styled_image.style.artist,
+            'path': image.styled_image.style.image.get_path(),
+            'sourceImage': {
+                'imageId': image.styled_image.source_image.image_id,
+                'title': image.styled_image.source_image.title,
+            },
+            'title': image.styled_image.style.title,
+        }
+
     pprint(result)
     return jsonify(result)
 
@@ -591,6 +619,6 @@ def get_like_state_ajax():
 
 if __name__ == '__main__':
     app.debug = True
-    DebugToolbarExtension(app)
+    # DebugToolbarExtension(app)
     app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
     app.run()

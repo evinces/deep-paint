@@ -1,4 +1,4 @@
-#app {
+.bg-rainbow {
   background-image: url("/static/image/rainbow-01.svg");
   background-size: 1500px auto;
   background-repeat: repeat-y;
@@ -9,7 +9,7 @@
 .mt-6 {
   margin-top: 4rem!important;
 }
-a.btn {
+a.btn.bg-white {
   color: buttontext;
   background-color: buttonface;
 }
