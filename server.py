@@ -12,6 +12,8 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'tempkey'
 connect_to_db(app)
 
+USE_PRODUCTION = True
+
 
 # ========================================================================== #
 # Home / View routes
@@ -22,17 +24,19 @@ connect_to_db(app)
 def index():
     """Homepage"""
 
-    return render_template('main.html', view="landing")
+    return render_template('main.html', view="landing",
+                           production=USE_PRODUCTION)
 
 
 @app.route('/<view>', methods=['GET'])
 def show_view(view):
     """Generic view"""
 
-    if view not in ['about', 'feed', 'library', 'signup', 'user', ]:
+    if view not in ['about', 'feed', 'library', 'signup', 'user']:
         view = 'feed'
 
-    return render_template('main.html', view=view)
+    return render_template('main.html', view=view,
+                           production=USE_PRODUCTION)
 
 
 # ========================================================================== #
@@ -619,6 +623,9 @@ def get_like_state_ajax():
 
 if __name__ == '__main__':
     app.debug = True
-    # DebugToolbarExtension(app)
-    app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+
+    if not USE_PRODUCTION:
+        DebugToolbarExtension(app)
+        app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+
     app.run()

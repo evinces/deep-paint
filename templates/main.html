@@ -5,10 +5,11 @@
 {% endblock %}
 
 {% block script %}
-  <script type="text/jsx">
+  <script type="text/javascript">
     ReactDOM.render(
-      <App loggedInAs="{{- session.get('userId') -}}"
-           view="{{ view }}" />,
+      React.createElement(App, {
+        loggedInAs: "{{ session.get('userId') }}",
+        view: "{{ view }}" }),
       document.querySelector("#root")
     );
   </script>

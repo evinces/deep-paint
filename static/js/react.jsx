@@ -1647,6 +1647,7 @@ class StyleView extends React.Component {
         console.log(r);
       }
     });
+
   }
   setLoading = (isLoading) => {
     this.setState({
@@ -1771,7 +1772,7 @@ class App extends React.Component {
     });
 
     if (view === "landing") {
-      history.pushState({}, view, "");
+      history.pushState({}, view, "/");
     } else {
       history.pushState({}, view, view);
     }

@@ -4,13 +4,14 @@ testdb/
 *.pyc
 logfile
 
-fast-style-transfer/models/*
-fast-style-transfer/styles/*
-fast-style-transfer/source-images/*
-static/image/*
+fast-style-transfer/models/
+fast-style-transfer/styles/
+fast-style-transfer/source-images/
+static/image/
 htmlcov/
-in/*
-out/*
+node_modules/
+in/
+out/
 *.ckpt
 *.mat
 .coverage*
