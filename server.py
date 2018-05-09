@@ -5,11 +5,13 @@ from flask import (Flask, render_template, redirect, request, session, flash,
 from model import (User, Image, SourceImage, StyledImage, Style, Like, db,
                    connect_to_db)
 from flask_debugtoolbar import DebugToolbarExtension
-from pprint import pprint
+# from pprint import pprint
+import os
+
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'tempkey'
+app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 connect_to_db(app)
 
 USE_PRODUCTION = True
@@ -154,10 +156,10 @@ def upload_image():
         flash('Disallowed file type.', 'danger')
         return redirect('/')
 
-    source_image = SourceImage.create(image_file, user, title, description)
+    SourceImage.create(image_file, user, title, description)
     flash('Image uploaded successfully', 'info')
 
-    print '-----> /upload -> ', source_image
+    # print '-----> /upload -> ', source_image
     return redirect('/')
 
 
@@ -183,10 +185,10 @@ def process_style():
         image_id=int(source_image_id)).one_or_none()
     style = Style.query.get(int(style_id))
 
-    styled_image = StyledImage.create(source_image, style)
+    StyledImage.create(source_image, style)
     flash('Style applied successfully', 'info')
 
-    print '-----> /style -> ', styled_image
+    # print '-----> /style -> ', styled_image
     return redirect('/')
 
 
@@ -225,7 +227,7 @@ def get_user_ajax():
         result['user']['email'] = user.email
         result['user']['isPublic'] = user.pref_is_public
 
-    pprint(result)
+    # pprint(result)
     return jsonify(result)
 
 
@@ -254,7 +256,7 @@ def get_styles_ajax():
             'title': style.title,
         })
 
-    pprint(result)
+    # pprint(result)
     return jsonify(result)
 
 
@@ -303,7 +305,7 @@ def process_style_ajax_form():
         },
     }
 
-    pprint(result)
+    # pprint(result)
     return jsonify(result)
 
 
@@ -373,7 +375,7 @@ def get_images_ajax():
                 'title': image.styled_image.style.title,
             }
 
-    pprint(result)
+    # pprint(result)
     return jsonify(result)
 
 
@@ -420,7 +422,7 @@ def get_image_details_ajax():
             'title': image.styled_image.style.title,
         }
 
-    pprint(result)
+    # pprint(result)
     return jsonify(result)
 
 
@@ -506,7 +508,7 @@ def edit_image():
             'title': image.styled_image.style.title,
         }
 
-    pprint(result)
+    # pprint(result)
     return jsonify(result)
 
 
@@ -580,7 +582,7 @@ def toggle_like_state_ajax():
         },
     }
 
-    pprint(result)
+    # pprint(result)
     return jsonify(result)
 
 
@@ -613,7 +615,7 @@ def get_like_state_ajax():
         },
     }
 
-    pprint(result)
+    # pprint(result)
     return jsonify(result)
 
 
@@ -622,9 +624,9 @@ def get_like_state_ajax():
 # ========================================================================== #
 
 if __name__ == '__main__':
-    app.debug = True
 
     if not USE_PRODUCTION:
+        app.debug = True
         DebugToolbarExtension(app)
         app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
