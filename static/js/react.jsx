@@ -1436,24 +1436,17 @@ class AboutView extends React.Component {
             <h3 className="about-header" id="about-deep-paint">
               About DeepPaint
             </h3>
-            <p className="">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vehicula mauris sed metus aliquam hendrerit. Curabitur gravida finibus eros, eu imperdiet leo cursus tincidunt.
+            <p>
+              DeepPaint is an image-based social network developed around the core feature of neural network powered style-transfer. The project was originally concieved of as a student project for Hackbright Academy by engineering student, Estrella Vinces.
             </p>
-          </div>
-          <div className="card px-4 py-3 my-5">
-            <h3 className="about-header" id="about-tensorflow">
-              About Style Transfer
-            </h3>
-            <p className="">
-              Nulla vehicula placerat urna hendrerit aliquet. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus vitae nisi ac arcu interdum pellentesque vel ut enim.
+            <p>
+              The front-end was developed initially using Flask to render Jinja templates. Mid-way through the project, development on the front-end was redirected towards React. Over the following two weeks, the project front-end was entirely re-written as a single-page React app.
             </p>
-          </div>
-          <div className="card px-4 py-3 my-5">
-            <h3 className="about-header" id="about-author">
-              About the Author
-            </h3>
-            <p className="">
-              Aenean rhoncus eros sed porta mollis. Sed et erat ante. Aliquam at cursus nisl. Vivamus nec facilisis magna, non pretium quam. Nunc placerat fermentum rhoncus.
+            <p>
+              The back-end was developed with Flask-SQLAlchemy to connect to a PostgreSQL database server. Flask handles AJAX calls from React to connect with the database.
+            </p>
+            <p>
+              The style-transfer nerual network is based off of the work of Logan Engstrom's <a href="https://github.com/lengstrom/fast-style-transfer/">fast-style-transfer</a> project.
             </p>
           </div>
         </div>
