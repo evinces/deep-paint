@@ -1638,28 +1638,62 @@ class AboutView extends React.Component {
           React.createElement(
             "p",
             null,
-            "DeepPaint is an image-based social network developed around the core feature of neural network powered style-transfer. The project was originally concieved of as a student project for Hackbright Academy by engineering student, Estrella Vinces."
+            "DeepPaint is an image-based social network developed around the core feature of deep neural network powered style-transfer. The project was originally concieved of as a student project for Hackbright Academy by engineering student, Estrella Vinces."
           ),
           React.createElement(
             "p",
             null,
-            "The front-end was developed initially using Flask to render Jinja templates. Mid-way through the project, development on the front-end was redirected towards React. Over the following two weeks, the project front-end was entirely re-written as a single-page React app."
+            "The front-end was developed initially using Flask to render Jinja templates. Mid-way through the project, development on the front-end was redirected towards React. Over the following two weeks, the project front-end was entirely re-written as a single-page React app. The back-end was developed with Flask-SQLAlchemy to connect to a PostgreSQL database server. Flask handles AJAX calls from React to connect with the database."
           ),
           React.createElement(
             "p",
             null,
-            "The back-end was developed with Flask-SQLAlchemy to connect to a PostgreSQL database server. Flask handles AJAX calls from React to connect with the database."
-          ),
-          React.createElement(
-            "p",
-            null,
-            "The style-transfer nerual network is based off of the work of Logan Engstrom's ",
+            "The style-transfer feature is based off of the Tensorflow implementation by Logan Engstrom in ",
             React.createElement(
               "a",
               { href: "https://github.com/lengstrom/fast-style-transfer/" },
               "fast-style-transfer"
             ),
-            " project."
+            "."
+          )
+        ),
+        React.createElement(
+          "div",
+          { className: "card px-4 py-3 my-5" },
+          React.createElement(
+            "h3",
+            { className: "about-header", id: "about-deep-paint" },
+            "About the Author"
+          ),
+          React.createElement(
+            "h4",
+            null,
+            "Estrella Vinces"
+          ),
+          React.createElement(
+            "p",
+            null,
+            React.createElement(
+              "strong",
+              null,
+              "Portfolio"
+            ),
+            ": ",
+            React.createElement(
+              "a",
+              { href: "http://evinc.es" },
+              "evinc.es"
+            )
+          ),
+          React.createElement(
+            "p",
+            null,
+            React.createElement(
+              "strong",
+              null,
+              "Bio"
+            ),
+            ": Prior to starting with Hackbright Academy, Estrella had a long, successful career leading and developing Support teams in tech. Most recently, she held the role of Systems Support Engineer at Samsara, an IoT start-up, where she fine-tuned her skills in diagnosing and debugging issues across hardware, cloud software, and mobile platforms. Preceding that, she worked with the prominent video game reseller, Humble Bundle, where she was the Project Manager for the company's ever-growing Support team. Looking forward, she is excited to apply the skills she has developed in her past career and focus them alongside her passion for Machine Learning towards a new role as a Full-Stack Software Engineer while continuing to foster her enthusiasm for learning."
           )
         )
       )
