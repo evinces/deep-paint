@@ -1,9 +1,9 @@
 .bg-rainbow {
-  background-image: url("/static/image/rainbow-01.svg");
+  background-image: url("/static/image/vertical-color-rainbow.jpg");
   background-size: 1500px auto;
   background-repeat: repeat-y;
   background-position: top;
-  background-color: #fff;
+  background-color: #f1f1f7;
 }
 
 .mt-6 {
