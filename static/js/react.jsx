@@ -76,9 +76,7 @@ class LikeButton extends React.Component {
       "isLiked": false,
       "likeCount": 0
     };
-    if (this.props.loggedInAs !== null) {
-      this.setLikeState("/ajax/get-like-state.json");
-    }
+    this.setLikeState("/ajax/get-like-state.json");
   }
   toggleLike = () => {
     if (this.props.loggedInAs !== null) {
@@ -89,7 +87,7 @@ class LikeButton extends React.Component {
     fetch(url, {
       body: JSON.stringify({
         "imageId": this.props.image.imageId,
-        "userId": this.props.loggedInAs,
+        "userId": (this.props.loggedInAs ? this.props.loggedInAs : null),
       }),
       credentials: "same-origin",
       headers: new Headers({

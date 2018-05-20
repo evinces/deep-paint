@@ -595,17 +595,16 @@ def get_like_state_ajax():
     image_id = ajax.get('imageId')
     if image_id is None:
         return jsonify({'message': 'no image part'})
-    user_id = session.get('userId')
-    if user_id is None:
-        return jsonify({'message': 'no user part'})
     image = Image.query.get(image_id)
     if image is None:
         return jsonify({'message': 'image not found'})
-    user = User.query.get(user_id)
-    if user is None:
-        return jsonify({'message': 'user not found'})
 
-    like = Like.query.filter_by(user=user, image=image).one_or_none()
+    like = None
+    user_id = session.get('userId')
+    if user_id is not None:
+        user = User.query.get(user_id)
+        like = Like.query.filter_by(user=user, image=image).one_or_none()
+
     like_count = len(Like.query.filter_by(image=image).all())
 
     result = {

@@ -70,16 +70,14 @@ class LikeButton extends React.Component {
     super(props);
 
     this.toggleLike = () => {
-      if (this.props.loggedInAs !== null) {
-        this.setLikeState("/ajax/toggle-like-state.json");
-      }
+      this.setLikeState("/ajax/toggle-like-state.json");
     };
 
     this.setLikeState = url => {
       fetch(url, {
         body: JSON.stringify({
           "imageId": this.props.image.imageId,
-          "userId": this.props.loggedInAs
+          "userId": (this.props.loggedInAs ? this.props.loggedInAs : null)
         }),
         credentials: "same-origin",
         headers: new Headers({
@@ -102,13 +100,16 @@ class LikeButton extends React.Component {
       "isLiked": false,
       "likeCount": 0
     };
-    if (this.props.loggedInAs !== null) {
-      this.setLikeState("/ajax/get-like-state.json");
-    }
+    this.setLikeState("/ajax/get-like-state.json");
   }
 
   render() {
-    let iconClass = this.state.isLiked ? "oi-heart text-danger" : "oi-heart";
+    let iconClass = "oi-heart";
+    if (!this.props.loggedInAs) {
+      iconClass += " text-muted"
+    } else if (this.state.isLiked) {
+      iconClass += " text-danger"
+    }
     let name = this.state.isLiked ? "unlike" : "like";
     return React.createElement(ImageButton, { badge: this.state.likeCount, iconClass: iconClass,
       image: this.props.image, name: name,
