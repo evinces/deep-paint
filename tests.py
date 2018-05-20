@@ -129,7 +129,7 @@ class ModelImageTests(AbstractModelTests):
     def test_image_creation_no_user(self):
         print '- test_image_creation_no_user'
         image_file = FileStorage(stream=open(
-            'fast-style-transfer/source-images/cape-flattery.jpg'))
+            'fast_style_transfer/source-images/cape-flattery.jpg'))
         image = Image.create(image_file)
         self.assertEqual(image.image_id, 9)
         self.assertIsInstance(image, Image)
@@ -141,7 +141,7 @@ class ModelImageTests(AbstractModelTests):
     def test_image_creation_with_user(self):
         print '- test_image_creation_with_user'
         image_file = FileStorage(stream=open(
-            'fast-style-transfer/source-images/cape-flattery.jpg'))
+            'fast_style_transfer/source-images/cape-flattery.jpg'))
         user = User.query.get(1)
         image = Image.create(image_file, user)
         self.assertEqual(image.user_id, 1)
@@ -196,7 +196,7 @@ class ModelSourceImageTests(AbstractModelTests):
     def test_source_image_creation(self):
         print '- test_source_image_creation'
         image_file = FileStorage(stream=open(
-            'fast-style-transfer/source-images/cape-flattery.jpg'))
+            'fast_style_transfer/source-images/cape-flattery.jpg'))
         user = User.query.get(1)
         source_image = SourceImage.create(image_file, user, 'title',
                                           'description')
@@ -279,7 +279,7 @@ class ModelTFModelTests(AbstractModelTests):
     def test_tf_model_repr(self):
         print '- test_tf_model_repr'
         self.assertEqual(repr(self.tf_model),
-                         '<TFModel tf_model_id=1 title="fast-style-transfer">')
+                         '<TFModel tf_model_id=1 title="fast_style_transfer">')
         print '+ passed'
 
 
@@ -295,9 +295,9 @@ class ModelStyleTests(AbstractModelTests):
     def test_style_creation(self):
         print '- test_style_creation'
         style_file = FileStorage(stream=open(
-            'fast-style-transfer/styles/muse.ckpt'))
+            'fast_style_transfer/styles/muse.ckpt'))
         image_file = FileStorage(stream=open(
-            'fast-style-transfer/styles/muse.jpg'))
+            'fast_style_transfer/styles/muse.jpg'))
         tf_model = TFModel.query.get(1)
         style = Style.create(style_file, image_file, tf_model, 'title',
                              'artist', 'description')

@@ -7,9 +7,7 @@ from PIL import Image as PILImage
 from time import time
 from werkzeug.security import generate_password_hash, check_password_hash
 
-import sys
-sys.path.insert(0, 'fast-style-transfer')
-from evaluate import ffwd_to_img
+from fast_style_transfer.evaluate import ffwd_to_img
 
 db = SQLAlchemy()
 

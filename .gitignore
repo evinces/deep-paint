@@ -4,9 +4,9 @@ testdb/
 *.pyc
 logfile
 
-fast-style-transfer/models/
-fast-style-transfer/styles/
-fast-style-transfer/source-images/
+fast_style_transfer/models/
+fast_style_transfer/styles/
+fast_style_transfer/source-images/
 static/image/
 htmlcov/
 node_modules/
