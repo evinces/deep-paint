@@ -322,6 +322,8 @@ def get_images_ajax():
     offset = ajax.get('offset')
     order_by_date = ajax.get('orderByDate')
     user_id = ajax.get('userId')
+    this_user = ajax.get('loggedInAs')
+    print ajax
 
     images = Image.query.filter(
         db.or_(Image.source_image != None,
@@ -349,8 +351,10 @@ def get_images_ajax():
     for image in images:
         result['count'] += 1
         result['images'].append({
-            'imageId': image.image_id,
             'createdAt': image.created_at.strftime('%b %d, %Y'),
+            'imageId': image.image_id,
+            'isLiked': False,
+            'likeCount': len(image.likes),
             'path': image.get_path(),
             'user': {
                 'userId': image.user.user_id,
@@ -374,6 +378,9 @@ def get_images_ajax():
                 },
                 'title': image.styled_image.style.title,
             }
+        if this_user:
+            is_liked = int(this_user) in [like.user_id for like in image.likes]
+            result['images'][-1]['isLiked'] = is_liked
 
     # pprint(result)
     return jsonify(result)
@@ -573,38 +580,6 @@ def toggle_like_state_ajax():
         return jsonify({'message': 'user not found'})
 
     like = Like.toggle(user, image)
-    like_count = len(Like.query.filter_by(image=image).all())
-
-    result = {
-        'like': {
-            'isLiked': like is not None,
-            'likeCount': like_count,
-        },
-    }
-
-    # pprint(result)
-    return jsonify(result)
-
-
-@app.route('/ajax/get-like-state.json', methods=['POST'])
-def get_like_state_ajax():
-    """Get the Like state for an image for the logged in user"""
-
-    ajax = request.get_json()
-
-    image_id = ajax.get('imageId')
-    if image_id is None:
-        return jsonify({'message': 'no image part'})
-    image = Image.query.get(image_id)
-    if image is None:
-        return jsonify({'message': 'image not found'})
-
-    like = None
-    user_id = session.get('userId')
-    if user_id is not None:
-        user = User.query.get(user_id)
-        like = Like.query.filter_by(user=user, image=image).one_or_none()
-
     like_count = len(Like.query.filter_by(image=image).all())
 
     result = {

@@ -70,14 +70,16 @@ class LikeButton extends React.Component {
     super(props);
 
     this.toggleLike = () => {
-      this.setLikeState("/ajax/toggle-like-state.json");
+      if (this.props.loggedInAs !== null) {
+        this.setLikeState("/ajax/toggle-like-state.json");
+      }
     };
 
     this.setLikeState = url => {
       fetch(url, {
         body: JSON.stringify({
           "imageId": this.props.image.imageId,
-          "userId": (this.props.loggedInAs ? this.props.loggedInAs : null)
+          "userId": this.props.loggedInAs ? this.props.loggedInAs : null
         }),
         credentials: "same-origin",
         headers: new Headers({
@@ -97,18 +99,17 @@ class LikeButton extends React.Component {
     };
 
     this.state = {
-      "isLiked": false,
-      "likeCount": 0
+      "isLiked": this.props.image.isLiked,
+      "likeCount": this.props.image.likeCount
     };
-    this.setLikeState("/ajax/get-like-state.json");
   }
 
   render() {
     let iconClass = "oi-heart";
     if (!this.props.loggedInAs) {
-      iconClass += " text-muted"
+      iconClass += " text-muted";
     } else if (this.state.isLiked) {
-      iconClass += " text-danger"
+      iconClass += " text-danger";
     }
     let name = this.state.isLiked ? "unlike" : "like";
     return React.createElement(ImageButton, { badge: this.state.likeCount, iconClass: iconClass,
@@ -1715,7 +1716,8 @@ class FeedView extends React.Component {
       limit: 50,
       offset: null,
       orderByDate: "desc",
-      userId: null
+      userId: null,
+      loggedInAs: this.props.loggedInAs
     }).then(r => {
       if (r.count > 0) {
         let cardList = this.state.cardList.concat(r.images.map(image => React.createElement(FeedCard, { image: image, key: image.imageId,
@@ -1850,7 +1852,8 @@ class LibraryView extends React.Component {
       limit: null,
       offset: null,
       orderByDate: "desc",
-      userId: this.props.focusUser ? this.props.focusUser.userId : this.props.loggedInAs
+      userId: this.props.focusUser ? this.props.focusUser.userId : this.props.loggedInAs,
+      loggedInAs: this.props.loggedInAs
     }).then(r => {
       if (r.count > 0) {
         let cardList = this.state.cardList.concat(r.images.map(image => React.createElement(LibraryCard, { image: image, key: image.imageId,

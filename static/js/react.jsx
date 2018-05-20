@@ -73,10 +73,9 @@ class LikeButton extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      "isLiked": false,
-      "likeCount": 0
+      "isLiked": this.props.image.isLiked,
+      "likeCount": this.props.image.likeCount,
     };
-    this.setLikeState("/ajax/get-like-state.json");
   }
   toggleLike = () => {
     if (this.props.loggedInAs !== null) {
@@ -108,7 +107,12 @@ class LikeButton extends React.Component {
     });
   }
   render() {
-    let iconClass = (this.state.isLiked ? "oi-heart text-danger" : "oi-heart");
+    let iconClass = "oi-heart";
+    if (!this.props.loggedInAs) {
+      iconClass += " text-muted";
+    } else if (this.state.isLiked) {
+      iconClass += " text-danger";
+    }
     let name = (this.state.isLiked ? "unlike" : "like");
     return (
       <ImageButton badge={this.state.likeCount} iconClass={iconClass}
@@ -1462,6 +1466,7 @@ class FeedView extends React.Component {
       offset: null,
       orderByDate: "desc",
       userId: null,
+      loggedInAs: this.props.loggedInAs,
     })
     .then(r => {
       if (r.count > 0) {
@@ -1557,7 +1562,8 @@ class LibraryView extends React.Component {
       orderByDate: "desc",
       userId: (this.props.focusUser ?
                this.props.focusUser.userId :
-               this.props.loggedInAs)
+               this.props.loggedInAs),
+      loggedInAs: this.props.loggedInAs,
     })
     .then(r => {
       if (r.count > 0) {
