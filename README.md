@@ -14,7 +14,7 @@ This project is a full-stack web app that leverages multiple technologies and fr
 
 On the back-end, this project was written in **Python 2.7** using **Flask** as the web framework, then **Flask-SQLAlchemy** as the ORM to connect to a **PostgreSQL** database. The style-transfer neural network was built using **Tensorflow**. Prior to getting started, you'll need to make sure you have Python 2.7, and PostgreSQL installed.
 
-I built this project on **macOS High Sierra 10.13.4**, so instructions are written with that OS. If you are running Linux of Windows, your installation steps will be slightly different.
+I built this project on **macOS High Sierra 10.13.4**, so instructions are written with that OS. If you are running Linux or Windows, your installation steps will be slightly different.
 
 For those of you using macOS, I highly recommend using `brew` to get started.
 
