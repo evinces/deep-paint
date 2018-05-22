@@ -44,26 +44,46 @@ $ brew services start postgresql
 
 ## Installing
 
-1. Create a virtual environment.
+1. Clone this repo and cd into it.
 ```
-$ virtualenv env
+$ git clone https://github.com/evinces/deep-paint.git
+$ cd deep-paint
 ```
 
-2. Install the required python packages. I've included a pip freeze dump: `requirements.txt`.
+2. Create a virtual environment and activate it.
+```
+$ virtualenv env
+$ . env/bin/activate
+```
+
+3. Install the required python packages. I've included a pip freeze dump: `requirements.txt`.
 ```
 $ pip install -r requirements.txt
 ```
 
-3. Create the postgres databases.
+4. Create the secrets.sh file and run it.
+```
+$ echo "export SECRET_KEY='<fill-with-a-secret-key>'" > secrets.sh
+$ . secrets.sh
+```
+
+4. Create the postgres databases.
 ```
 $ createdb deep-paint
 $ createdb deep-paint-testing
 ```
 
-4. Seed the starting data. Download the seed files [here](https://drive.google.com/file/d/1PdZL5JXdtsdnYMHjc-S36vb3shFrycUx/view?usp=sharing). Extract the archive to the project directory, then run seed.py to populate the db.
+5. Seed the starting data. Download the seed files [here](https://drive.google.com/file/d/1PdZL5JXdtsdnYMHjc-S36vb3shFrycUx/view?usp=sharing). Extract the archive to the project directory, then run seed.py to populate the db.
 ```
 $ python seed.py
 ```
+
+6. Launch the server.
+```
+$ python server.py
+```
+
+7. Navigate to http://localhost:5000 in a browser window.
 
 ## Deploying
 
@@ -86,6 +106,7 @@ $ pg_dump deep-paint > deep-paint.sql
 ```
 **On server**:
 ```
+$ createdb deep-paint
 $ psql deep-paint < deep-paint.sql
 ```
 
